@@ -60,7 +60,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 
 		CreateScheduleResponse response = null;
 		
-		// extract body from incoming HTTP POST request. If any error, then return 422 error
+		//extract body from incoming HTTP POST request. If any error, then return 422 error
 		String body;
 		boolean processed = false;
 		try {
