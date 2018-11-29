@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.sql.Date;
+import java.util.UUID;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -19,35 +21,23 @@ import com.google.gson.Gson;
 import com.amazonaws.db.SchedulesDAO;
 import com.amazonaws.model.Schedule;
 
-import java.sql.Date;
-import java.util.UUID;
+public class GetScheduleHandler implements RequestStreamHandler {
 
-public class CreateScheduleHandler implements RequestStreamHandler {
-
-	public LambdaLogger logger = null;
+public LambdaLogger logger = null;
+int httpCode;
+SchedulesDAO dao = new SchedulesDAO();
 	
-	String lastID;
-	
-	boolean createSchedule(String name, int startTime, int endTime, int delta, Date startDate, Date endDate) throws Exception {
+	Schedule getSchedule(String id) throws Exception {
 		if (logger != null) { logger.log("in createSchedule"); }
-		SchedulesDAO dao = new SchedulesDAO();
 		
-		//create unique schedule id
-		String id = UUID.randomUUID().toString().substring(0, 5);
-		lastID = id;
-		//create secret code
-		String sc = UUID.randomUUID().toString().substring(0, 8);
-		//create schedule
-		Schedule s = new Schedule(id, name, startTime, endTime, delta, startDate, endDate, sc);
-
-		return dao.addSchedule(s);
+		return dao.getSchedule(id);
 	}
 	
 	
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
-		logger.log("Loading Java Lambda handler to create schedule");
+		logger.log("Loading Java Lambda handler to get schedule");
 
 		JSONObject headerJson = new JSONObject();
 		headerJson.put("Content-Type",  "application/json");  // not sure if needed anymore?
@@ -57,7 +47,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 		JSONObject responseJson = new JSONObject();
 		responseJson.put("headers", headerJson);
 
-		CreateScheduleResponse response = null;
+		GetScheduleResponse response = null;
 		
 		//extract body from incoming HTTP POST request. If any error, then return 422 error
 		String body;
@@ -71,7 +61,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			String method = (String) event.get("httpMethod");
 			if (method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new CreateScheduleResponse("id", lastID, 200);  // OPTIONS needs a 200 response
+				response = new GetScheduleResponse("schedule", 200);  // OPTIONS needs a 200 response
 		        responseJson.put("body", new Gson().toJson(response));
 		        processed = true;
 		        body = null;
@@ -83,26 +73,29 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new CreateScheduleResponse("Bad Request:" + pe.getMessage(), lastID, 422);  // unable to process input
+			response = new GetScheduleResponse("Bad Request:" + pe.getMessage(), 422);  // unable to process input
 	        responseJson.put("body", new Gson().toJson(response));
 	        processed = true;
 	        body = null;
 		}
 
 		if (!processed) {
-			CreateScheduleRequest req = new Gson().fromJson(body, CreateScheduleRequest.class);
+			GetScheduleRequest req = new Gson().fromJson(body, GetScheduleRequest.class);
 			logger.log(req.toString());
 
-			CreateScheduleResponse resp;
+			GetScheduleResponse resp = null;
+			
 			try {
-				if (createSchedule(req.name, req.startTime, req.endTime, req.delta, req.startDate, req.endDate)) {
-					resp = new CreateScheduleResponse("Successfully created schedule.", lastID);
-				} else {
-					resp = new CreateScheduleResponse("Unable to create schedule", lastID, 422);
+				if(dao.checkExist(req.id)) {
+					resp = new GetScheduleResponse("schedule", getSchedule(req.id), 200);
+				}else {
+					resp = new GetScheduleResponse("could not find schedule", 400);
 				}
 			} catch (Exception e) {
-				resp = new CreateScheduleResponse("Unable to create schedule. (" + e.getMessage() + ")", lastID, 403);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
+			
 
 			// compute proper response
 	        responseJson.put("body", new Gson().toJson(resp));  
