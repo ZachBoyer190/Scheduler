@@ -22,7 +22,7 @@ public class SchedulesDAO {
 		
 		try {
 			Schedule schedule = null;
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Schedules WHERE name=?;");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE ID=?;");
 			ps.setString(1, scheduleID);
 			ResultSet resultSet = ps.executeQuery();
 			
@@ -43,7 +43,7 @@ public class SchedulesDAO {
 	@SuppressWarnings("deprecation")
 	public boolean addSchedule(Schedule schedule) throws Exception {
 		try {
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE name=?;");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE ID=?;");
 			ps.setString(1, schedule.scheduleID);
 			ResultSet resultSet = ps.executeQuery();
 			
@@ -74,6 +74,20 @@ public class SchedulesDAO {
 		} catch (Exception e) {
 			throw new Exception("Failed to insert new schedule: " + e.getMessage());
 		}
+	}
+	
+	public boolean deleteSchedule(Schedule schedule) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("DELETE FROM schedules WHERE ID=?;");
+			ps.setString(1, schedule.scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected==1);
+		} catch (Exception e) {
+			throw new Exception("Failed to delete desired schedule: " + e.getMessage());
+		}
+		
 	}
 	
 	private Schedule generateSchedule(ResultSet resultSet) throws Exception {
