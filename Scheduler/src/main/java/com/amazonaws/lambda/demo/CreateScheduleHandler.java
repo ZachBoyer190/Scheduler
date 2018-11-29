@@ -14,7 +14,7 @@ import org.json.simple.parser.ParseException;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
-//import com.google.gson.Gson;
+import com.google.gson.Gson;
 
 import com.amazonaws.db.SchedulesDAO;
 
@@ -23,7 +23,7 @@ import java.sql.Date;
 public class CreateScheduleHandler implements RequestStreamHandler {
 
 	public LambdaLogger logger = null;
-/*	
+	
 	boolean createSchedule(String name, int startTime, int endTime, int delta, Date startDate, Date endDate) throws Exception {
 		if (logger != null) { logger.log("in createSchedule"); }
 		SchedulesDAO dao = new SchedulesDAO(); //schedule dao (to be created)
@@ -31,9 +31,9 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 		//create unique schedule id
 		int id;
 		
-*/		
-//		return dao.addSchedule();
-//	}
+		
+		return dao.addSchedule();
+	}
 	
 	
 	@Override
