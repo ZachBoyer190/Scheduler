@@ -43,7 +43,7 @@ public class SchedulesDAO {
 	@SuppressWarnings("deprecation")
 	public boolean addSchedule(Schedule schedule) throws Exception {
 		try {
-			PreparedStatement ps = conn.prepareStatement("SELECT * FROM Schedules WHERE name=?;");
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE name=?;");
 			ps.setString(1, schedule.scheduleID);
 			ResultSet resultSet = ps.executeQuery();
 			
@@ -54,18 +54,19 @@ public class SchedulesDAO {
 				return false;
 			}
 			
-			ps = conn.prepareStatement("INSERT INTO Schedules (Name, startTime, endTime, Delta, startDate, endDate, secretCode) values(?,?,?,?,?,?,?)");
-			ps.setString(1, schedule.name);
-			ps.setInt(2, schedule.startTime);
-			ps.setInt(3, schedule.endTime);
-			ps.setInt(4, schedule.slotDelta);
+			ps = conn.prepareStatement("INSERT INTO schedules (ID, Name, startTime, endTime, Delta, startDate, endDate, secretCode) values(?,?,?,?,?,?,?,?)");
+			ps.setString(1, schedule.scheduleID);
+			ps.setString(2, schedule.name);
+			ps.setInt(3, schedule.startTime);
+			ps.setInt(4, schedule.endTime);
+			ps.setInt(5, schedule.slotDelta);
 			
 			Date sqlStartDate = new Date(schedule.startDate.getYear(), schedule.startDate.getMonth(), schedule.startDate.getDay());
 			Date sqlEndDate = new Date(schedule.endDate.getYear(), schedule.endDate.getMonth(), schedule.endDate.getDay());
 
-			ps.setDate(5, sqlStartDate);
-			ps.setDate(6, sqlEndDate);
-			ps.setString(7, schedule.secretCode);
+			ps.setDate(6, sqlStartDate);
+			ps.setDate(7, sqlEndDate);
+			ps.setString(8, schedule.secretCode);
 			ps.execute();
 			
 			return true;
