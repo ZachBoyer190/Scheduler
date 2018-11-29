@@ -1,0 +1,85 @@
+<html lang="" xmlns="http://www.w3.org/1999/html">
+
+<head>
+<title> This is the organizer view </title>
+</head>
+
+
+<body onload="drawTableFromUrl()">
+<h1> Welcome Everyone </h1>
+<p> Use this page to view a schedule, edit a meeting, and edit the schedule.</p>
+
+<hr>
+
+
+    <p> Enter the schedule ID to see your schedule if it is not shown when the page is loaded </p>
+    <p> Schedule ID:
+        <input type="text" id="ScheduleID"/>
+        <input type="button" name="submitScheduleID" value="Submit" onclick="drawTableFromButton()"/>
+    </p>
+
+    <hr>
+
+    <h2 id="scheduleName"> </h2>
+
+    <fieldset>
+        <div>
+            <p id="weekTag"> </p>
+
+            <input type="button" name="leftArrow" value="<" onclick="showDifferentWeek(-1)"/>
+            <input type="button" name="rightArrow" value=">" onclick="showDifferentWeek(1)"/>
+        </div>
+        <table id="scheduleTable">
+            <tr>
+                <th> </th>
+                <th> </th>
+                <th> </th>
+                <th> </th>
+                <th> </th>
+                <th> </th>
+            </tr>
+
+            <tr>
+                <th> </th>
+                <th> Monday </th>
+                <th> Tuesday </th>
+                <th> Wednesday </th>
+                <th> Thursday </th>
+                <th> Friday </th>
+            </tr>
+        </table>
+        <p id="meetingCode"></p>
+    </fieldset>
+
+    <br />
+
+    <div>
+        <label> Secret Code to Edit Schedule:
+            <input type="password" id="secretCodeScheduleEdit" />
+            <input type="button" name="submitScheduleEditCode" value="Submit" onclick="checkEditAbility()"/>
+
+        </label>
+
+        <div id="scheduleEditOptions" style="visibility: hidden;">
+            <label> Select change you would like to make to the schedule
+                <select name="selectedEdit">
+                    <!-- TODO fill in options -->
+                </select>
+
+                <input type="button" name="submitScheduleEdit" value="Submit"/>
+                <!-- TODO create button function and make sure it checks to see if an option has been selected -->
+            </label>
+        </div>
+    </div>
+
+
+<p id="currentWeek" style="visibility: hidden"> 1 </p>
+<p id="totalWeeks" style="visibility: hidden"> 1 </p>
+</body>
+
+
+<script src="../Javascript/drawTable.js" type="application/javascript"></script>
+
+<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
+
+</html>

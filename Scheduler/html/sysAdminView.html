@@ -1,0 +1,105 @@
+
+<html>
+<head>
+<title> This is the organizer view </title>
+</head>
+<body>
+<h1> Welcome Organizers </h1>
+<p> Use this page to create a new schedule.</p>
+
+<form name="createCalendar" onSubmit="checkDate">
+    <fieldset>
+        <legend> Schedule starting information </legend>
+        <p> Schedule starting date: </p>
+        <input type="date" name="startingDate" required="required"/>
+
+        <p> Select starting schedule time </p>
+            <select name="startingTime" required="required">
+            <option value="00:00"> 00:00 </option>
+            <option value="01:00"> 01:00 </option>
+            <option value="02:00"> 02:00 </option>
+            <option value="03:00"> 03:00 </option>
+            <option value="04:00"> 04:00 </option>
+            <option value="05:00"> 05:00 </option>
+            <option value="06:00"> 06:00 </option>
+            <option value="07:00"> 07:00 </option>
+            <option value="08:00"> 08:00 </option>
+            <option value="09:00"> 09:00 </option>
+            <option value="10:00"> 10:00 </option>
+            <option value="11:00"> 11:00 </option>
+            <option value="12:00"> 12:00 </option>
+            <option value="13:00"> 13:00 </option>
+            <option value="14:00"> 14:00 </option>
+            <option value="15:00"> 15:00 </option>
+            <option value="16:00"> 16:00 </option>
+            <option value="17:00"> 17:00 </option>
+            <option value="18:00"> 18:00 </option>
+            <option value="19:00"> 19:00 </option>
+            <option value="20:00"> 20:00 </option>
+            <option value="21:00"> 21:00 </option>
+            <option value="22:00"> 22:00 </option>
+            <option value="23:00"> 23:00 </option>
+        </select>
+    </fieldset>
+
+    <fieldset>
+        <legend> Schedule ending information </legend>
+        <p> Schedule ending date: </p>
+        <input type="date" name="endingDate" required="required"/>
+
+        <p> Select ending schedule time </p>
+        <select name="endingTime" required="required">
+            <option value="00:00"> 00:00 </option>
+            <option value="01:00"> 01:00 </option>
+            <option value="02:00"> 02:00 </option>
+            <option value="03:00"> 03:00 </option>
+            <option value="04:00"> 04:00 </option>
+            <option value="05:00"> 05:00 </option>
+            <option value="06:00"> 06:00 </option>
+            <option value="07:00"> 07:00 </option>
+            <option value="08:00"> 08:00 </option>
+            <option value="09:00"> 09:00 </option>
+            <option value="10:00"> 10:00 </option>
+            <option value="11:00"> 11:00 </option>
+            <option value="12:00"> 12:00 </option>
+            <option value="13:00"> 13:00 </option>
+            <option value="14:00"> 14:00 </option>
+            <option value="15:00"> 15:00 </option>
+            <option value="16:00"> 16:00 </option>
+            <option value="17:00"> 17:00 </option>
+            <option value="18:00"> 18:00 </option>
+            <option value="19:00"> 19:00 </option>
+            <option value="20:00"> 20:00 </option>
+            <option value="21:00"> 21:00 </option>
+            <option value="22:00"> 22:00 </option>
+            <option value="23:00"> 23:00 </option>
+        </select>
+    </fieldset>
+
+    <p> Select length of each meeting in minutes</p>
+    <select name="meetingLength" required="required">
+        <option value="10"> 10 </option>
+        <option value="15"> 15 </option>
+        <option value="30"> 30 </option>
+        <option value="60"> 60 </option>
+    </select>
+
+    <br />
+    <br />
+
+    <input type="submit" value="Submit" />
+    </form>
+</body>
+  
+<script type="text/javascript">
+
+    function checkDate(){
+        const Http = new XMLHttpRequest();
+        const url = 'https://jsonplaceholder.typicode.com/posts';
+        Http.open("GET", url);
+        Http.send();
+        return null;
+    }
+</script>
+
+</html>
