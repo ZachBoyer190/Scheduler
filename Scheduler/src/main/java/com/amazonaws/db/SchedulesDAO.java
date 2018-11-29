@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.Schedule;
+import com.amazonaws.model.Schedule;
 
 public class SchedulesDAO {
 	
