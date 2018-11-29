@@ -39,8 +39,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 		String sc = UUID.randomUUID().toString().substring(0, 8);
 		//create schedule
 		Schedule s = new Schedule(id, name, startTime, endTime, delta, startDate, endDate, sc);
-		
-		
+
 		return dao.addSchedule(s);
 	}
 	
