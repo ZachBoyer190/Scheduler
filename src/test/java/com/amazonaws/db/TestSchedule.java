@@ -23,6 +23,8 @@ public class TestSchedule extends TestCase {
 			System.out.println("add schedule: " + id + " " + b);
 			
 			assertEquals(schedule.scheduleID, sd.getSchedule(id).scheduleID);
+			sd.deleteSchedule(schedule);
+			
 		} catch (Exception e){
 			fail ("couldn't add schedule: " + e.getMessage());
 		}
