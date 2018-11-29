@@ -44,17 +44,15 @@ function validateDaysOfWeek(){
 
 
     let sentObject = {
-        "newSchedule"
-    :
-        [
-            {"startDate": startDateValueString},
-            {"endDate": endingDateValueString},
-            {"startTime": startingTimeString},
-            {"endTIme": endingTimeString},
-            {"timeDelta": timeStep},
-            {"scheduleName": scheduleName}
-        ]
-    };
+        scheduleName : scheduleName,
+        startTime : startingTimeString,
+        endTIme : endingTimeString,
+        timeDelta : timeStep,
+        startDate : startDateValueString,
+        endDate : endingDateValueString
+        };
+
+    let sentObjectString = JSON.stringify(sentObject);
 
     $.post(requestURL, JSON.stringify(sentObject), function (data, status) {
 
