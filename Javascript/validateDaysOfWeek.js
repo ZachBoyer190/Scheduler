@@ -1,7 +1,7 @@
 let scheduleID = "12345";
 let scheduleEditCode = "12345";
 const errorCode = 300;
-const requestURL = 'https://jsonplaceholder.typicode.com/posts';
+const requestURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/createschedule';
 let redirectURL = "viewSchedule.html"
 
 
@@ -32,8 +32,8 @@ function validateDaysOfWeek(){
             return false;
     }
 
-    let startDateValueString = startDateValue.getTime();
-    let endingDateValueString = endingDateValue.getTime();
+    let startDateValueString = document.createCalendar.startingDate.value;
+    let endingDateValueString = document.createCalendar.endingDate.value;
 
 
     let startingTimeString = document.createCalendar.startingTime.value;
@@ -61,16 +61,14 @@ function validateDaysOfWeek(){
             return;
         }
 
-        // TODO uncomment this block once requests are being processed
-        /*
-        let newScheduleData = JSON.parse(data);
+        let newScheduleData = data;
 
-        scheduleID = newScheduleData.ID;
-        scheduleEditCode = newScheduleData.editCode;
-        */
+        scheduleID = newScheduleData.id;
+        scheduleEditCode = newScheduleData.secretCode;
+
 
         document.getElementById("showScheduleID").innerHTML = "Your schedule ID is: " + scheduleID;
-        document.getElementById("showScheduleEditCode").innerHTML = "Your schedule edit code is: " + scheduleEditCode;
+        document.getElementById("showScheduleEditCode").innerHTML = "Your secret schedule edit code is: " + scheduleEditCode;
 
         document.getElementById("redirectButton").style.visibility = "visible";
     });
