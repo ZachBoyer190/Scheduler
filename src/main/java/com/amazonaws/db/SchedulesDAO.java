@@ -103,5 +103,23 @@ public class SchedulesDAO {
 		return new Schedule (scheduleID, name, startTime, endTime, delta, startDate, endDate, secretCode);
 		
 	}
-
+	
+	public boolean checkExist(String scheduleID) throws Exception {
+		
+		try {
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE ID=?;");
+			ps.setString(1, scheduleID);
+			ResultSet resultSet = ps.executeQuery();
+			
+			while (resultSet.next()) {
+				return true;
+			}
+			
+			return false;
+			
+		} catch (Exception e) {
+			throw new Exception ("Failed to check if schedule exists: " + e.getMessage());
+		}
+	}
+	
 }

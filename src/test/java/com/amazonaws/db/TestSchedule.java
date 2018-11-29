@@ -46,6 +46,17 @@ public class TestSchedule extends TestCase {
 			fail("Couldn't delete schedule: " + e.getMessage());
 		}
 	}
-	
+
+	public void testExist() {
+		SchedulesDAO sd = new SchedulesDAO();
+		
+		try {
+			assertFalse(sd.checkExist("34567"));
+			
+		} catch (Exception e){
+			
+			fail("didnt work: " + e.getMessage());
+		}
+	}
 
 }
