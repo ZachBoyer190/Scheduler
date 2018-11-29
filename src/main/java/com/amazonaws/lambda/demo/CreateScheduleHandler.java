@@ -17,8 +17,10 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.google.gson.Gson;
 
 import com.amazonaws.db.SchedulesDAO;
+import com.amazonaws.model.Schedule;
 
 import java.sql.Date;
+import java.util.UUID;
 
 public class CreateScheduleHandler implements RequestStreamHandler {
 
@@ -26,13 +28,17 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 	
 	boolean createSchedule(String name, int startTime, int endTime, int delta, Date startDate, Date endDate) throws Exception {
 		if (logger != null) { logger.log("in createSchedule"); }
-		SchedulesDAO dao = new SchedulesDAO(); //schedule dao (to be created)
+		SchedulesDAO dao = new SchedulesDAO();
 		
 		//create unique schedule id
-		int id;
+		String id = UUID.randomUUID().toString().substring(0, 5);
+		//create secret code
+		String sc = UUID.randomUUID().toString().substring(0, 8);
+		//create schedule
+		Schedule s = new Schedule(id, name, startTime, endTime, delta, startDate, endDate, sc);
 		
 		
-		return dao.addSchedule();
+		return dao.addSchedule(s);
 	}
 	
 	
@@ -70,7 +76,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			} else {
 				body = (String)event.get("body");
 				if (body == null) {
-					body = event.toJSONString();  // this is only here to make testing easier
+					body = event.toJSONString();  //this is only here to make testing easier
 				}
 			}
 		} catch (ParseException pe) {
