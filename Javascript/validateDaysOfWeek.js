@@ -32,8 +32,8 @@ function validateDaysOfWeek(){
             return false;
     }
 
-    let startDateValueString = document.createCalendar.startingDate.value;
-    let endingDateValueString = document.createCalendar.endingDate.value;
+    let startDateValueString = startDateValue.getTime();
+    let endingDateValueString = endingDateValue.getTime();
 
 
     let startingTimeString = document.createCalendar.startingTime.value;
@@ -44,17 +44,17 @@ function validateDaysOfWeek(){
 
 
     let sentObject = {
-        scheduleName : scheduleName,
+        name : scheduleName,
         startTime : startingTimeString,
         endTIme : endingTimeString,
-        timeDelta : timeStep,
+        delta : timeStep,
         startDate : startDateValueString,
         endDate : endingDateValueString
         };
 
     let sentObjectString = JSON.stringify(sentObject);
 
-    $.post(requestURL, JSON.stringify(sentObject), function (data, status) {
+    $.post(requestURL, sentObjectString, function (data, status) {
 
         if (status >= errorCode) {
             document.getElementById("errorString").innerHTML = "Schedule Could Not Be Created";
