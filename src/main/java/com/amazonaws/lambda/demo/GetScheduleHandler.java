@@ -83,12 +83,17 @@ SchedulesDAO dao = new SchedulesDAO();
 			GetScheduleRequest req = new Gson().fromJson(body, GetScheduleRequest.class);
 			logger.log(req.toString());
 
-			GetScheduleResponse resp;
+			GetScheduleResponse resp = null;
 			
-			if(dao.checkExist(req.id)) {
-				resp = new GetScheduleResponse("schedule", getSchedule(req.id), 200);
-			}else {
-				resp = new GetScheduleResponse("could not find schedule", 400);
+			try {
+				if(dao.checkExist(req.id)) {
+					resp = new GetScheduleResponse("schedule", getSchedule(req.id), 200);
+				}else {
+					resp = new GetScheduleResponse("could not find schedule", 400);
+				}
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 
