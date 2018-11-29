@@ -1,3 +1,10 @@
+let scheduleID = "12345";
+let scheduleEditCode = "12345";
+const errorCode = 300;
+const requestURL = 'https://jsonplaceholder.typicode.com/posts';
+let redirectURL = "viewSchedule.html"
+
+
 function validateDaysOfWeek(){
 
     let startDateValue = new Date(document.createCalendar.startingDate.value);
@@ -47,19 +54,34 @@ function validateDaysOfWeek(){
             {"timeDelta": timeStep},
             {"scheduleName": scheduleName}
         ]
-    }
-    ;
+    };
 
-    let url = 'https://jsonplaceholder.typicode.com/posts';
-    $.post(url,JSON.stringify(sentObject),function(data,status){
-        let newScheduleID = data;
+    $.post(requestURL, JSON.stringify(sentObject), function (data, status) {
 
-        let redirectURL = "viewSchedule.html";
+        if (status >= errorCode) {
+            document.getElementById("errorString").innerHTML = "Schedule Could Not Be Created";
+            return;
+        }
 
-        redirectURL = redirectURL + "?scheduleID=" + "12345";//+ newScheduleID;
+        // TODO uncomment this block once requests are being processed
+        /*
+        let newScheduleData = JSON.parse(data);
 
-        window.location.href = redirectURL;
+        scheduleID = newScheduleData.ID;
+        scheduleEditCode = newScheduleData.editCode;
+        */
+
+        document.getElementById("showScheduleID").innerHTML = "Your schedule ID is: " + scheduleID;
+        document.getElementById("showScheduleEditCode").innerHTML = "Your schedule edit code is: " + scheduleEditCode;
+
+        document.getElementById("redirectButton").style.visibility = "visible";
     });
 
-    document.getElementById("errorString").innerHTML = "Request Sent";
+}
+
+function redirectPage(){
+
+    redirectURL = redirectURL + "?scheduleID=" + scheduleID;
+
+    window.location.href = redirectURL;
 }
