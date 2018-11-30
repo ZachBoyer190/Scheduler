@@ -8,23 +8,31 @@ const dayRowIndex = 0;
 const numDaysInWeek = 7;
 const numMillisDay = 86400000;
 const startWeek = 1;
-const url = 'https://jsonplaceholder.typicode.com/posts';
+const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 let scheduleStartDate;
 let tableStartDate;
 
 // TODO comment this out once a response can be received from the server
-const storedScheduleObject = createScheduleObject();
+let storedScheduleObject = createScheduleObject();
 
 function drawTableFromUrl(){
     let param = getParameter();
 
-    if (param === ""){
+    // TODO FIX THIS FOR THE LOVE OF GOD
+    //if (param === ""){
+    if (false){
         return;
     }
-    param = "scheduleID=" + param;
-    $.get(url,param, function (data, status) {
+    param = {
+        scheduleID: param
+    }
+    $.post(url,JSON.stringify(param), function (data, status) {
+
+        if(status >= errorCode){
+            return;
+        }
         // TODO uncomment this once schedules can be taken from server
-        //const storedScheduleObject = data;
+        //storedScheduleObject = data;
         createTableFromObject();
     });
 
@@ -35,11 +43,17 @@ function drawTableFromButton() {
     if(inputID.length === 0){
         return;
     }
-    inputID = "scheduleID=" + inputID;
-    $.get(url,inputID, function (data, status) {
+    inputID = {
+        scheduleID: inputID
+    }
+    $.post(url,JSON.stringify(inputID), function (data, status) {
         document.getElementById("ScheduleID").value = "";
+
+        if(status >= errorCode){
+            return;
+        }
         // TODO uncomment this once schedules can be taken from server
-        //const storedScheduleObject = data;
+        storedScheduleObject = data;
         createTableFromObject();
     });
 
@@ -74,7 +88,7 @@ function createTableFromObject(){
 
 function fillTableWithEmptyCells(table){
     let numRows = ((storedScheduleObject.endTime-
-        storedScheduleObject.startTime)*6/10)/storedScheduleObject.deltaTime;
+        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotTime;
 
     for(let j = rowOffset; j < numRows+rowOffset; j++){
         let row = table.insertRow();
@@ -104,17 +118,17 @@ function generateDateString(startDate, index){
 
 function fillTimeColumn(htmlTable){
     let numRows = ((storedScheduleObject.endTime-storedScheduleObject.startTime)*6/10)
-        /storedScheduleObject.deltaTime;
+        /storedScheduleObject.slotTime;
     let hour = 60; // minutes
     let i;
     let currentTime = storedScheduleObject.startTime;
     for (i = rowOffset; i < numRows+rowOffset; i++) {
         let nonOffsetIndex = i -rowOffset;
         if (nonOffsetIndex !== 0) {
-            if (nonOffsetIndex % (hour/storedScheduleObject.deltaTime) === 0) {
-                currentTime += 40 + storedScheduleObject.deltaTime ;
+            if (nonOffsetIndex % (hour/storedScheduleObject.slotTime) === 0) {
+                currentTime += 40 + storedScheduleObject.slotTime ;
             } else {
-                currentTime += storedScheduleObject.deltaTime;
+                currentTime += storedScheduleObject.slotTime;
             }
         }
         htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter(currentTime.toString(),2,":");
@@ -132,9 +146,9 @@ function fillTimeSlots(htmlTable){
     let currentDates = getCurrentDates(htmlTable);
     let currentTimes = getCurrentTimes(htmlTable);
 
-    for(let k = 0; k < storedScheduleObject.timeSlots.length; k++){
+    for(let k = 0; k < storedScheduleObject.timeslots.length; k++){
 
-        let thisTimeSlot = storedScheduleObject.timeSlots[k];
+        let thisTimeSlot = storedScheduleObject.timeslots[k];
 
         let timeSlotDate = new Date(thisTimeSlot.date);
         let timeSlotTime = thisTimeSlot.time;
@@ -356,10 +370,10 @@ function createScheduleObject(){
         endDate: new Date("May 10, 2018"),
         startTime: 1000,
         endTime: 1100,
-        deltaTime: 20,
+        slotTime: 20,
         secretCode: "12345",
         name : "hi",
-        timeSlots: [
+        timeslots: [
             {
                 status: "closed",
                 time: "1000",
