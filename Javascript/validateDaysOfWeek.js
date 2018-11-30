@@ -35,18 +35,14 @@ function validateDaysOfWeek(){
     let startDateValueString = document.createCalendar.startingDate.value;
     let endingDateValueString = document.createCalendar.endingDate.value;
 
-
-    let startingTimeString = document.createCalendar.startingTime.value;
-    let endingTimeString = document.createCalendar.endingTime.value;
-
-    let timeStep = document.createCalendar.meetingLength.value;
+    let timeStep = parseInt(document.createCalendar.meetingLength.value);
     let scheduleName = document.getElementById("scheduleName").value;
 
 
     let sentObject = {
         name : scheduleName,
-        startTime : parseInt(startingTimeString),
-        endTIme : parseInt(endingTimeString),
+        startTime : startingTime,
+        endTime : endingTime,
         delta : timeStep,
         startDate : startDateValueString,
         endDate : endingDateValueString

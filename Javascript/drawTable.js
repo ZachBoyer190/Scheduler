@@ -490,7 +490,5 @@ function createScheduleObject(){
 
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
-    storedScheduleObject.startDate = new Date(storedScheduleObject.startDate);
-    storedScheduleObject.endDate = new Date(storedScheduleObject.endDate);
     return storedScheduleObject;
 }
