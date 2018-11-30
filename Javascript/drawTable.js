@@ -155,7 +155,7 @@ function fillTimeSlots(htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(thisTimeSlot.startDate);
+        let timeSlotDate = new Date(new Date(thisTimeSlot.startDate).setHours(-5));
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
@@ -227,7 +227,7 @@ function compareDates(date1, date2){
     let y = date2.getDay();
     let z = date1.getMonth();
     let w = date2.getMonth();
-    let condition1 = date1.getDay() === date2.getDay();
+    let condition1 = date1.getDate() === date2.getDate();
     let condition2 = date1.getMonth() === date2.getMonth();
     let condition3 = date1.getFullYear() === date2.getFullYear();
     return condition1 && condition2 && condition3;
