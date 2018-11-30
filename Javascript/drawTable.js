@@ -19,8 +19,7 @@ function drawTableFromUrl(){
     let param = getParameter();
 
     // TODO FIX THIS FOR THE LOVE OF GOD
-    //if (param === ""){
-    if (false){
+    /*if (param === ""){
         return;
     }
     param = {
@@ -34,7 +33,7 @@ function drawTableFromUrl(){
         // TODO uncomment this once schedules can be taken from server
         //storedScheduleObject = data;
         createTableFromObject();
-    });
+    });*/
 
 }
 
@@ -45,7 +44,7 @@ function drawTableFromButton() {
     }
     inputID = {
         scheduleID: inputID
-    }
+    };
     $.post(url,JSON.stringify(inputID), function (data, status) {
         document.getElementById("ScheduleID").value = "";
 
@@ -53,7 +52,7 @@ function drawTableFromButton() {
             return;
         }
         // TODO uncomment this once schedules can be taken from server
-        storedScheduleObject = data;
+        storedScheduleObject = JSON.parse(data).schedule;
         createTableFromObject();
     });
 
