@@ -357,10 +357,12 @@ function showDifferentWeek(step){
 
     let table = document.getElementById("scheduleTable");
     fillDateRow(table);
+    // TODO fix this to refill in the time column
     emptyTimeSlots(table);
     fillTimeSlots(table);
 }
 
+// TODO fix this so it empties the time column
 function emptyTimeSlots(table) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = colOffset; col < table.rows[row].cells.length; col++) {
