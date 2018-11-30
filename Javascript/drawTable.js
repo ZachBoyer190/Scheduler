@@ -51,6 +51,7 @@ function drawTableFromButton() {
         if(data.httpCode >= errorCode){
             return;
         }
+        emptyTimeSlots(document.getElementById("scheduleTable"));
         // TODO uncomment this once schedules can be taken from server
         storedScheduleObject = getScheduleFromResponse(data);
         createTableFromObject();
@@ -102,17 +103,22 @@ function fillDateRow(htmlTable){
     let j;
     for (j = 0; j < 5; j++){
         htmlTable.rows[dateRowIndex].cells[j+colOffset].innerHTML =
-            generateDateString(tableStartDate,j);
+            generateDateString(j);
     }
 }
 
-function generateDateString(startDate, index){
-    let currentDate = new Date(startDate);
+function generateDateString(index){
+    let currentDate = new Date(getTableDate());//new Date(startDate);
     currentDate.setDate(currentDate.getDate()+index);
-    let dayString = currentDate.getDate().toString();
+    let dayString = (currentDate.getDate()+1).toString();
     let monthString = (currentDate.getMonth()+1).toString();
     let yearString = currentDate.getFullYear().toString();
     return yearString + "-" + monthString + "-" + dayString ;
+}
+
+function getTableDate() {
+    return tableStartDate.getTime();
+
 }
 
 function fillTimeColumn(htmlTable){
@@ -149,7 +155,7 @@ function fillTimeSlots(htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(thisTimeSlot.startDate.slice(0,12));
+        let timeSlotDate = new Date(thisTimeSlot.startDate);
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
@@ -217,6 +223,10 @@ function getTimeSlotRow(time, currentTimes){
 }
 
 function compareDates(date1, date2){
+    let x = date1.getDay();
+    let y = date2.getDay();
+    let z = date1.getMonth();
+    let w = date2.getMonth();
     let condition1 = date1.getDay() === date2.getDay();
     let condition2 = date1.getMonth() === date2.getMonth();
     let condition3 = date1.getFullYear() === date2.getFullYear();
@@ -280,6 +290,7 @@ function initWeekShown() {
 
 function generateInitialTableStartDate() {
     let dayOfWeek = scheduleStartDate.getDay();
+
     if (dayOfWeek === 0) {
         let scheduleStartMillis = scheduleStartDate.getTime();
 
@@ -288,6 +299,7 @@ function generateInitialTableStartDate() {
         tableStartDate = new Date(newTableStartDate);
     } else {
         let scheduleStartMillis = scheduleStartDate.getTime();
+
         let newTableStartDate = (scheduleStartMillis - (dayOfWeek*numMillisDay)) + ((getCurrentWeekShown() - 1) * numDaysInWeek * numMillisDay);
 
         tableStartDate = new Date(newTableStartDate);
@@ -335,7 +347,8 @@ function showDifferentWeek(step){
     }
     editCurrentWeekShown(newWeek);
     updateWeekLabel();
-    generateNewTableStartDate(step*numDaysInWeek);
+    tableStartDate = new Date(tableStartDate.setDate(tableStartDate.getDate()+(step*numDaysInWeek)));
+    //generateNewTableStartDate(step*numDaysInWeek);
 
     let table = document.getElementById("scheduleTable");
     fillDateRow(table);
@@ -490,5 +503,7 @@ function createScheduleObject(){
 
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
+    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
+    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
