@@ -128,15 +128,20 @@ function fillTimeColumn(htmlTable){
     let i;
     let currentTime = storedScheduleObject.startTime;
     for (i = rowOffset; i < numRows+rowOffset; i++) {
-        let nonOffsetIndex = i -rowOffset;
+        let nonOffsetIndex = i - rowOffset;
         if (nonOffsetIndex !== 0) {
-            if (nonOffsetIndex % (hour/storedScheduleObject.slotDelta) === 0) {
-                currentTime += 40 + storedScheduleObject.slotDelta ;
+            if (nonOffsetIndex % (hour / storedScheduleObject.slotDelta) === 0) {
+                currentTime += 40 + storedScheduleObject.slotDelta;
             } else {
                 currentTime += storedScheduleObject.slotDelta;
             }
         }
-        htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter(currentTime.toString(),2,":");
+
+        let extraZero = "";
+        if (currentTime < 1000) {
+            extraZero = "0";
+        }
+        htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter((extraZero + currentTime.toString()), 2, ":");
     }
 }
 
