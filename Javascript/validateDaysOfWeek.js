@@ -45,8 +45,8 @@ function validateDaysOfWeek(){
 
     let sentObject = {
         name : scheduleName,
-        startTime : startingTimeString,
-        endTIme : endingTimeString,
+        startTime : parseInt(startingTimeString),
+        endTIme : parseInt(endingTimeString),
         delta : timeStep,
         startDate : startDateValueString,
         endDate : endingDateValueString

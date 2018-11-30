@@ -1,4 +1,4 @@
-
+const errorCode = 300;
 const rowOffset = 2;
 const numCol = 6;
 const colOffset = 1;
@@ -13,7 +13,7 @@ let scheduleStartDate;
 let tableStartDate;
 
 // TODO comment this out once a response can be received from the server
-let storedScheduleObject = createScheduleObject();
+let storedScheduleObject;
 
 function drawTableFromUrl(){
     let param = getParameter();
@@ -43,16 +43,16 @@ function drawTableFromButton() {
         return;
     }
     inputID = {
-        scheduleID: inputID
+        id: inputID
     };
     $.post(url,JSON.stringify(inputID), function (data, status) {
         document.getElementById("ScheduleID").value = "";
 
-        if(status >= errorCode){
+        if(data.httpCode >= errorCode){
             return;
         }
         // TODO uncomment this once schedules can be taken from server
-        storedScheduleObject = JSON.parse(data).schedule;
+        storedScheduleObject = getScheduleFromResponse(data);
         createTableFromObject();
     });
 
@@ -87,7 +87,7 @@ function createTableFromObject(){
 
 function fillTableWithEmptyCells(table){
     let numRows = ((storedScheduleObject.endTime-
-        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotTime;
+        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotDelta;
 
     for(let j = rowOffset; j < numRows+rowOffset; j++){
         let row = table.insertRow();
@@ -117,17 +117,17 @@ function generateDateString(startDate, index){
 
 function fillTimeColumn(htmlTable){
     let numRows = ((storedScheduleObject.endTime-storedScheduleObject.startTime)*6/10)
-        /storedScheduleObject.slotTime;
+        /storedScheduleObject.slotDelta;
     let hour = 60; // minutes
     let i;
     let currentTime = storedScheduleObject.startTime;
     for (i = rowOffset; i < numRows+rowOffset; i++) {
         let nonOffsetIndex = i -rowOffset;
         if (nonOffsetIndex !== 0) {
-            if (nonOffsetIndex % (hour/storedScheduleObject.slotTime) === 0) {
-                currentTime += 40 + storedScheduleObject.slotTime ;
+            if (nonOffsetIndex % (hour/storedScheduleObject.slotDelta) === 0) {
+                currentTime += 40 + storedScheduleObject.slotDelta ;
             } else {
-                currentTime += storedScheduleObject.slotTime;
+                currentTime += storedScheduleObject.slotDelta;
             }
         }
         htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter(currentTime.toString(),2,":");
@@ -149,8 +149,8 @@ function fillTimeSlots(htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(thisTimeSlot.date);
-        let timeSlotTime = thisTimeSlot.time;
+        let timeSlotDate = new Date(thisTimeSlot.startDate.slice(0,12));
+        let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
         let timeSlotRow = getTimeSlotRow(timeSlotTime, currentTimes);
@@ -164,15 +164,15 @@ function fillTimeSlots(htmlTable){
         let cell = htmlTable.rows[timeSlotRow].cells[timeSlotCol];
 
         switch(status){
-            case "open" :
+            case "OPEN" :
                 cell.appendChild(createOpenCell());
                 break;
 
-            case "closed" :
+            case "CLOSED" :
                 cell.innerHTML = status;
                 break;
 
-            case "booked" :
+            case "BOOKED" :
                 cell.appendChild(createBookedCell(thisTimeSlot));
                 break;
         }
@@ -193,14 +193,14 @@ function getCurrentTimes(htmlTable){
     let currentTimes = [];
     for (let n = 0; n < htmlTable.rows.length - rowOffset; n++) {
         let thisRow = htmlTable.rows[n + rowOffset];
-        currentTimes[n] = subtractColon(thisRow.cells[timeColIndex].innerHTML);
+        currentTimes[n] = parseInt(subtractColon(thisRow.cells[timeColIndex].innerHTML));
     }
     return currentTimes;
 }
 
 function getTimeSlotCol(date, currentDates){
     for (let g = 0; g < currentDates.length; g++) {
-        if (date.getTime() === currentDates[g].getTime()){
+        if (compareDates(date, currentDates[g])){
             return g + colOffset;
         }
     }
@@ -214,6 +214,13 @@ function getTimeSlotRow(time, currentTimes){
         }
     }
     return timeColIndex;
+}
+
+function compareDates(date1, date2){
+    let condition1 = date1.getDay() === date2.getDay();
+    let condition2 = date1.getMonth() === date2.getMonth();
+    let condition3 = date1.getFullYear() === date2.getFullYear();
+    return condition1 && condition2 && condition3;
 }
 
 function subtractColon(string) {
@@ -369,7 +376,7 @@ function createScheduleObject(){
         endDate: new Date("May 10, 2018"),
         startTime: 1000,
         endTime: 1100,
-        slotTime: 20,
+        slotDelta: 20,
         secretCode: "12345",
         name : "hi",
         timeslots: [
@@ -479,4 +486,11 @@ function createScheduleObject(){
             }
         ]
     };
+}
+
+function getScheduleFromResponse(data){
+    storedScheduleObject = data.schedule;
+    storedScheduleObject.startDate = new Date(storedScheduleObject.startDate);
+    storedScheduleObject.endDate = new Date(storedScheduleObject.endDate);
+    return storedScheduleObject;
 }
