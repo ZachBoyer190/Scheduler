@@ -4,11 +4,13 @@ public class CreateScheduleResponse {
 	String response;
 	String id;
 	int httpCode;
+	String secretCode;
 	
-	public CreateScheduleResponse (String s, String id, int code) {
+	public CreateScheduleResponse (String s, String id, int code, String secretCode) {
 		this.response = s;
 		this.id = id;
 		this.httpCode = code;
+		this.secretCode = secretCode;
 	}
 	
 	//200 means success

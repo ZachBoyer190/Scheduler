@@ -61,9 +61,9 @@ public class SchedulesDAO {
 			ps.setInt(4, schedule.endTime);
 			ps.setInt(5, schedule.slotDelta);
 			
-			Date sqlStartDate = new Date(schedule.startDate.getYear(), schedule.startDate.getMonth(), schedule.startDate.getDay());
-			Date sqlEndDate = new Date(schedule.endDate.getYear(), schedule.endDate.getMonth(), schedule.endDate.getDay());
-
+			Date sqlStartDate = new java.sql.Date(schedule.startDate.getTime());
+			Date sqlEndDate = new java.sql.Date(schedule.endDate.getTime());
+			
 			ps.setDate(6, sqlStartDate);
 			ps.setDate(7, sqlEndDate);
 			ps.setString(8, schedule.secretCode);

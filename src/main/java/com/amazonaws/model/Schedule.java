@@ -26,12 +26,30 @@ public class Schedule {
 		this.endDate = endDate;
 		this.secretCode = code;
 		
-		int numSlots = (minutes / delta) * (endTime - startTime);
+		int numSlots = (int) ((((double) endTime - (double)startTime)*0.6) / (double)delta);
+		
 		ArrayList<TimeSlot> slots = new ArrayList<>();
-		for (int i = 0; i <= numSlots; i++) {
-			int meetingSlotStart = startTime + (i*(delta/minutes));
-			int meetingSlotEnd = meetingSlotStart + (delta/minutes);
-			slots.add(new TimeSlot(null, meetingSlotStart, meetingSlotEnd, TimeSlotStatus.OPEN));
+		
+		for (long i = startDate.getTime(); i < endDate.getTime(); i += 86400000) {
+			
+			int currentTime = startTime;
+			
+			for (int j = 0; j < numSlots; j++) {
+				
+				if(j != 0) {
+					
+					if (j % (60/slotDelta) == 0) {
+						currentTime += 40 + slotDelta;
+					} else {
+						currentTime += slotDelta;
+						
+					}
+				}
+				
+				slots.add(new TimeSlot(null, currentTime, new Date(i), TimeSlotStatus.OPEN));
+				
+			}
+			
 		}
 		
 		this.timeslots = slots;
