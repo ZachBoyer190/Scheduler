@@ -30,7 +30,7 @@ public class Schedule {
 		
 		ArrayList<TimeSlot> slots = new ArrayList<>();
 		
-		for (long i = startDate.getTime(); i < endDate.getTime(); i += 86400000) {
+		for (long i = startDate.getTime(); i <= endDate.getTime(); i += 86400000) {
 			
 			int currentTime = startTime;
 			
