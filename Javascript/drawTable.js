@@ -91,8 +91,8 @@ function drawSchedule(table){
     emptyTimeSlots(table);
     updateWeekLabel();
     fillDateRow(table);
-    fillTimeColumn();
-    fillTimeSlots();
+    fillTimeColumn(table);
+    fillTimeSlots(table);
 }
 
 function initializeSchedule(table){
