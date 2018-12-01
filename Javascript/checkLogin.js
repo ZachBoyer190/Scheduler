@@ -36,11 +36,6 @@ function checkLogin(){
 
         });
     }
-
-
-
-
-
 }
 
 function deleteSchedulesFromButton(){
@@ -79,9 +74,6 @@ function getSchedulesFromButton(){
         if(data.httpCode >= errorCode){
             return;
         }
-
-
-
     });
 
 }

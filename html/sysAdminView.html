@@ -11,7 +11,7 @@
     <p> Username: <label for="username"></label><input id="username" type="text" required="required"/> </p>
     <p> Password: <label for="password"></label><input id="password" type="password" required="required"/></p>
 
-    <input type="button" value="Login" onclick="checkLogin()" />
+    <input type="button" value="Login" onclick="checkLogin()"/>
 </fieldset>
 
 <br />
@@ -22,7 +22,7 @@
         <input type="number" name="numberOfDays" required="required"/>
     </label> days old</p>
 
-    <input type="button" value="Delete" />
+    <input type="button" value="Delete" onclick="deleteSchedulesFromButton()"/>
 </fieldset>
 
 <p></p>
@@ -32,7 +32,7 @@
         <input type="number" name="numberOfDays" required="required"/>
     </label> hours</p>
 
-    <input type="button" value="Retrieve" />
+    <input type="button" value="Retrieve" onclick="getSchedulesFromButton()" />
 </fieldset>
 
 <p id="errorString">  </p>
