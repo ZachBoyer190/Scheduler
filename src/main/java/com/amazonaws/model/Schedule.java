@@ -2,10 +2,12 @@ package com.amazonaws.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.UUID;
+
+import com.amazonaws.db.TimeSlotsDAO;
 
 public class Schedule {
 	public final ArrayList<TimeSlot> timeslots;
-	final int minutes = 60;
 	
 	public final String scheduleID;
 	public final String name;
@@ -15,6 +17,8 @@ public class Schedule {
 	public final Date startDate;
 	public final Date endDate;
 	public final String secretCode;
+	
+	TimeSlotsDAO timeslotDAO = new TimeSlotsDAO();
 	
 	public Schedule (String id, String name, int startTime, int endTime, int delta, Date startDate, Date endDate, String code) {
 		this.scheduleID = id;
@@ -45,9 +49,8 @@ public class Schedule {
 						
 					}
 				}
-				
-				slots.add(new TimeSlot(null, currentTime, new Date(i), TimeSlotStatus.OPEN));
-				
+				String slotID = UUID.randomUUID().toString().substring(0, 5);
+				slots.add(new TimeSlot(slotID, this, startTime, startDate, TimeSlotStatus.OPEN));	
 			}
 			
 		}

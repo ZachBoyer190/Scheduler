@@ -6,12 +6,14 @@ import java.util.Date;
 import junit.framework.TestCase;
 
 import com.amazonaws.model.Schedule;
+import com.amazonaws.model.TimeSlot;
 
 public class TestSchedule extends TestCase {
 	
 	@SuppressWarnings("deprecation")
 	public void testCreate() {
 		SchedulesDAO sd = new SchedulesDAO();
+		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
 			String id = UUID.randomUUID().toString().substring(0, 5);
@@ -25,6 +27,10 @@ public class TestSchedule extends TestCase {
 			assertEquals(schedule.scheduleID, sd.getSchedule(id).scheduleID);
 			sd.deleteSchedule(schedule);
 			
+			for(TimeSlot t: schedule.timeslots) {
+				td.deleteTimeSlot(t);
+			}
+			
 		} catch (Exception e){
 			fail ("couldn't add schedule: " + e.getMessage());
 		}
@@ -33,6 +39,7 @@ public class TestSchedule extends TestCase {
 	@SuppressWarnings("deprecation")
 	public void testDelete() {
 		SchedulesDAO sd = new SchedulesDAO();
+		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
 			String id = UUID.randomUUID().toString().substring(0, 5);
@@ -44,11 +51,17 @@ public class TestSchedule extends TestCase {
 			System.out.println("add schedule: " + id + " " + b);
 			
 			assertTrue(sd.deleteSchedule(schedule));
+			
+			for(TimeSlot t: schedule.timeslots) {
+				td.deleteTimeSlot(t);
+			}
+			
 		} catch (Exception e) {
 			fail("Couldn't delete schedule: " + e.getMessage());
 		}
 	}
 
+	/*
 	public void testExist() {
 		SchedulesDAO sd = new SchedulesDAO();
 		
@@ -60,5 +73,6 @@ public class TestSchedule extends TestCase {
 			fail("didnt work: " + e.getMessage());
 		}
 	}
+	*/
 
 }

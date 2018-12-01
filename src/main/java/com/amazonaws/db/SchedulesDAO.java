@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.amazonaws.model.Schedule;
+import com.amazonaws.model.TimeSlot;
 
 public class SchedulesDAO {
 	
@@ -68,6 +69,12 @@ public class SchedulesDAO {
 			ps.setDate(7, sqlEndDate);
 			ps.setString(8, schedule.secretCode);
 			ps.execute();
+			ps.close();
+			
+			TimeSlotsDAO timeslots = new TimeSlotsDAO();
+			for (TimeSlot t: schedule.timeslots) {
+				timeslots.addTimeSlot(t);
+			}
 			
 			return true;
 			
