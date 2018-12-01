@@ -1,3 +1,10 @@
+let scheduleID = "12345";
+let scheduleEditCode = "12345";
+const errorCode = 300;
+const requestURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/createschedule';
+let redirectURL = "viewSchedule.html"
+
+
 function validateDaysOfWeek(){
 
     let startDateValue = new Date(document.createCalendar.startingDate.value);
@@ -28,38 +35,45 @@ function validateDaysOfWeek(){
     let startDateValueString = document.createCalendar.startingDate.value;
     let endingDateValueString = document.createCalendar.endingDate.value;
 
-
-    let startingTimeString = document.createCalendar.startingTime.value;
-    let endingTimeString = document.createCalendar.endingTime.value;
-
-    let timeStep = document.createCalendar.meetingLength.value;
+    let timeStep = parseInt(document.createCalendar.meetingLength.value);
     let scheduleName = document.getElementById("scheduleName").value;
 
 
     let sentObject = {
-        "newSchedule"
-    :
-        [
-            {"startDate": startDateValueString},
-            {"endDate": endingDateValueString},
-            {"startTime": startingTimeString},
-            {"endTIme": endingTimeString},
-            {"timeDelta": timeStep},
-            {"scheduleName": scheduleName}
-        ]
-    }
-    ;
+        name : scheduleName,
+        startTime : startingTime,
+        endTime : endingTime,
+        delta : timeStep,
+        startDate : startDateValueString,
+        endDate : endingDateValueString
+        };
 
-    let url = 'https://jsonplaceholder.typicode.com/posts';
-    $.post(url,JSON.stringify(sentObject),function(data,status){
-        let newScheduleID = data;
+    let sentObjectString = JSON.stringify(sentObject);
 
-        let redirectURL = "viewSchedule.html";
+    $.post(requestURL, sentObjectString, function (data, status) {
 
-        redirectURL = redirectURL + "?scheduleID=" + "12345";//+ newScheduleID;
+        if (status >= errorCode) {
+            document.getElementById("errorString").innerHTML = "Schedule Could Not Be Created";
+            return;
+        }
 
-        window.location.href = redirectURL;
+        let newScheduleData = data;
+
+        scheduleID = newScheduleData.id;
+        scheduleEditCode = newScheduleData.secretCode;
+
+
+        document.getElementById("showScheduleID").innerHTML = "Your schedule ID is: " + scheduleID;
+        document.getElementById("showScheduleEditCode").innerHTML = "Your secret schedule edit code is: " + scheduleEditCode;
+
+        document.getElementById("redirectButton").style.visibility = "visible";
     });
 
-    document.getElementById("errorString").innerHTML = "Request Sent";
+}
+
+function redirectPage(){
+
+    redirectURL = redirectURL + "?scheduleID=" + scheduleID;
+
+    window.location.href = redirectURL;
 }

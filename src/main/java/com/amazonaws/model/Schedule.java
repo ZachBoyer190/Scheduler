@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Schedule {
-	//public final ArrayList<TimeSlot> timeslots;
-	//public final User organizer;
+	public final ArrayList<TimeSlot> timeslots;
+	final int minutes = 60;
 	
 	public final String scheduleID;
 	public final String name;
@@ -25,6 +25,34 @@ public class Schedule {
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.secretCode = code;
+		
+		int numSlots = (int) ((((double) endTime - (double)startTime)*0.6) / (double)delta);
+		
+		ArrayList<TimeSlot> slots = new ArrayList<>();
+		
+		for (long i = startDate.getTime(); i <= endDate.getTime(); i += 86400000) {
+			
+			int currentTime = startTime;
+			
+			for (int j = 0; j < numSlots; j++) {
+				
+				if(j != 0) {
+					
+					if (j % (60/slotDelta) == 0) {
+						currentTime += 40 + slotDelta;
+					} else {
+						currentTime += slotDelta;
+						
+					}
+				}
+				
+				slots.add(new TimeSlot(null, currentTime, new Date(i), TimeSlotStatus.OPEN));
+				
+			}
+			
+		}
+		
+		this.timeslots = slots;
 	
 	}
 }

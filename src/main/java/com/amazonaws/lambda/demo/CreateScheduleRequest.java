@@ -1,6 +1,6 @@
 package com.amazonaws.lambda.demo;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class CreateScheduleRequest {
 	String name;
@@ -9,7 +9,6 @@ public class CreateScheduleRequest {
 	int delta;
 	Date startDate;
 	Date endDate;
-	String secretCode;
 	
 	public CreateScheduleRequest(String n, int st, int et, int d, Date sd, Date ed) {
 		name = n;

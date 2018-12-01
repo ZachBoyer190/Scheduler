@@ -19,7 +19,7 @@ import com.google.gson.Gson;
 import com.amazonaws.db.SchedulesDAO;
 import com.amazonaws.model.Schedule;
 
-import java.sql.Date;
+import java.util.Date;
 import java.util.UUID;
 
 public class CreateScheduleHandler implements RequestStreamHandler {
@@ -27,6 +27,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 	public LambdaLogger logger = null;
 	
 	String lastID;
+	String editCode;
 	
 	boolean createSchedule(String name, int startTime, int endTime, int delta, Date startDate, Date endDate) throws Exception {
 		if (logger != null) { logger.log("in createSchedule"); }
@@ -37,6 +38,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 		lastID = id;
 		//create secret code
 		String sc = UUID.randomUUID().toString().substring(0, 8);
+		editCode = sc;
 		//create schedule
 		Schedule s = new Schedule(id, name, startTime, endTime, delta, startDate, endDate, sc);
 
@@ -71,7 +73,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			String method = (String) event.get("httpMethod");
 			if (method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new CreateScheduleResponse("id", lastID, 200);  // OPTIONS needs a 200 response
+				response = new CreateScheduleResponse("id", lastID, 200, editCode);  // OPTIONS needs a 200 response
 		        responseJson.put("body", new Gson().toJson(response));
 		        processed = true;
 		        body = null;
@@ -83,7 +85,7 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new CreateScheduleResponse("Bad Request:" + pe.getMessage(), lastID, 422);  // unable to process input
+			response = new CreateScheduleResponse("Bad Request:" + pe.getMessage(), lastID, 422, editCode);  // unable to process input
 	        responseJson.put("body", new Gson().toJson(response));
 	        processed = true;
 	        body = null;
@@ -96,12 +98,12 @@ public class CreateScheduleHandler implements RequestStreamHandler {
 			CreateScheduleResponse resp;
 			try {
 				if (createSchedule(req.name, req.startTime, req.endTime, req.delta, req.startDate, req.endDate)) {
-					resp = new CreateScheduleResponse("Successfully created schedule.", lastID);
+					resp = new CreateScheduleResponse("Successfully created schedule.", lastID, 200, editCode);
 				} else {
-					resp = new CreateScheduleResponse("Unable to create schedule", lastID, 422);
+					resp = new CreateScheduleResponse("Unable to create schedule", lastID, 422, editCode);
 				}
 			} catch (Exception e) {
-				resp = new CreateScheduleResponse("Unable to create schedule. (" + e.getMessage() + ")", lastID, 403);
+				resp = new CreateScheduleResponse("Unable to create schedule. (" + e.getMessage() + ")", lastID, 403, editCode);
 			}
 
 			// compute proper response

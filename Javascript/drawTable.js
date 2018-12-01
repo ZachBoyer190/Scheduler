@@ -1,4 +1,4 @@
-
+const errorCode = 300;
 const rowOffset = 2;
 const numCol = 6;
 const colOffset = 1;
@@ -8,25 +8,32 @@ const dayRowIndex = 0;
 const numDaysInWeek = 7;
 const numMillisDay = 86400000;
 const startWeek = 1;
-const url = 'https://jsonplaceholder.typicode.com/posts';
+const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 let scheduleStartDate;
 let tableStartDate;
 
 // TODO comment this out once a response can be received from the server
-const storedScheduleObject = createScheduleObject();
+let storedScheduleObject;
 
 function drawTableFromUrl(){
     let param = getParameter();
 
-    if (param === ""){
+    // TODO FIX THIS FOR THE LOVE OF GOD
+    /*if (param === ""){
         return;
     }
-    param = "scheduleID=" + param;
-    $.get(url,param, function (data, status) {
+    param = {
+        scheduleID: param
+    }
+    $.post(url,JSON.stringify(param), function (data, status) {
+
+        if(status >= errorCode){
+            return;
+        }
         // TODO uncomment this once schedules can be taken from server
-        //const storedScheduleObject = data;
+        //storedScheduleObject = data;
         createTableFromObject();
-    });
+    });*/
 
 }
 
@@ -35,11 +42,18 @@ function drawTableFromButton() {
     if(inputID.length === 0){
         return;
     }
-    inputID = "scheduleID=" + inputID;
-    $.get(url,inputID, function (data, status) {
+    inputID = {
+        id: inputID
+    };
+    $.post(url,JSON.stringify(inputID), function (data, status) {
         document.getElementById("ScheduleID").value = "";
+
+        if(data.httpCode >= errorCode){
+            return;
+        }
+        emptyTimeSlots(document.getElementById("scheduleTable"));
         // TODO uncomment this once schedules can be taken from server
-        //const storedScheduleObject = data;
+        storedScheduleObject = getScheduleFromResponse(data);
         createTableFromObject();
     });
 
@@ -74,7 +88,7 @@ function createTableFromObject(){
 
 function fillTableWithEmptyCells(table){
     let numRows = ((storedScheduleObject.endTime-
-        storedScheduleObject.startTime)*6/10)/storedScheduleObject.deltaTime;
+        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotDelta;
 
     for(let j = rowOffset; j < numRows+rowOffset; j++){
         let row = table.insertRow();
@@ -89,35 +103,45 @@ function fillDateRow(htmlTable){
     let j;
     for (j = 0; j < 5; j++){
         htmlTable.rows[dateRowIndex].cells[j+colOffset].innerHTML =
-            generateDateString(tableStartDate,j);
+            generateDateString(j);
     }
 }
 
-function generateDateString(startDate, index){
-    let currentDate = new Date(startDate);
+function generateDateString(index){
+    let currentDate = new Date(getTableDate());//new Date(startDate);
     currentDate.setDate(currentDate.getDate()+index);
-    let dayString = currentDate.getDate().toString();
+    let dayString = (currentDate.getDate()+1).toString();
     let monthString = (currentDate.getMonth()+1).toString();
     let yearString = currentDate.getFullYear().toString();
     return yearString + "-" + monthString + "-" + dayString ;
 }
 
+function getTableDate() {
+    return tableStartDate.getTime();
+
+}
+
 function fillTimeColumn(htmlTable){
     let numRows = ((storedScheduleObject.endTime-storedScheduleObject.startTime)*6/10)
-        /storedScheduleObject.deltaTime;
+        /storedScheduleObject.slotDelta;
     let hour = 60; // minutes
     let i;
     let currentTime = storedScheduleObject.startTime;
     for (i = rowOffset; i < numRows+rowOffset; i++) {
-        let nonOffsetIndex = i -rowOffset;
+        let nonOffsetIndex = i - rowOffset;
         if (nonOffsetIndex !== 0) {
-            if (nonOffsetIndex % (hour/storedScheduleObject.deltaTime) === 0) {
-                currentTime += 40 + storedScheduleObject.deltaTime ;
+            if (nonOffsetIndex % (hour / storedScheduleObject.slotDelta) === 0) {
+                currentTime += 40 + storedScheduleObject.slotDelta;
             } else {
-                currentTime += storedScheduleObject.deltaTime;
+                currentTime += storedScheduleObject.slotDelta;
             }
         }
-        htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter(currentTime.toString(),2,":");
+
+        let extraZero = "";
+        if (currentTime < 1000) {
+            extraZero = "0";
+        }
+        htmlTable.rows[i].cells[timeColIndex].innerHTML = insertCharacter((extraZero + currentTime.toString()), 2, ":");
     }
 }
 
@@ -132,12 +156,12 @@ function fillTimeSlots(htmlTable){
     let currentDates = getCurrentDates(htmlTable);
     let currentTimes = getCurrentTimes(htmlTable);
 
-    for(let k = 0; k < storedScheduleObject.timeSlots.length; k++){
+    for(let k = 0; k < storedScheduleObject.timeslots.length; k++){
 
-        let thisTimeSlot = storedScheduleObject.timeSlots[k];
+        let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(thisTimeSlot.date);
-        let timeSlotTime = thisTimeSlot.time;
+        let timeSlotDate = new Date(new Date(thisTimeSlot.startDate).setHours(-5));
+        let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
         let timeSlotRow = getTimeSlotRow(timeSlotTime, currentTimes);
@@ -151,15 +175,15 @@ function fillTimeSlots(htmlTable){
         let cell = htmlTable.rows[timeSlotRow].cells[timeSlotCol];
 
         switch(status){
-            case "open" :
+            case "OPEN" :
                 cell.appendChild(createOpenCell());
                 break;
 
-            case "closed" :
+            case "CLOSED" :
                 cell.innerHTML = status;
                 break;
 
-            case "booked" :
+            case "BOOKED" :
                 cell.appendChild(createBookedCell(thisTimeSlot));
                 break;
         }
@@ -180,14 +204,14 @@ function getCurrentTimes(htmlTable){
     let currentTimes = [];
     for (let n = 0; n < htmlTable.rows.length - rowOffset; n++) {
         let thisRow = htmlTable.rows[n + rowOffset];
-        currentTimes[n] = subtractColon(thisRow.cells[timeColIndex].innerHTML);
+        currentTimes[n] = parseInt(subtractColon(thisRow.cells[timeColIndex].innerHTML));
     }
     return currentTimes;
 }
 
 function getTimeSlotCol(date, currentDates){
     for (let g = 0; g < currentDates.length; g++) {
-        if (date.getTime() === currentDates[g].getTime()){
+        if (compareDates(date, currentDates[g])){
             return g + colOffset;
         }
     }
@@ -201,6 +225,17 @@ function getTimeSlotRow(time, currentTimes){
         }
     }
     return timeColIndex;
+}
+
+function compareDates(date1, date2){
+    let x = date1.getDay();
+    let y = date2.getDay();
+    let z = date1.getMonth();
+    let w = date2.getMonth();
+    let condition1 = date1.getDate() === date2.getDate();
+    let condition2 = date1.getMonth() === date2.getMonth();
+    let condition3 = date1.getFullYear() === date2.getFullYear();
+    return condition1 && condition2 && condition3;
 }
 
 function subtractColon(string) {
@@ -260,6 +295,7 @@ function initWeekShown() {
 
 function generateInitialTableStartDate() {
     let dayOfWeek = scheduleStartDate.getDay();
+
     if (dayOfWeek === 0) {
         let scheduleStartMillis = scheduleStartDate.getTime();
 
@@ -268,6 +304,7 @@ function generateInitialTableStartDate() {
         tableStartDate = new Date(newTableStartDate);
     } else {
         let scheduleStartMillis = scheduleStartDate.getTime();
+
         let newTableStartDate = (scheduleStartMillis - (dayOfWeek*numMillisDay)) + ((getCurrentWeekShown() - 1) * numDaysInWeek * numMillisDay);
 
         tableStartDate = new Date(newTableStartDate);
@@ -315,14 +352,17 @@ function showDifferentWeek(step){
     }
     editCurrentWeekShown(newWeek);
     updateWeekLabel();
-    generateNewTableStartDate(step*numDaysInWeek);
+    tableStartDate = new Date(tableStartDate.setDate(tableStartDate.getDate()+(step*numDaysInWeek)));
+    //generateNewTableStartDate(step*numDaysInWeek);
 
     let table = document.getElementById("scheduleTable");
     fillDateRow(table);
+    // TODO fix this to refill in the time column
     emptyTimeSlots(table);
     fillTimeSlots(table);
 }
 
+// TODO fix this so it empties the time column
 function emptyTimeSlots(table) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = colOffset; col < table.rows[row].cells.length; col++) {
@@ -356,10 +396,10 @@ function createScheduleObject(){
         endDate: new Date("May 10, 2018"),
         startTime: 1000,
         endTime: 1100,
-        deltaTime: 20,
+        slotDelta: 20,
         secretCode: "12345",
         name : "hi",
-        timeSlots: [
+        timeslots: [
             {
                 status: "closed",
                 time: "1000",
@@ -466,4 +506,11 @@ function createScheduleObject(){
             }
         ]
     };
+}
+
+function getScheduleFromResponse(data){
+    storedScheduleObject = data.schedule;
+    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
+    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
+    return storedScheduleObject;
 }
