@@ -14,10 +14,16 @@ const dayRowIndex = 0;
 const numDaysInWeek = 7;
 const numMillisDay = 86400000;
 const startWeek = 1;
+const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const openMeetingButtonStatus = "OPEN";
+const cancelMeetingButtonStatus = "CLOSE";
+
 let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
+
 // =====================================================
 //              Templates for Objects
 // -----------------------------------------------------
@@ -26,7 +32,8 @@ const timeslotTemplate =
         status: "",
         time: 9999,
         date: "",
-        name: ""
+        name: "",
+        timeSlotId : ""
     };
 
 const scheduleObjectTemplate =
@@ -41,6 +48,7 @@ const scheduleObjectTemplate =
         timeslots: [timeslotTemplate]
     };
 
+// noinspection JSUnusedGlobalSymbols
 const dataObjectTemplate =
     {
         httpCode : 999,
@@ -82,6 +90,46 @@ function showDifferentWeek(step){
         tableStartDate.getDate()+(step*numDaysInWeek)));
 
     drawSchedule(document.getElementById("scheduleTable"));
+}
+
+function modifyMeeting(status, btnElement, fieldEntry) {
+
+    let textBoxEntry = fieldEntry.value;
+    if (textBoxEntry.length === 0){
+        return;
+    }
+    let sentObject;
+
+    let thisURL;
+
+    switch(status){
+        case openMeetingButtonStatus :
+            console.log("open");
+            sentObject = {
+                timeSlotId : btnElement.id,
+                name : textBoxEntry
+            };
+            thisURL = openMeetingURL;
+            break;
+
+        case cancelMeetingButtonStatus :
+            console.log("close");
+            sentObject = {
+                meetingSecretCode : textBoxEntry
+            };
+            thisURL = closeMeetingURL;
+            break;
+    }
+/*
+    $.post(thisURL,JSON.stringify(sentObject), function (data) {
+
+        if(data.httpCode >= errorCode){ return; }
+
+        storedScheduleObject = getScheduleFromResponse(data);
+
+        drawSchedule(document.getElementById("scheduleTable"));
+    });
+*/
 }
 
 // =====================================================
@@ -194,7 +242,7 @@ function fillTimeSlots(htmlTable){
 
         switch(status){
             case "OPEN" :
-                cell.appendChild(createOpenCell());
+                cell.appendChild(createOpenCell(thisTimeSlot));
                 break;
 
             case "CLOSED" :
@@ -259,7 +307,7 @@ function subtractColon(string) {
 
 }
 
-function createOpenCell(){
+function createOpenCell(timeslot){
     let div0 = document.createElement("div");
 
     let div1 = document.createElement("div");
@@ -271,6 +319,8 @@ function createOpenCell(){
     let btn = document.createElement('input');
     btn.type = "button";
     btn.value = "book now";
+    btn.id = timeslot.timeSlotId;
+    btn.onclick = function(){modifyMeeting(openMeetingButtonStatus, btn, codeField)};
     div0.appendChild(btn);
     return div0;
 }
@@ -291,6 +341,8 @@ function createBookedCell(thisTimeSlot) {
     let cancelBtn = document.createElement('input');
     cancelBtn.type = "button";
     cancelBtn.value = "Cancel Meeting";
+    cancelBtn.id = thisTimeSlot.timeSlotId;
+    cancelBtn.onclick = function(){modifyMeeting(cancelMeetingButtonStatus,cancelBtn, codeField)};
     div2.appendChild(cancelBtn);
     div0.appendChild(div2);
 
@@ -321,13 +373,6 @@ function generateInitialTableStartDate() {
 
         tableStartDate = new Date(newTableStartDate);
     }
-}
-
-function generateNewTableStartDate(days){
-
-    let newTableStartDate = tableStartDate.getTime() + (days*numMillisDay);
-
-    tableStartDate= new Date(newTableStartDate);
 }
 
 function editCurrentWeekShown(newWeek){
