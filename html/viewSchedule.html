@@ -1,11 +1,20 @@
 <html lang="" xmlns="http://www.w3.org/1999/html">
 
+
+<!-- <script src="../Javascript/refreshSchedule.js" type="application/javascript"></script> -->
+
+<script src="../Javascript/drawTable.js" type="application/javascript"></script>
+
+<script src="../Javascript/checkScheduleEditPrivileges.js" type="application/javascript"></script>
+
+<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
+
 <head>
 <title> This is the organizer view </title>
 </head>
 
 
-<body><!-- onload="drawTableFromUrl()">-->
+<body onload="onLoad()">
 <h1> Welcome Everyone </h1>
 <p> Use this page to view a schedule, edit a meeting, and edit the schedule.</p>
 
@@ -15,7 +24,7 @@
     <p> Enter the schedule ID to see your schedule if it is not shown when the page is loaded </p>
     <p> Schedule ID:
         <input type="text" id="ScheduleID"/>
-        <input type="button" name="submitScheduleID" value="Submit" onclick="getSchedule();refreshSchedule()"/>
+        <input id="ScheduleIDButton" type="button" value="Submit"/>
     </p>
 
     <hr>
@@ -26,8 +35,8 @@
         <div>
             <p id="weekTag"> </p>
 
-            <input type="button" name="leftArrow" value="<" onclick="showDifferentWeek(-1)"/>
-            <input type="button" name="rightArrow" value=">" onclick="showDifferentWeek(1)"/>
+            <input type="button" id="leftArrow" value="<" />
+            <input type="button" id="rightArrow" value=">" />
         </div>
         <table id="scheduleTable">
             <tr>
@@ -79,13 +88,21 @@
 
 </body>
 
+<script type="text/javascript">
+    function onLoad() {
+        // Add on click response to id button
+        //this.document.getElementById("ScheduleIDButton").addEventListener("click", this.refreshScheduleView);
+        this.document.getElementById("ScheduleIDButton").addEventListener("click", this.getScheduleFromButton);
 
-<script src="../Javascript/drawTable.js" type="application/javascript"></script>
 
-<script src="../Javascript/refreshSchedule.js" type="application/javascript"></script>
+        // Add click response to left arrow button
+        //this.document.getElementById("leftArrow").addEventListener("click", this.showDifferentWeek(-1));
 
-<script src="../Javascript/checkScheduleEditPrivileges.js" type="application/javascript"></script>
+        // Add click response to right arrow button
+        //this.document.getElementById("rightArrow").addEventListener("click", this.showDifferentWeek(1));
 
-<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
+    }
+
+</script>
 
 </html>

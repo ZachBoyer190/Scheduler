@@ -43,66 +43,7 @@ const scheduleObjectTemplate = {
 let storedScheduleObject;
 
 
-/*$.getScript("storeScheduleInPage.js")/*, function(){
-
-    alert("Script loaded but not necessarily executed.");
-
-});*/
-
-function drawTableFromUrl(){
-    let param = getParameter();
-
-    // TODO FIX THIS FOR THE LOVE OF GOD
-    /*if (param === ""){
-        return;
-    }
-    param = {
-        scheduleID: param
-    }
-    $.post(url,JSON.stringify(param), function (data, status) {
-
-        if(status >= errorCode){
-            return;
-        }
-        // TODO uncomment this once schedules can be taken from server
-        //storedScheduleObject = data;
-        createTableFromObject();
-    });*/
-
-}
-
-function drawTableFromButton() {
-    let inputID = document.getElementById("ScheduleID").value;
-    if(inputID.length === 0){
-        return;
-    }
-    inputID = {
-        id: inputID
-    };
-    $.post(url,JSON.stringify(inputID), function (data, status) {
-        document.getElementById("ScheduleID").value = "";
-
-        if(data.httpCode >= errorCode){
-            return;
-        }
-        emptyTimeSlots(document.getElementById("scheduleTable"));
-        // TODO uncomment this once schedules can be taken from server
-        storedScheduleObject = getScheduleFromResponse(data);
-        createTableFromObject();
-    });
-
-}
-
-function getParameter(){
-    let url = window.location.search;
-    if(!url.includes("?")){
-        return "";
-    }
-    let paramString = url.split("?")[1];
-    return paramString.split("=")[1];
-}
-
-function refreshSchedule(){
+function refreshScheduleView(){
 
     getScheduleObjectFromPage();
 
