@@ -1,3 +1,9 @@
+// TODO create function that actually schedules a meeting and tells secret code to secret code paragraph element
+// TODO add function logic to each button when it is made
+
+// =====================================================
+//              Constants for calculations
+// -----------------------------------------------------
 const errorCode = 300;
 const rowOffset = 2; // rows
 const numCol = 6;
@@ -11,12 +17,10 @@ const startWeek = 1;
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 let scheduleStartDate;
 let tableStartDate;
-
+let storedScheduleObject;
 // =====================================================
 //              Templates for Objects
 // -----------------------------------------------------
-
-// template for timeslot object
 const timeslotTemplate =
     {
         status: "",
@@ -25,100 +29,79 @@ const timeslotTemplate =
         name: ""
     };
 
-// template for schedule object
-const scheduleObjectTemplate = {
-    startDate: new Date(),
-        endDate: new Date(),
-    startTime: 9999,
-    endTime: 9999,
-    slotDelta: 9999,
-    secretCode: "",
-    name : "",
-    timeslots: [timeslotTemplate]
-};
+const scheduleObjectTemplate =
+    {
+        startDate: new Date(),
+            endDate: new Date(),
+        startTime: 9999,
+        endTime: 9999,
+        slotDelta: 9999,
+        secretCode: "",
+        name : "",
+        timeslots: [timeslotTemplate]
+    };
 
+const dataObjectTemplate =
+    {
+        httpCode : 999,
+        schedule : scheduleObjectTemplate
+    };
 // =====================================================
-
-
-let storedScheduleObject;
-
-
-/*$.getScript("storeScheduleInPage.js")/*, function(){
-
-    alert("Script loaded but not necessarily executed.");
-
-});*/
-
-function drawTableFromUrl(){
-    let param = getParameter();
-
-    // TODO FIX THIS FOR THE LOVE OF GOD
-    /*if (param === ""){
-        return;
-    }
-    param = {
-        scheduleID: param
-    }
-    $.post(url,JSON.stringify(param), function (data, status) {
-
-        if(status >= errorCode){
-            return;
-        }
-        // TODO uncomment this once schedules can be taken from server
-        //storedScheduleObject = data;
-        createTableFromObject();
-    });*/
-
-}
-
+//              Button Click Handlers
+// -----------------------------------------------------
 function drawTableFromButton() {
     let inputID = document.getElementById("ScheduleID").value;
     if(inputID.length === 0){
         return;
     }
-    inputID = {
-        id: inputID
-    };
-    $.post(url,JSON.stringify(inputID), function (data, status) {
+
+    $.post(url,JSON.stringify({id: inputID}), function (data) {
         document.getElementById("ScheduleID").value = "";
 
         if(data.httpCode >= errorCode){
             return;
         }
-        emptyTimeSlots(document.getElementById("scheduleTable"));
-        // TODO uncomment this once schedules can be taken from server
         storedScheduleObject = getScheduleFromResponse(data);
-        createTableFromObject();
+
+        let table = document.getElementById("scheduleTable");
+
+        initializeSchedule(table);
+        drawSchedule(table);
     });
-
 }
 
-function getParameter(){
-    let url = window.location.search;
-    if(!url.includes("?")){
-        return "";
+function showDifferentWeek(step){
+
+    let newWeek = getCurrentWeekShown() + step;
+    if (newWeek > getTotalWeeksShown() || newWeek <= 0 ) {
+        return;
     }
-    let paramString = url.split("?")[1];
-    return paramString.split("=")[1];
+    editCurrentWeekShown(newWeek);
+
+    tableStartDate = new Date(tableStartDate.setDate(
+        tableStartDate.getDate()+(step*numDaysInWeek)));
+
+    drawSchedule(document.getElementById("scheduleTable"));
 }
 
-function createTableFromObject(){
+// =====================================================
+//              Helper Functions
+// -----------------------------------------------------
+function drawSchedule(table){
+    emptyTimeSlots(table);
+    updateWeekLabel();
+    fillDateRow(table);
+    fillTimeColumn();
+    fillTimeSlots();
+}
 
-    let table = document.getElementById("scheduleTable");
-
+function initializeSchedule(table){
+    fillTableWithEmptyCells(table);
     document.getElementById("scheduleName").innerHTML = storedScheduleObject.name;
     scheduleStartDate = storedScheduleObject.startDate;
     generateInitialTableStartDate();
-    initWeekShown();
-
-    fillDateRow(table);
-    fillTableWithEmptyCells(table);
-    fillTimeColumn(table);
-    fillTimeSlots(table);
-    putScheduleObjectOnPage();
-    // TODO create function that actually schedules a meeting and tells secret code to secret code paragraph element
-    // TODO add function logic to each button when it is made
-
+    setTotalWeekShown();
+    editCurrentWeekShown(startWeek);
 }
 
 function fillTableWithEmptyCells(table){
@@ -263,10 +246,6 @@ function getTimeSlotRow(time, currentTimes){
 }
 
 function compareDates(date1, date2){
-    let x = date1.getDay();
-    let y = date2.getDay();
-    let z = date1.getMonth();
-    let w = date2.getMonth();
     let condition1 = date1.getDate() === date2.getDate();
     let condition2 = date1.getMonth() === date2.getMonth();
     let condition3 = date1.getFullYear() === date2.getFullYear();
@@ -318,14 +297,12 @@ function createBookedCell(thisTimeSlot) {
     return div0;
 }
 
-function initWeekShown() {
-    editCurrentWeekShown(startWeek);
+function setTotalWeekShown() {
     let millisStart = tableStartDate.getTime();
     let millisEnd = storedScheduleObject.endDate.getTime();
     let totalDays = (( millisEnd - millisStart)/(numMillisDay));
     let totalWeeks = Math.ceil(totalDays/numDaysInWeek);
     editTotalWeeksShown(totalWeeks);
-    updateWeekLabel()
 }
 
 function generateInitialTableStartDate() {
@@ -379,26 +356,6 @@ function updateWeekLabel(){
         " of " + totalWeeks +" Shown Below");
 }
 
-function showDifferentWeek(step){
-
-    let newWeek = getCurrentWeekShown()+step;
-    if (newWeek > getTotalWeeksShown() || newWeek <= 0 ) {
-        return;
-    }
-    editCurrentWeekShown(newWeek);
-    updateWeekLabel();
-    tableStartDate = new Date(tableStartDate.setDate(tableStartDate.getDate()+(step*numDaysInWeek)));
-    //generateNewTableStartDate(step*numDaysInWeek);
-
-    let table = document.getElementById("scheduleTable");
-    fillDateRow(table);
-    // TODO fix this to refill in the time column
-    fillTimeColumn(table);
-    emptyTimeSlots(table);
-    fillTimeSlots(table);
-    putScheduleObjectOnPage();
-}
-
 function emptyTimeSlots(table) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = 0; col < table.rows[row].cells.length; col++) {
@@ -421,16 +378,6 @@ function getScheduleFromResponse(data){
     storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
     storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
-}
-
-
-function putScheduleObjectOnPage(){
-    document.getElementById("scheduleString").innerHTML = JSON.stringify(storedScheduleObject);
-}
-
-
-function geScheduleObjectFromPage(){
-    storedScheduleObject = JSON.parse(document.getElementById("scheduleString").innerHTML);
 }
 
 
