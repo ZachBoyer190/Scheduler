@@ -5,7 +5,7 @@
 </head>
 
 
-<body onload="drawTableFromUrl()">
+<body><!-- onload="drawTableFromUrl()">-->
 <h1> Welcome Everyone </h1>
 <p> Use this page to view a schedule, edit a meeting, and edit the schedule.</p>
 
@@ -15,7 +15,7 @@
     <p> Enter the schedule ID to see your schedule if it is not shown when the page is loaded </p>
     <p> Schedule ID:
         <input type="text" id="ScheduleID"/>
-        <input type="button" name="submitScheduleID" value="Submit" onclick="drawTableFromButton()"/>
+        <input type="button" name="submitScheduleID" value="Submit" onclick="getSchedule();refreshSchedule()"/>
     </p>
 
     <hr>
@@ -81,6 +81,8 @@
 
 
 <script src="../Javascript/drawTable.js" type="application/javascript"></script>
+
+<script src="../Javascript/refreshSchedule.js" type="application/javascript"></script>
 
 <script src="../Javascript/checkScheduleEditPrivileges.js" type="application/javascript"></script>
 

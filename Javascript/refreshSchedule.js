@@ -28,7 +28,7 @@ const timeslotTemplate =
 // template for schedule object
 const scheduleObjectTemplate = {
     startDate: new Date(),
-        endDate: new Date(),
+    endDate: new Date(),
     startTime: 9999,
     endTime: 9999,
     slotDelta: 9999,
@@ -71,7 +71,7 @@ function drawTableFromUrl(){
 
 }
 
-function getSchedule() {
+function drawTableFromButton() {
     let inputID = document.getElementById("ScheduleID").value;
     if(inputID.length === 0){
         return;
@@ -85,14 +85,14 @@ function getSchedule() {
         if(data.httpCode >= errorCode){
             return;
         }
-        //emptyTimeSlots(document.getElementById("scheduleTable"));
+        emptyTimeSlots(document.getElementById("scheduleTable"));
         // TODO uncomment this once schedules can be taken from server
         storedScheduleObject = getScheduleFromResponse(data);
-        //createTableFromObject();
+        createTableFromObject();
     });
 
 }
-/*
+
 function getParameter(){
     let url = window.location.search;
     if(!url.includes("?")){
@@ -102,7 +102,9 @@ function getParameter(){
     return paramString.split("=")[1];
 }
 
-function createTableFromObject(){
+function refreshSchedule(){
+
+    getScheduleObjectFromPage();
 
     let table = document.getElementById("scheduleTable");
 
@@ -422,14 +424,14 @@ function getScheduleFromResponse(data){
     storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
-*/
+
 
 function putScheduleObjectOnPage(){
     document.getElementById("scheduleString").innerHTML = JSON.stringify(storedScheduleObject);
 }
 
 
-function geScheduleObjectFromPage(){
+function getScheduleObjectFromPage(){
     storedScheduleObject = JSON.parse(document.getElementById("scheduleString").innerHTML);
 }
 
