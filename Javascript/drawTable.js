@@ -17,12 +17,16 @@ const startWeek = 1;
 const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const checkEditCodeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const openMeetingButtonStatus = "OPEN";
 const cancelMeetingButtonStatus = "CLOSE";
+const participantStatus = "PARTICIPANT";
+const organizerStatus = "ORGANIZER";
 
 let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
+let viewStatus = participantStatus;
 
 // =====================================================
 //              Templates for Objects
@@ -43,7 +47,8 @@ const scheduleObjectTemplate =
         startTime: 9999,
         endTime: 9999,
         slotDelta: 9999,
-        secretCode: "",
+        id : "",
+        //secretCode: "",
         name : "",
         timeslots: [timeslotTemplate]
     };
@@ -104,7 +109,6 @@ function modifyMeeting(status, btnElement, fieldEntry) {
 
     switch(status){
         case openMeetingButtonStatus :
-            console.log("open");
             sentObject = {
                 timeSlotId : btnElement.id,
                 name : textBoxEntry
@@ -113,13 +117,13 @@ function modifyMeeting(status, btnElement, fieldEntry) {
             break;
 
         case cancelMeetingButtonStatus :
-            console.log("close");
             sentObject = {
                 meetingSecretCode : textBoxEntry
             };
             thisURL = closeMeetingURL;
             break;
     }
+    // TODO uncomment post request when lambda functions are set up
 /*
     $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
@@ -132,6 +136,25 @@ function modifyMeeting(status, btnElement, fieldEntry) {
 */
 }
 
+function checkEditAbility(){
+    let inputCodeArea = document.getElementById("secretCodeScheduleEdit");
+    let sentObject = {
+        id : storedScheduleObject.id,
+        secretCode : inputCodeArea.value
+    };
+
+    // TODO uncomment this post request when lambda function exists
+    //$.post(checkEditCodeURL,JSON.stringify(sentObject), function (data) {
+
+    //    if(data.httpCode >= errorCode){ return; }
+
+        viewStatus = organizerStatus;
+        drawSchedule(document.getElementById("scheduleTable"));
+    //});
+
+    inputCodeArea.value = "";
+}
+
 // =====================================================
 //              Helper Functions
 // -----------------------------------------------------
@@ -140,7 +163,7 @@ function drawSchedule(table){
     updateWeekLabel();
     fillDateRow(table);
     fillTimeColumn(table);
-    fillTimeSlots(table);
+    fillTimeSlots(viewStatus,table);
 }
 
 function initializeSchedule(table){
@@ -217,7 +240,7 @@ function insertCharacter(string, index, character){
     return stringA + character + stringB;
 }
 
-function fillTimeSlots(htmlTable){
+function fillTimeSlots(userStatus, htmlTable){
 
     let currentDates = getCurrentDates(htmlTable);
     let currentTimes = getCurrentTimes(htmlTable);
@@ -240,17 +263,33 @@ function fillTimeSlots(htmlTable){
         let status = thisTimeSlot.status;
         let cell = htmlTable.rows[timeSlotRow].cells[timeSlotCol];
 
-        switch(status){
-            case "OPEN" :
-                cell.appendChild(createOpenCell(thisTimeSlot));
+        switch(userStatus) {
+            case participantStatus :
+                switch(status){
+                    case "OPEN" :
+                        cell.appendChild(createParticipantOpenCell(thisTimeSlot));
+                        break;
+                    case "CLOSED" :
+                        cell.innerHTML = status;
+                        break;
+                    case "BOOKED" :
+                        cell.appendChild(createParticipantBookedCell(thisTimeSlot));
+                        break;
+                }
                 break;
 
-            case "CLOSED" :
-                cell.innerHTML = status;
-                break;
-
-            case "BOOKED" :
-                cell.appendChild(createBookedCell(thisTimeSlot));
+            case organizerStatus :
+                switch(status){
+                    case "OPEN" :
+                        cell.appendChild(createOrganizerOpenCell(thisTimeSlot));
+                        break;
+                    case "CLOSED" :
+                        cell.appendChild(createOrganizerClosedCell(thisTimeSlot));
+                        break;
+                    case "BOOKED" :
+                        cell.appendChild(createOrganizerBookedCell(thisTimeSlot));
+                        break;
+                }
                 break;
         }
 
@@ -307,7 +346,15 @@ function subtractColon(string) {
 
 }
 
-function createOpenCell(timeslot){
+
+
+
+
+
+// =====================================================
+//              Participant Table Cell Functions
+// -----------------------------------------------------
+function createParticipantOpenCell(timeslot){
     let div0 = document.createElement("div");
 
     let div1 = document.createElement("div");
@@ -325,7 +372,7 @@ function createOpenCell(timeslot){
     return div0;
 }
 
-function createBookedCell(thisTimeSlot) {
+function createParticipantBookedCell(thisTimeSlot) {
 
     let div0 = document.createElement("div");
     let para = document.createTextNode(thisTimeSlot.name);
@@ -348,6 +395,68 @@ function createBookedCell(thisTimeSlot) {
 
     return div0;
 }
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+// =====================================================
+//              Organizer Table Cell Functions
+// -----------------------------------------------------
+function createOrganizerOpenCell(timeslot){
+    let div0 = document.createElement("div");
+
+    let closeBtn = document.createElement('input');
+    closeBtn.type = "button";
+    closeBtn.value = "close time slot";
+    closeBtn.id = timeslot.timeSlotId;
+    // TODO fill in function call here
+    closeBtn.onclick = function(){};
+    div0.appendChild(closeBtn);
+
+    return div0;
+}
+
+function createOrganizerBookedCell(timeslot) {
+    let div0 = document.createElement("div");
+
+    let cancelBtn = document.createElement('input');
+    cancelBtn.type = "button";
+    cancelBtn.value = "cancel meeting";
+    cancelBtn.id = timeslot.timeSlotId;
+    // TODO fill in function call here
+    cancelBtn.onclick = function(){};
+    div0.appendChild(cancelBtn);
+
+    let closeBtn = document.createElement('input');
+    closeBtn.type = "button";
+    closeBtn.value = "close time slot";
+    closeBtn.id = timeslot.timeSlotId;
+    // TODO fill in function call here
+    closeBtn.onclick = function(){};
+    div0.appendChild(closeBtn);
+
+    return div0;
+}
+
+function createOrganizerClosedCell(timeslot){
+    let div0 = document.createElement("div");
+
+    let openBtn = document.createElement('input');
+    openBtn.type = "button";
+    openBtn.value = "open time slot";
+    openBtn.id = timeslot.timeSlotId;
+    // TODO fill in function call here
+    openBtn.onclick = function(){};
+    div0.appendChild(openBtn);
+
+    return div0;
+}
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
 
 function setTotalWeekShown() {
     let millisStart = tableStartDate.getTime();
