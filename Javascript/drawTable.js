@@ -42,6 +42,13 @@ const scheduleObjectTemplate = {
 
 let storedScheduleObject;
 
+
+/*$.getScript("storeScheduleInPage.js")/*, function(){
+
+    alert("Script loaded but not necessarily executed.");
+
+});*/
+
 function drawTableFromUrl(){
     let param = getParameter();
 
@@ -386,12 +393,12 @@ function showDifferentWeek(step){
     let table = document.getElementById("scheduleTable");
     fillDateRow(table);
     // TODO fix this to refill in the time column
+    fillTimeColumn(table);
     emptyTimeSlots(table);
     fillTimeSlots(table);
     putScheduleObjectOnPage();
 }
 
-// TODO fix this so it empties the time column
 function emptyTimeSlots(table) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = 0; col < table.rows[row].cells.length; col++) {
@@ -409,18 +416,6 @@ function clearChildren(element){
 
 }
 
-function checkEditAbility(){
-    let inputCodeArea = document.getElementById("secretCodeScheduleEdit");
-    let inputCode = inputCodeArea.value;
-
-    if(inputCode === storedScheduleObject.secretCode){
-        document.getElementById("scheduleEditOptions").style.visibility = "visible";
-    }
-    inputCodeArea.value = "";
-}
-
-function createScheduleObject(){
-    return ;
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
     storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
@@ -428,7 +423,14 @@ function getScheduleFromResponse(data){
     return storedScheduleObject;
 }
 
+
 function putScheduleObjectOnPage(){
     document.getElementById("scheduleString").innerHTML = JSON.stringify(storedScheduleObject);
 }
+
+
+function geScheduleObjectFromPage(){
+    storedScheduleObject = JSON.parse(document.getElementById("scheduleString").innerHTML);
+}
+
 
