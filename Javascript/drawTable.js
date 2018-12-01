@@ -1,7 +1,7 @@
 const errorCode = 300;
-const rowOffset = 2;
+const rowOffset = 2; // rows
 const numCol = 6;
-const colOffset = 1;
+const colOffset = 1; // columns
 const timeColIndex = 0;
 const dateRowIndex = 0;
 const dayRowIndex = 0;
@@ -12,7 +12,34 @@ const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getsch
 let scheduleStartDate;
 let tableStartDate;
 
-// TODO comment this out once a response can be received from the server
+// =====================================================
+//              Templates for Objects
+// -----------------------------------------------------
+
+// template for timeslot object
+const timeslotTemplate =
+    {
+        status: "",
+        time: 9999,
+        date: "",
+        name: ""
+    };
+
+// template for schedule object
+const scheduleObjectTemplate = {
+    startDate: new Date(),
+        endDate: new Date(),
+    startTime: 9999,
+    endTime: 9999,
+    slotDelta: 9999,
+    secretCode: "",
+    name : "",
+    timeslots: [timeslotTemplate]
+};
+
+// =====================================================
+
+
 let storedScheduleObject;
 
 function drawTableFromUrl(){
@@ -81,6 +108,7 @@ function createTableFromObject(){
     fillTableWithEmptyCells(table);
     fillTimeColumn(table);
     fillTimeSlots(table);
+    putScheduleObjectOnPage();
     // TODO create function that actually schedules a meeting and tells secret code to secret code paragraph element
     // TODO add function logic to each button when it is made
 
@@ -360,12 +388,13 @@ function showDifferentWeek(step){
     // TODO fix this to refill in the time column
     emptyTimeSlots(table);
     fillTimeSlots(table);
+    putScheduleObjectOnPage();
 }
 
 // TODO fix this so it empties the time column
 function emptyTimeSlots(table) {
     for(let row = rowOffset; row < table.rows.length; row++){
-        for (let col = colOffset; col < table.rows[row].cells.length; col++) {
+        for (let col = 0; col < table.rows[row].cells.length; col++) {
             clearChildren(table.rows[row].cells[col]);
         }
     }
@@ -391,126 +420,15 @@ function checkEditAbility(){
 }
 
 function createScheduleObject(){
-    return {
-        startDate: new Date("May 3, 2018"),
-        endDate: new Date("May 10, 2018"),
-        startTime: 1000,
-        endTime: 1100,
-        slotDelta: 20,
-        secretCode: "12345",
-        name : "hi",
-        timeslots: [
-            {
-                status: "closed",
-                time: "1000",
-                date: "2018-5-3",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1020",
-                date: "2018-5-6",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1040",
-                date: "2018-5-6",
-                name: ""
-            },
-
-            {
-                status: "booked",
-                time: "1000",
-                date: "2018-5-7",
-                name: "Kevin"
-            },
-
-            {
-                status: "open",
-                time: "1020",
-                date: "2018-5-7",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1040",
-                date: "2018-5-7",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1000",
-                date: "2018-5-8",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1020",
-                date: "2018-5-8",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1040",
-                date: "2018-5-8",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1000",
-                date: "2018-5-9",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1020",
-                date: "2018-5-9",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1040",
-                date: "2018-5-9",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1000",
-                date: "2018-5-10",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1020",
-                date: "2018-5-10",
-                name: ""
-            },
-
-            {
-                status: "open",
-                time: "1040",
-                date: "2019-5-10",
-                name: ""
-            }
-        ]
-    };
-}
-
+    return ;
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
     storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
     storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
+
+function putScheduleObjectOnPage(){
+    document.getElementById("scheduleString").innerHTML = JSON.stringify(storedScheduleObject);
+}
+
