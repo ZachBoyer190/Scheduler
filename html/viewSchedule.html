@@ -62,12 +62,25 @@
 
         <div id="scheduleEditOptions" style="visibility: hidden;">
             <label> Select change you would like to make to the schedule
-                <select name="selectedEdit">
-                    <!-- TODO fill in options -->
+                <select id="selectedEdit">
+                    <option value="DAY"> Close all time slots on a day </option>
+                    <option value="TIME"> Close all meetings at a time </option>
                 </select>
 
                 <input type="button" name="submitScheduleEdit" value="Submit"/>
                 <!-- TODO create button function and make sure it checks to see if an option has been selected -->
+            </label>
+            <label> Select the time or day you would like to close
+                <select id="selectedDay">
+                    <option value="MONDAY"> MONDAY </option>
+                    <option value="TUESDAY"> TUESDAY </option>
+                    <option value="WEDNESDAY"> WEDNESDAY </option>
+                    <option value="THURSDAY"> THURSDAY </option>
+                    <option value="FRIDAY"> FRIDAY </option>
+                </select>
+                <select id="selectTime">
+
+                </select>
             </label>
         </div>
     </div>

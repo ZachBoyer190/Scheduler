@@ -18,8 +18,16 @@ const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/A
 const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const checkEditCodeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
-const openMeetingButtonStatus = "OPEN";
-const cancelMeetingButtonStatus = "CLOSE";
+const cancelMeetingOrganizerURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const closeTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const openTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+
+const bookMeetingButtonStatus = "BOOK";
+const cancelMeetingButtonStatus = "CANCEL";
+
+const openTimeSlotButtonStatus = "OPEN";
+const closeTimeSlotButtonStatus = "CLOSE";
+
 const participantStatus = "PARTICIPANT";
 const organizerStatus = "ORGANIZER";
 
@@ -108,7 +116,7 @@ function modifyMeeting(status, btnElement, fieldEntry) {
     let thisURL;
 
     switch(status){
-        case openMeetingButtonStatus :
+        case bookMeetingButtonStatus :
             sentObject = {
                 timeSlotId : btnElement.id,
                 name : textBoxEntry
@@ -137,7 +145,13 @@ function modifyMeeting(status, btnElement, fieldEntry) {
 }
 
 function checkEditAbility(){
+
     let inputCodeArea = document.getElementById("secretCodeScheduleEdit");
+    if (storedScheduleObject === undefined){
+
+        inputCodeArea.value = "";
+        return;
+    }
     let sentObject = {
         id : storedScheduleObject.id,
         secretCode : inputCodeArea.value
@@ -149,12 +163,51 @@ function checkEditAbility(){
     //    if(data.httpCode >= errorCode){ return; }
 
         viewStatus = organizerStatus;
-        drawSchedule(document.getElementById("scheduleTable"));
+        let table = document.getElementById("scheduleTable");
+        drawSchedule(table);
+        document.getElementById("scheduleEditOptions").style.visibility = "visible";
+        fillTimeDropdown(table);
     //});
 
     inputCodeArea.value = "";
 }
 
+function modifyTimeSlot(status, btnElement) {
+
+    let sentObject= {
+        timeSlotId : btnElement.id,
+    };
+    let thisURL;
+
+    switch(status){
+
+        case cancelMeetingButtonStatus :
+            console.log(status);
+            thisURL = cancelMeetingOrganizerURL;
+            break;
+
+        case openTimeSlotButtonStatus :
+            console.log(status);
+            thisURL = openMeetingURL;
+            break;
+
+        case closeTimeSlotButtonStatus :
+            console.log(status);
+            thisURL = closeMeetingURL;
+            break;
+    }
+    // TODO uncomment post request when lambda functions are set up
+    /*
+        $.post(thisURL,JSON.stringify(sentObject), function (data) {
+
+            if(data.httpCode >= errorCode){ return; }
+
+            storedScheduleObject = getScheduleFromResponse(data);
+
+            drawSchedule(document.getElementById("scheduleTable"));
+        });
+    */
+}
 // =====================================================
 //              Helper Functions
 // -----------------------------------------------------
@@ -367,7 +420,7 @@ function createParticipantOpenCell(timeslot){
     btn.type = "button";
     btn.value = "book now";
     btn.id = timeslot.timeSlotId;
-    btn.onclick = function(){modifyMeeting(openMeetingButtonStatus, btn, codeField)};
+    btn.onclick = function(){modifyMeeting(bookMeetingButtonStatus, btn, codeField)};
     div0.appendChild(btn);
     return div0;
 }
@@ -411,7 +464,7 @@ function createOrganizerOpenCell(timeslot){
     closeBtn.value = "close time slot";
     closeBtn.id = timeslot.timeSlotId;
     // TODO fill in function call here
-    closeBtn.onclick = function(){};
+    closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
     return div0;
@@ -425,7 +478,7 @@ function createOrganizerBookedCell(timeslot) {
     cancelBtn.value = "cancel meeting";
     cancelBtn.id = timeslot.timeSlotId;
     // TODO fill in function call here
-    cancelBtn.onclick = function(){};
+    cancelBtn.onclick = function(){modifyTimeSlot(cancelMeetingButtonStatus,cancelBtn)};
     div0.appendChild(cancelBtn);
 
     let closeBtn = document.createElement('input');
@@ -433,7 +486,7 @@ function createOrganizerBookedCell(timeslot) {
     closeBtn.value = "close time slot";
     closeBtn.id = timeslot.timeSlotId;
     // TODO fill in function call here
-    closeBtn.onclick = function(){};
+    closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
     return div0;
@@ -447,7 +500,7 @@ function createOrganizerClosedCell(timeslot){
     openBtn.value = "open time slot";
     openBtn.id = timeslot.timeSlotId;
     // TODO fill in function call here
-    openBtn.onclick = function(){};
+    openBtn.onclick = function(){modifyTimeSlot(openTimeSlotButtonStatus,openBtn)};
     div0.appendChild(openBtn);
 
     return div0;
@@ -535,3 +588,14 @@ function getScheduleFromResponse(data){
 }
 
 
+function fillTimeDropdown(table){
+    // TODO fix way it gets the current times becuase they are wrong
+    let timesWithoutColons = getCurrentTimes(table);
+    let select = document.getElementById("selectTime");
+    for (time in timesWithoutColons){
+        let option = document.createElement("option");
+        option.value = time;
+        option.innerHTML = insertCharacter(time,2,":");
+        select.add(option);
+    }
+}
