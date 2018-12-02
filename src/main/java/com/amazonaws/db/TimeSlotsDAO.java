@@ -42,6 +42,30 @@ public class TimeSlotsDAO {
 		}
 	}
 	
+public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Exception {
+		
+		try {
+			ArrayList<TimeSlot> timeslots = new ArrayList<>();
+			TimeSlot timeslot = null;
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM timeslots WHERE scheduleID=?;");
+			ps.setString(1,  scheduleID);
+			ResultSet resultSet = ps.executeQuery();
+			
+			while (resultSet.next()) {
+				timeslot = generateTimeSlot(resultSet);
+				timeslots.add(timeslot);
+			}
+			
+			resultSet.close();
+			ps.close();
+			
+			return timeslots;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Failed to get timeslot: " + e.getMessage());
+		}
+	}
+	
 	public boolean addTimeSlot(TimeSlot timeslot) throws Exception {
 		try {
 			PreparedStatement ps = conn.prepareStatement("SELECT * FROM timeslots WHERE ID=?;");
@@ -55,7 +79,7 @@ public class TimeSlotsDAO {
 			
 			ps = conn.prepareStatement("INSERT INTO timeslots (ID, scheduleID, startTime, date, status) values(?,?,?,?,?)");
 			ps.setString(1, timeslot.timeSlotID);
-			ps.setString(2, timeslot.schedule.scheduleID);
+			ps.setString(2, timeslot.scheduleID);
 			ps.setInt(3, timeslot.startTime);
 			
 			Date sqlDate = new java.sql.Date(timeslot.date.getTime());
@@ -90,11 +114,8 @@ public class TimeSlotsDAO {
 		int startTime = resultSet.getInt("startTime");
 		Date date = resultSet.getDate("date");
 		String status = resultSet.getString("status");
-		
-		SchedulesDAO schedules = new SchedulesDAO();
-		Schedule schedule = schedules.getSchedule(scheduleID);
 	
-		return new TimeSlot(timeSlotID, schedule, startTime, date, TimeSlotStatus.getStatus(status));
+		return new TimeSlot(timeSlotID, scheduleID, startTime, date, TimeSlotStatus.getStatus(status));
 		
 	}
 

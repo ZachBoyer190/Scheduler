@@ -19,13 +19,12 @@ public class TestMeeting extends TestCase {
 		
 		try {
 			String id = UUID.randomUUID().toString().substring(0, 5);
-			String scheduleID = "9fe9f";
-			String timeslotID = UUID.randomUUID().toString().substring(0, 5);
+			String scheduleID = "5b34a";
 			String pName = "Ben";
 			String secretCode = UUID.randomUUID().toString().substring(0, 5);
 			
 			Schedule schedule = sd.getSchedule(scheduleID);
-			TimeSlot timeSlot = td.getTimeSlot(timeslotID);
+			TimeSlot timeSlot = td.getTimeSlot(schedule.timeslots.get(0).timeSlotID);
 			
 			User participant = new User(pName, UserType.BASIC);
 			

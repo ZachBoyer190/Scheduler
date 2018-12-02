@@ -50,12 +50,24 @@ public class Schedule {
 					}
 				}
 				String slotID = UUID.randomUUID().toString().substring(0, 5);
-				slots.add(new TimeSlot(slotID, this, startTime, startDate, TimeSlotStatus.OPEN));	
+				slots.add(new TimeSlot(slotID, this.scheduleID, startTime, startDate, TimeSlotStatus.OPEN));	
 			}
 			
 		}
 		
 		this.timeslots = slots;
 	
+	}
+	
+	public Schedule (String id, String name, int startTime, int endTime, int delta, Date startDate, Date endDate, ArrayList<TimeSlot> slots, String code) {
+		this.scheduleID = id;
+		this.name = name;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.slotDelta = delta;
+		this.startDate = startDate;
+		this.endDate = endDate;
+		this.timeslots = slots;
+		this.secretCode = code;
 	}
 }

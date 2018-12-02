@@ -25,11 +25,11 @@ public class TestSchedule extends TestCase {
 			System.out.println("add schedule: " + id + " " + b);
 			
 			assertEquals(schedule.scheduleID, sd.getSchedule(id).scheduleID);
-			sd.deleteSchedule(schedule);
+			/*sd.deleteSchedule(schedule);
 			
 			for(TimeSlot t: schedule.timeslots) {
 				td.deleteTimeSlot(t);
-			}
+			}*/
 			
 		} catch (Exception e){
 			fail ("couldn't add schedule: " + e.getMessage());

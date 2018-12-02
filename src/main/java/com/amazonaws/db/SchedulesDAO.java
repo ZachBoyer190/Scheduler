@@ -107,7 +107,11 @@ public class SchedulesDAO {
 		Date endDate = resultSet.getDate("endDate");
 		String secretCode = resultSet.getString("secretCode");
 		
-		return new Schedule (scheduleID, name, startTime, endTime, delta, startDate, endDate, secretCode);
+		TimeSlotsDAO slotDAO = new TimeSlotsDAO();
+		
+		ArrayList<TimeSlot> timeslots = slotDAO.getTimeSlotsFromSchedule(scheduleID);
+		
+		return new Schedule (scheduleID, name, startTime, endTime, delta, startDate, endDate, timeslots, secretCode);
 		
 	}
 	
