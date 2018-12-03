@@ -50,7 +50,55 @@
         </table>
         <p id="meetingCode"></p>
     </fieldset>
+    <br />
+    <div id="searchOpenSlotsArea" style="visibility:hidden">
+        <label> Show all open time slots:
+            <input type="button" id="showAllOpenTimeSlotsButton" value="Search" onclick="getAllOpenTimeSlots()"/>
 
+        </label>
+
+        <div id="filterOpenSlotOptionsResults" style="visibility:hidden">
+        <br />
+            <label>
+            Filter by:
+            <select id="Year">
+                <option value="NONE"> Year </option>
+            </select>
+            <select id="Month">
+                <option value="NONE"> Month </option>
+            </select>
+            <select id="DayOfMonth">
+                <option value="NONE"> Day of Month </option>
+            </select>
+            <select id="DayOfWeek">
+                <option value="NONE">  Day of Week </option>
+                <option value="MONDAY"> MONDAY </option>
+                <option value="TUESDAY"> TUESDAY </option>
+                <option value="WEDNESDAY"> WEDNESDAY </option>
+                <option value="THURSDAY"> THURSDAY </option>
+                <option value="FRIDAY"> FRIDAY </option>
+            </select>
+            <select id="Time">
+                <option value="NONE"> Time </option>
+            </select>
+            <input type="button" id="filterOptions" value="Filter" onclick="filterAllOpenTimeSlots()"/>
+        </label>
+            <br />
+            <br />
+            <table id="resultsTable">
+                <tr>
+                    <th> Year </th>
+                    <th> Month </th>
+                    <th> Day of Month </th>
+                    <th> Day of Week </th>
+                    <th> Time </th>
+                    <th> Book Button </th>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+    <hr>
     <br />
 
     <div>
@@ -61,6 +109,7 @@
         </label>
 
         <div id="scheduleEditOptions" style="visibility: hidden;">
+            <hr>
             <label> Select change you would like to make to the schedule
                 <select id="selectedEdit">
                     <option value="NONE">  </option>
@@ -70,8 +119,6 @@
                     <option value="CLOSE_TIME"> Close all meetings at a time </option>
                 </select>
 
-                <input type="button" name="submitScheduleEdit" value="Submit" onclick="modifyMultipleTimeSlots()"/>
-                <!-- TODO create button function and make sure it checks to see if an option has been selected -->
             </label>
             <label> Select the time or day you would like to close
                 <select id="selectDay">
@@ -85,9 +132,19 @@
                 <select id="selectTime">
                     <option value="NONE">  </option>
                 </select>
+                <input type="button" name="submitScheduleEdit" value="Submit" onclick="modifyMultipleTimeSlots()"/>
+
+            </label>
+            <hr>
+            <label> Select a new starting date for the schedule
+                <input type="date" id="newStartingDate"/>
+                Select a new ending date for the schedule
+                <input type="date" id="newEndingDate"/>
+                <input type="button" name="submitNewScheduleDates" value="Submit" onclick="extendTimeSlots()"/>
             </label>
         </div>
     </div>
+
 
 
 <p id="currentWeek" style="visibility: hidden"> 1 </p>

@@ -1,16 +1,23 @@
+// TODO decide how to refresh list of booked cells when a meeting is booked
+
+
 // =====================================================
 //              Constants for calculations
 // -----------------------------------------------------
 const errorCode = 300;
-const rowOffset = 2; // rows
-const numCol = 6;
-const colOffset = 1; // columns
+const scheduleRowOffset = 2; // rows
+const scheduleNumCol = 6;
+const scheduleColOffset = 1; // columns
 const timeColIndex = 0;
 const dateRowIndex = 0;
 const dayRowIndex = 0;
 const numDaysInWeek = 7;
 const numMillisDay = 86400000;
 const startWeek = 1;
+
+const openSlotsRowOffset = 1; //column
+const openSlotsNumCol = 6;
+
 const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
@@ -22,6 +29,8 @@ const closeMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazona
 const closeMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const openMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const openMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const extendScheduleURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const allOpenTimeSlotsURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 
 const bookMeetingButtonStatus = "BOOK";
 const cancelMeetingButtonStatus = "CANCEL";
@@ -42,6 +51,7 @@ let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
 let viewStatus = participantStatus;
+let openSlotsInSchedule;
 
 // =====================================================
 //              Templates for Objects
@@ -72,7 +82,8 @@ const scheduleObjectTemplate =
 const dataObjectTemplate =
     {
         httpCode : 999,
-        schedule : scheduleObjectTemplate
+        schedule : scheduleObjectTemplate,
+        openSlots : []
     };
 // =====================================================
 //              Button Click Handlers
@@ -95,6 +106,7 @@ function drawTableFromButton() {
 
         initializeSchedule(table);
         drawSchedule(table);
+        document.getElementById("searchOpenSlotsArea").style.visibility = "visible";
     });
 }
 
@@ -138,17 +150,8 @@ function modifyMeeting(status, btnElement, fieldEntry) {
             thisURL = closeMeetingURL;
             break;
     }
-    // TODO uncomment post request when lambda functions are set up
-/*
-    $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
-        if(data.httpCode >= errorCode){ return; }
-
-        storedScheduleObject = getScheduleFromResponse(data);
-
-        drawSchedule(document.getElementById("scheduleTable"));
-    });
-*/
+    sendPostAndRefresh(thisURL, sentObject);
 }
 
 function checkEditAbility(){
@@ -173,6 +176,7 @@ function checkEditAbility(){
         let table = document.getElementById("scheduleTable");
         drawSchedule(table);
         document.getElementById("scheduleEditOptions").style.visibility = "visible";
+    document.getElementById("searchOpenSlots").style.visibility = "hidden";
         fillTimeDropdown(table);
     //});
 
@@ -203,17 +207,8 @@ function modifyTimeSlot(status, btnElement) {
             thisURL = closeMeetingURL;
             break;
     }
-    // TODO uncomment post request when lambda functions are set up
-    /*
-        $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
-            if(data.httpCode >= errorCode){ return; }
-
-            storedScheduleObject = getScheduleFromResponse(data);
-
-            drawSchedule(document.getElementById("scheduleTable"));
-        });
-    */
+    sendPostAndRefresh(thisURL, sentObject);
 }
 function modifyMultipleTimeSlots() {
 
@@ -261,6 +256,78 @@ function modifyMultipleTimeSlots() {
             thisURL =openMultipleOnDayURL;
             break;
     }
+    sendPostAndRefresh(thisURL, sentObject);
+
+}
+
+function extendTimeSlots() {
+    let newStartingDateInput = document.getElementById("newStartingDate").value;
+    let newEndingDateInput = document.getElementById("newEndingDate").value;
+
+    let newStartDate;
+    let newEndDate;
+
+    let currentStartDate = storedScheduleObject.startDate;
+    let currentEndDate = storedScheduleObject.endDate;
+
+    if(newStartingDateInput === "" && newEndingDateInput === ""){
+        return;
+    } if(newStartingDateInput !== "") {
+        newStartDate = new Date(newStartingDateInput);
+    } else{
+        newStartDate = currentStartDate;
+    } if (newEndingDateInput !== ""){
+        newEndDate = new Date(newEndingDateInput);
+    } else {
+        newEndDate = currentEndDate;
+    }
+
+    if(newStartDate.getTime() > currentStartDate.getTime()
+        || newEndDate.getTime() < currentEndDate.getTime()
+            || (newStartDate.getTime() === currentStartDate.getTime()
+                && newEndDate.getTime() === currentEndDate.getTime()) ){
+        return;
+    }
+
+    let sentObject = {
+        id : storedScheduleObject.id,
+        startDate : newStartDate,
+        endDate : newEndDate
+    };
+
+    sendPostAndRefresh(extendScheduleURL, sentObject);
+}
+
+function getAllOpenTimeSlots(){
+
+    let sentObject =
+        {
+            id : storedScheduleObject.id
+        };
+
+    // TODO uncomment this once the lambda fcn works
+    //$.post(allOpenTimeSlotsURL,JSON.stringify(sentObject), function (data) {
+
+    //    if(data.httpCode >= errorCode){ return; }
+
+        openSlotsInSchedule = storedScheduleObject.timeslots;//data.openSlots;
+        document.getElementById("filterOpenSlotOptionsResults").style.visibility = "visible";
+        let table = document.getElementById("resultsTable");
+        fillTableWithEmptyCells(table,openSlotsInSchedule.length,openSlotsNumCol,openSlotsRowOffset);
+        drawOpenTimeSlots(table, openSlotsInSchedule);
+    //});
+}
+
+function filterAllOpenTimeSlots(){
+    // TODO fill in filtering code
+
+}
+
+// =====================================================
+//              Helper Functions
+// -----------------------------------------------------
+
+function sendPostAndRefresh(thisURL, sentObject){
     // TODO uncomment post request when lambda functions are set up
     /*
         $.post(thisURL,JSON.stringify(sentObject), function (data) {
@@ -270,15 +337,50 @@ function modifyMultipleTimeSlots() {
             storedScheduleObject = getScheduleFromResponse(data);
 
             drawSchedule(document.getElementById("scheduleTable"));
+
         });
     */
-
 }
-// =====================================================
-//              Helper Functions
-// -----------------------------------------------------
+
+function drawOpenTimeSlots(table, openSlotsArray) {
+    emptyTableRowsSlots(table, openSlotsRowOffset);
+    fillEntriesInOpenSlotTable(table, openSlotsArray);
+}
+
+function fillEntriesInOpenSlotTable(table, openSlotArray){
+    for(let row = openSlotsRowOffset; row < openSlotArray.length + openSlotsRowOffset; row++){
+        let thisTimeSlot = openSlotArray[row - openSlotsRowOffset];
+        let date = new Date(thisTimeSlot.startDate);
+        for(let col = 0; col < openSlotsNumCol; col++){
+            let thisCell = table.rows[row].cells[col]
+            switch(col){
+                case 0 :
+                    thisCell.innerHTML = date.getFullYear().toString();
+                    break;
+                case 1 :
+                    thisCell.innerHTML = getMonthString(date);
+                    break;
+                case 2 :
+                    thisCell.innerHTML = date.getDate().toString();
+                    break;
+                case 3 :
+                    thisCell.innerHTML = getDayString(date);
+                    break;
+                case 4 :
+                    thisCell.innerHTML = thisTimeSlot.startTime;
+                    break;
+                case 5 :
+                    thisCell.appendChild(createParticipantOpenCell(thisTimeSlot));
+                    break;
+            }
+
+        }
+
+    }
+}
+
 function drawSchedule(table){
-    emptyTimeSlots(table);
+    emptyTableRowsSlots(table,scheduleRowOffset);
     updateWeekLabel();
     fillDateRow(table);
     fillTimeColumn(table);
@@ -286,7 +388,10 @@ function drawSchedule(table){
 }
 
 function initializeSchedule(table){
-    fillTableWithEmptyCells(table);
+    let numRows = ((storedScheduleObject.endTime-
+        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotDelta;
+
+    fillTableWithEmptyCells(table, numRows, scheduleNumCol, scheduleRowOffset);
     document.getElementById("scheduleName").innerHTML = storedScheduleObject.name;
     scheduleStartDate = storedScheduleObject.startDate;
     generateInitialTableStartDate();
@@ -294,9 +399,7 @@ function initializeSchedule(table){
     editCurrentWeekShown(startWeek);
 }
 
-function fillTableWithEmptyCells(table){
-    let numRows = ((storedScheduleObject.endTime-
-        storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotDelta;
+function fillTableWithEmptyCells(table, numRows, numCol, rowOffset){
 
     for(let j = rowOffset; j < numRows+rowOffset; j++){
         let row = table.insertRow();
@@ -310,7 +413,7 @@ function fillTableWithEmptyCells(table){
 function fillDateRow(htmlTable){
     let j;
     for (j = 0; j < 5; j++){
-        htmlTable.rows[dateRowIndex].cells[j+colOffset].innerHTML =
+        htmlTable.rows[dateRowIndex].cells[j+scheduleColOffset].innerHTML =
             generateDateString(j);
     }
 }
@@ -335,8 +438,8 @@ function fillTimeColumn(htmlTable){
     let hour = 60; // minutes
     let i;
     let currentTime = storedScheduleObject.startTime;
-    for (i = rowOffset; i < numRows+rowOffset; i++) {
-        let nonOffsetIndex = i - rowOffset;
+    for (i = scheduleRowOffset; i < numRows+scheduleRowOffset; i++) {
+        let nonOffsetIndex = i - scheduleRowOffset;
         if (nonOffsetIndex !== 0) {
             if (nonOffsetIndex % (hour / storedScheduleObject.slotDelta) === 0) {
                 currentTime += 40 + storedScheduleObject.slotDelta;
@@ -419,15 +522,15 @@ function getCurrentDates(htmlTable){
     let currentDates = new Array(5);
     let row = htmlTable.rows[dateRowIndex];
     for (let m = 0; m < currentDates.length; m++){
-        currentDates[m] = new Date(row.cells[m+colOffset].innerHTML);
+        currentDates[m] = new Date(row.cells[m+scheduleColOffset].innerHTML);
     }
     return currentDates;
 }
 
 function getCurrentTimes(htmlTable){
     let currentTimes = [];
-    for (let n = 0; n < htmlTable.rows.length - rowOffset; n++) {
-        let thisRow = htmlTable.rows[n + rowOffset];
+    for (let n = 0; n < htmlTable.rows.length - scheduleRowOffset; n++) {
+        let thisRow = htmlTable.rows[n + scheduleRowOffset];
         currentTimes[n] = parseInt(subtractColon(thisRow.cells[timeColIndex].innerHTML));
     }
     return currentTimes;
@@ -436,7 +539,7 @@ function getCurrentTimes(htmlTable){
 function getTimeSlotCol(date, currentDates){
     for (let g = 0; g < currentDates.length; g++) {
         if (compareDates(date, currentDates[g])){
-            return g + colOffset;
+            return g + scheduleColOffset;
         }
     }
     return timeColIndex;
@@ -445,7 +548,7 @@ function getTimeSlotCol(date, currentDates){
 function getTimeSlotRow(time, currentTimes){
     for (let g = 0; g < currentTimes.length; g++) {
         if (time === currentTimes[g]){
-            return g + rowOffset;
+            return g + scheduleRowOffset;
         }
     }
     return timeColIndex;
@@ -625,7 +728,7 @@ function updateWeekLabel(){
         " of " + totalWeeks +" Shown Below");
 }
 
-function emptyTimeSlots(table) {
+function emptyTableRowsSlots(table, rowOffset) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = 0; col < table.rows[row].cells.length; col++) {
             clearChildren(table.rows[row].cells[col]);
@@ -679,4 +782,15 @@ function getDateFromDay(dayChoice){
     }
 
     return new Date(table.rows[0].cells[colOfDate].innerHTML);
+}
+
+function getMonthString(date){
+    let months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+    return months[date.getMonth()];
+}
+
+function getDayString(date){
+    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    return days[date.getDay()];
 }
