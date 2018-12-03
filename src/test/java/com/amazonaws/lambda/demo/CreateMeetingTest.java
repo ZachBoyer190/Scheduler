@@ -27,7 +27,7 @@ public class CreateMeetingTest extends TestCase{
 	
 	public void testCreateMeeting() throws IOException {
 		CreateMeetingHandler handler = new CreateMeetingHandler();
-		
+
 		String scheduleID = "5b34a";
 		String timeslotID = "01655";
 		String uName = "Cory";
@@ -43,6 +43,7 @@ public class CreateMeetingTest extends TestCase{
 		
 		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
 		CreateMeetingResponse resp = new Gson().fromJson(post.body, CreateMeetingResponse.class);
+
 	}
 
 }

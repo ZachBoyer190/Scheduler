@@ -53,7 +53,7 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			User p = new User(userName, UserType.BASIC);
 		
 			m = new Meeting(mID, schedule, timeslot, p, sc);
-			timeslot.modifyStatus("CLOSED");
+			timeslot.modifyStatus("BOOKED");
 			tDAO.updateTimeSlot(timeslot);
 		
 		} catch (Exception e) {
