@@ -35,6 +35,7 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 	
 	String lastID;
 	String editCode;
+	Schedule schedule;
 	
 	boolean createMeeting(String scheduleID, String timeslotID, String userName) throws Exception {
 		if (logger != null) { logger.log("in createMeeting"); }
@@ -48,7 +49,9 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			lastID = mID;
 		
 			String sc = UUID.randomUUID().toString().substring(0, 8);
-			Schedule schedule = sDAO.getSchedule(scheduleID);
+			editCode = sc;
+			Schedule sched = sDAO.getSchedule(scheduleID);
+			schedule = sched;
 			TimeSlot timeslot = tDAO.getTimeSlot(timeslotID);
 			User p = new User(userName, UserType.BASIC);
 		
@@ -90,7 +93,7 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			String method = (String) event.get("httpMethod");
 			if(method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new CreateMeetingResponse("id", lastID, 200, editCode);
+				response = new CreateMeetingResponse("id", lastID, 200, editCode, schedule);
 				responseJson.put("body", new Gson().toJson(response));
 				processed = true;
 				body = null;
@@ -102,7 +105,7 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new CreateMeetingResponse("Bad Request: " + pe.getMessage(), lastID, 422, editCode);
+			response = new CreateMeetingResponse("Bad Request: " + pe.getMessage(), lastID, 422, editCode, schedule);
 			responseJson.put("body", new Gson().toJson(response));
 			processed = true;
 			body = null;
@@ -115,15 +118,16 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			CreateMeetingResponse resp;
 			try {
 				if (createMeeting(req.scheduleID, req.timeslotID, req.userName)) {
-					resp = new CreateMeetingResponse("Successfully Created Meeting" , lastID, 200, editCode);
+					resp = new CreateMeetingResponse("Successfully Created Meeting" , lastID, 200, editCode, schedule);
 				} else {
-					resp = new CreateMeetingResponse("Unable to create meeting", lastID, 422, editCode);
+					resp = new CreateMeetingResponse("Unable to create meeting", lastID, 422, editCode, schedule);
 				}
 			} catch (Exception e) {
-				resp = new CreateMeetingResponse("Unable to create meeting. (" + e.getMessage() + ")", lastID, 403, editCode);
+				resp = new CreateMeetingResponse("Unable to create meeting. (" + e.getMessage() + ")", lastID, 403, editCode, schedule);
 			}
+			String test = new Gson().toJson(resp, CreateMeetingResponse.class);		
 			
-			responseJson.put("body", new Gson().toJson(resp));
+			responseJson.put("body", new Gson().toJson(resp, CreateMeetingResponse.class));
 		}
 		logger.log("end result: " + responseJson.toJSONString());
 		logger.log(responseJson.toJSONString());
