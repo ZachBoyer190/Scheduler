@@ -1,6 +1,3 @@
-// TODO create function that actually schedules a meeting and tells secret code to secret code paragraph element
-// TODO add function logic to each button when it is made
-
 // =====================================================
 //              Constants for calculations
 // -----------------------------------------------------
@@ -21,6 +18,10 @@ const checkEditCodeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com
 const cancelMeetingOrganizerURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const closeTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const openTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const closeMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const closeMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const openMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const openMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 
 const bookMeetingButtonStatus = "BOOK";
 const cancelMeetingButtonStatus = "CANCEL";
@@ -30,6 +31,12 @@ const closeTimeSlotButtonStatus = "CLOSE";
 
 const participantStatus = "PARTICIPANT";
 const organizerStatus = "ORGANIZER";
+
+const editOptionOpenDay = "OPEN_DAY";
+const editOptionOpenTime = "OPEN_TIME";
+const editOptionCloseDay = "CLOSE_DAY";
+const editOptionCloseTime = "CLOSE_TIME";
+const NoneSelected = "NONE";
 
 let scheduleStartDate;
 let tableStartDate;
@@ -207,6 +214,65 @@ function modifyTimeSlot(status, btnElement) {
             drawSchedule(document.getElementById("scheduleTable"));
         });
     */
+}
+function modifyMultipleTimeSlots() {
+
+    let editChoice = document.getElementById("selectedEdit").value;
+
+    if(editChoice === NoneSelected){
+        return;
+    }
+
+    let sentObject;
+
+    if (editChoice === editOptionOpenDay || editChoice === editOptionCloseDay){
+        let dayChoice = document.getElementById("selectDay").value;
+        if(dayChoice === NoneSelected){
+            return;
+        }
+        sentObject = {
+            day : new Date(getDateFromDay(dayChoice)),
+            id : storedScheduleObject.id
+
+        }
+    } else if(editChoice === editOptionOpenTime || editChoice === editOptionCloseTime){
+        let timeChoice = document.getElementById("selectTime").value;
+        if(timeChoice === NoneSelected){
+            return;
+        }
+        sentObject = {
+            time : parseInt(timeChoice),
+            id : storedScheduleObject.id
+
+        }
+    }
+    let thisURL;
+    switch (editChoice) {
+        case editOptionCloseTime :
+            thisURL = closeMultipleAtTimeURL;
+            break;
+        case editOptionCloseDay :
+            thisURL = closeMultipleOnDayURL;
+            break;
+        case editOptionOpenTime :
+            thisURL =openMultipleAtTimeURL;
+            break;
+        case editOptionOpenDay :
+            thisURL =openMultipleOnDayURL;
+            break;
+    }
+    // TODO uncomment post request when lambda functions are set up
+    /*
+        $.post(thisURL,JSON.stringify(sentObject), function (data) {
+
+            if(data.httpCode >= errorCode){ return; }
+
+            storedScheduleObject = getScheduleFromResponse(data);
+
+            drawSchedule(document.getElementById("scheduleTable"));
+        });
+    */
+
 }
 // =====================================================
 //              Helper Functions
@@ -463,7 +529,6 @@ function createOrganizerOpenCell(timeslot){
     closeBtn.type = "button";
     closeBtn.value = "close time slot";
     closeBtn.id = timeslot.timeSlotId;
-    // TODO fill in function call here
     closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
@@ -477,7 +542,6 @@ function createOrganizerBookedCell(timeslot) {
     cancelBtn.type = "button";
     cancelBtn.value = "cancel meeting";
     cancelBtn.id = timeslot.timeSlotId;
-    // TODO fill in function call here
     cancelBtn.onclick = function(){modifyTimeSlot(cancelMeetingButtonStatus,cancelBtn)};
     div0.appendChild(cancelBtn);
 
@@ -485,7 +549,6 @@ function createOrganizerBookedCell(timeslot) {
     closeBtn.type = "button";
     closeBtn.value = "close time slot";
     closeBtn.id = timeslot.timeSlotId;
-    // TODO fill in function call here
     closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
@@ -499,7 +562,6 @@ function createOrganizerClosedCell(timeslot){
     openBtn.type = "button";
     openBtn.value = "open time slot";
     openBtn.id = timeslot.timeSlotId;
-    // TODO fill in function call here
     openBtn.onclick = function(){modifyTimeSlot(openTimeSlotButtonStatus,openBtn)};
     div0.appendChild(openBtn);
 
@@ -589,13 +651,32 @@ function getScheduleFromResponse(data){
 
 
 function fillTimeDropdown(table){
-    // TODO fix way it gets the current times becuase they are wrong
     let timesWithoutColons = getCurrentTimes(table);
     let select = document.getElementById("selectTime");
-    for (time in timesWithoutColons){
+    for (let t = 0; t < timesWithoutColons.length ; t++){
+        let time = timesWithoutColons[t];
+        let timeString = time.toString();
+        if (time < 1000){
+            timeString = "0" + timeString;
+        }
         let option = document.createElement("option");
         option.value = time;
-        option.innerHTML = insertCharacter(time,2,":");
+        option.innerHTML = insertCharacter(timeString,2,":");
         select.add(option);
     }
+}
+
+function getDateFromDay(dayChoice){
+    let table = document.getElementById("scheduleTable");
+
+    let colOfDate = 0;
+    for(let m = 1; m < 6; m++){
+        let tableDay = ((table.rows[1].cells[m].innerHTML).toUpperCase()).replace(/\s+/g, '');
+        if( tableDay === dayChoice){
+            colOfDate = m;
+            break;
+        }
+    }
+
+    return new Date(table.rows[0].cells[colOfDate].innerHTML);
 }
