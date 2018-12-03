@@ -1,5 +1,3 @@
-// TODO decide how to refresh list of booked cells when a meeting is booked
-
 
 // =====================================================
 //              Constants for calculations
@@ -51,6 +49,12 @@ const editOptionCloseDay = "CLOSE_DAY";
 const editOptionCloseTime = "CLOSE_TIME";
 const NoneSelected = "NONE";
 
+const notInitialized = "NO";
+const initialized = "YES";
+
+const scheduleHasChanged = "YES";
+const scheduleHasNotChanged = "NO";
+
 let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
@@ -59,6 +63,8 @@ let searchStatus = searchClosed;
 let openSlotsInSchedule;
 let unfilteredStoredOpenSlots;
 let filteredStoredOpenSlots;
+let scheduleInitializedStatus = notInitialized;
+let hasScheduleChanged = scheduleHasNotChanged;
 
 // =====================================================
 //              Templates for Objects
@@ -75,7 +81,7 @@ const timeslotTemplate =
 const scheduleObjectTemplate =
     {
         startDate: new Date(),
-            endDate: new Date(),
+        endDate: new Date(),
         startTime: 9999,
         endTime: 9999,
         slotDelta: 9999,
@@ -101,20 +107,8 @@ function drawTableFromButton() {
         return;
     }
 
-    $.post(url,JSON.stringify({id: inputID}), function (data) {
-        document.getElementById("ScheduleID").value = "";
+    sendPostAndRefresh(url, {id: inputID}, scheduleHasNotChanged,[document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")],["visible", "hidden"]);
 
-        if(data.httpCode >= errorCode){
-            return;
-        }
-        storedScheduleObject = getScheduleFromResponse(data);
-
-        let table = document.getElementById("scheduleTable");
-
-        initializeSchedule(table);
-        drawSchedule(table);
-        document.getElementById("searchOpenSlotsArea").style.visibility = "visible";
-    });
 }
 
 function showDifferentWeek(step){
@@ -158,7 +152,7 @@ function modifyMeeting(status, btnElement, fieldEntry) {
             break;
     }
 
-    sendPostAndRefresh(thisURL, sentObject);
+    sendPostAndRefresh(thisURL, sentObject, scheduleHasChanged);
 }
 
 function checkEditAbility(){
@@ -182,9 +176,8 @@ function checkEditAbility(){
         viewStatus = organizerStatus;
         let table = document.getElementById("scheduleTable");
         drawSchedule(table);
-        document.getElementById("scheduleEditOptions").style.visibility = "visible";
-        document.getElementById("searchOpenSlotsArea").style.visibility = "hidden";
-    document.getElementById("filterOpenSlotOptionsResults").style.visibility = "hidden";
+        clearChildren(document.getElementById("resultsTable"));
+        changeGivenElementsVisibility([document.getElementById("scheduleEditOptions"),document.getElementById("searchOpenSlotsArea"),document.getElementById("filterOpenSlotOptionsResults")], ["visible","hidden","hidden"]);
         fillTimeDropdown(table, document.getElementById("selectTime"));
     //});
 
@@ -216,7 +209,7 @@ function modifyTimeSlot(status, btnElement) {
             break;
     }
 
-    sendPostAndRefresh(thisURL, sentObject);
+    sendPostAndRefresh(thisURL, sentObject, scheduleHasChanged);
 }
 function modifyMultipleTimeSlots() {
 
@@ -405,19 +398,34 @@ function filterOpenSlots(filters){
     return opentSlots;
 }
 
-function sendPostAndRefresh(thisURL, sentObject){
-    // TODO uncomment post request when lambda functions are set up
-    /*
-        $.post(thisURL,JSON.stringify(sentObject), function (data) {
+function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, elementArray, elementValues){
 
-            if(data.httpCode >= errorCode){ return; }
+    $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
-            storedScheduleObject = getScheduleFromResponse(data);
+        if(data.httpCode >= errorCode){ return; }
 
-            drawSchedule(document.getElementById("scheduleTable"));
+        storedScheduleObject = getScheduleFromResponse(data);
 
-        });
-    */
+        if(scheduleChangeStatusChange !== undefined) {
+            hasScheduleChanged = scheduleChangeStatusChange;
+        }
+
+        if(scheduleInitializedStatus !== initialized){
+            initializeSchedule(document.getElementById("scheduleTable"));
+            scheduleInitializedStatus = initialized;
+        }
+
+        drawSchedule(document.getElementById("scheduleTable"));
+        if(elementArray !== undefined && elementValues !== undefined) {
+            if (elementValues.length !== 0 && elementArray !== 0) {
+                changeGivenElementsVisibility(elementArray, elementValues);
+            }
+        }
+
+
+    });
+
+
 }
 
 function drawOpenTimeSlots(table) {
@@ -464,7 +472,10 @@ function drawSchedule(table){
     fillTimeColumn(table);
     fillTimeSlots(viewStatus,table);
     if(searchStatus === searchOpen) {
-        fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
+        if(hasScheduleChanged === scheduleHasChanged) {
+            fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
+            hasScheduleChanged = scheduleHasNotChanged;
+        }
     }
 }
 
@@ -921,5 +932,11 @@ function fillDayOfWeekDropDown(){
         newOption.value = (i+1).toString();
         newOption.innerHTML = months[i];
         select.appendChild(newOption);
+    }
+}
+
+function changeGivenElementsVisibility(elements, values) {
+    for(let i = 0; i < elements.length; i++){
+        elements[i].style.visibility = values[i];
     }
 }
