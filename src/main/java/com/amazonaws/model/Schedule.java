@@ -1,6 +1,7 @@
 package com.amazonaws.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 
@@ -37,22 +38,29 @@ public class Schedule {
 		for (long i = startDate.getTime(); i <= endDate.getTime(); i += 86400000) {
 			
 			int currentTime = startTime;
+			Date currentDate = new Date(i);
 			
-			for (int j = 0; j < numSlots; j++) {
+			if(getDayOfWeek(currentDate) == 1 || getDayOfWeek(currentDate) == 7) {
+				i++;
 				
-				if(j != 0) {
+			} else {
+				
+				for (int j = 0; j < numSlots; j++) {
+				
+					if(j != 0) {
 					
-					if (j % (60/slotDelta) == 0) {
-						currentTime += 40 + slotDelta;
-					} else {
-						currentTime += slotDelta;
+						if (j % (60/slotDelta) == 0) {
+							currentTime += 40 + slotDelta;
+						} else {
+							currentTime += slotDelta;
 						
+						}
 					}
+					String slotID = UUID.randomUUID().toString().substring(0, 5);
+					slots.add(new TimeSlot(slotID, this.scheduleID, startTime, startDate, TimeSlotStatus.OPEN));	
 				}
-				String slotID = UUID.randomUUID().toString().substring(0, 5);
-				slots.add(new TimeSlot(slotID, this.scheduleID, startTime, startDate, TimeSlotStatus.OPEN));	
-			}
 			
+			}
 		}
 		
 		this.timeslots = slots;
@@ -69,5 +77,12 @@ public class Schedule {
 		this.endDate = endDate;
 		this.timeslots = slots;
 		this.secretCode = code;
+	}
+	
+	private int getDayOfWeek(Date d) {
+		Calendar c = Calendar.getInstance();
+		c.setTime(d);
+		int dayOfWeek = c.get(c.DAY_OF_WEEK);
+		return dayOfWeek;
 	}
 }

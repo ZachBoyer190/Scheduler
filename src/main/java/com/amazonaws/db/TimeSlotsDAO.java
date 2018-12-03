@@ -108,6 +108,21 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		}
 	}
 	
+	public boolean updateTimeSlot(TimeSlot timeslot) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=? WHERE ID=?;");
+			ps.setString(1, timeslot.status.toString());
+			ps.setString(2,  timeslot.timeSlotID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected == 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
 	private TimeSlot generateTimeSlot(ResultSet resultSet) throws Exception {
 		String timeSlotID = resultSet.getString("ID");
 		String scheduleID = resultSet.getString("scheduleID");

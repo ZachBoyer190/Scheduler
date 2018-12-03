@@ -7,9 +7,9 @@ public enum TimeSlotStatus {
 	BOOKED;
 	
 	public static TimeSlotStatus getStatus(String s) {
-		if (s.contains("open")) {
+		if (s.contains("OPEN")) {
 			return OPEN;
-		} else if (s.contains("closed")) {
+		} else if (s.contains("CLOSED")) {
 			return CLOSED;
 		} else {
 			return BOOKED;
