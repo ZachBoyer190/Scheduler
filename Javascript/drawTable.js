@@ -14,6 +14,7 @@ const dayRowIndex = 0;
 const numDaysInWeek = 7;
 const numMillisDay = 86400000;
 const startWeek = 1;
+const errorValue = -1;
 
 const openSlotsRowOffset = 1; //column
 const openSlotsNumCol = 6;
@@ -41,6 +42,9 @@ const closeTimeSlotButtonStatus = "CLOSE";
 const participantStatus = "PARTICIPANT";
 const organizerStatus = "ORGANIZER";
 
+const searchOpen = "VISIBLE";
+const searchClosed = "HIDDEN";
+
 const editOptionOpenDay = "OPEN_DAY";
 const editOptionOpenTime = "OPEN_TIME";
 const editOptionCloseDay = "CLOSE_DAY";
@@ -51,7 +55,10 @@ let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
 let viewStatus = participantStatus;
+let searchStatus = searchClosed;
 let openSlotsInSchedule;
+let unfilteredStoredOpenSlots;
+let filteredStoredOpenSlots;
 
 // =====================================================
 //              Templates for Objects
@@ -176,8 +183,9 @@ function checkEditAbility(){
         let table = document.getElementById("scheduleTable");
         drawSchedule(table);
         document.getElementById("scheduleEditOptions").style.visibility = "visible";
-    document.getElementById("searchOpenSlots").style.visibility = "hidden";
-        fillTimeDropdown(table);
+        document.getElementById("searchOpenSlotsArea").style.visibility = "hidden";
+    document.getElementById("filterOpenSlotOptionsResults").style.visibility = "hidden";
+        fillTimeDropdown(table, document.getElementById("selectTime"));
     //});
 
     inputCodeArea.value = "";
@@ -313,19 +321,89 @@ function getAllOpenTimeSlots(){
         openSlotsInSchedule = storedScheduleObject.timeslots;//data.openSlots;
         document.getElementById("filterOpenSlotOptionsResults").style.visibility = "visible";
         let table = document.getElementById("resultsTable");
+        unfilteredStoredOpenSlots = openSlotsInSchedule;
+        filteredStoredOpenSlots = openSlotsInSchedule;
+        searchStatus = searchOpen;
         fillTableWithEmptyCells(table,openSlotsInSchedule.length,openSlotsNumCol,openSlotsRowOffset);
         drawOpenTimeSlots(table, openSlotsInSchedule);
+        fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
+        fillYearDropDown();
+        fillMonthDropDown();
+        fillDayOfMonthDropDown();
+        fillDayOfWeekDropDown();
     //});
 }
 
 function filterAllOpenTimeSlots(){
-    // TODO fill in filtering code
+    let yearDropdownValue = document.getElementById("Year").value;
+    let monthDropdownValue = document.getElementById("Month").value;
+    let dayOfMonthDropdownValue = document.getElementById("DayOfMonth").value;
+    let dayOfWeekDropdownValue = document.getElementById("DayOfWeek").value;
+    let timeDropdownValue = document.getElementById("Time").value;
+    let filterStrings = [yearDropdownValue,monthDropdownValue,dayOfMonthDropdownValue,dayOfWeekDropdownValue,timeDropdownValue]
 
+    let filters = [];
+    for (let u = 0; u < filterStrings.length; u++){
+        let thisValue = errorValue;
+        if(filterStrings[u] !== NoneSelected){
+            thisValue = (parseInt(filterStrings[u]));
+        }
+        filters.push(thisValue);
+    }
+
+    filteredStoredOpenSlots = filterOpenSlots(filters);
+    drawOpenTimeSlots(document.getElementById("resultsTable"));
 }
 
 // =====================================================
 //              Helper Functions
 // -----------------------------------------------------
+function filterOpenSlots(filters){
+    let opentSlots = [];
+    for(let t = 0; t < unfilteredStoredOpenSlots.length; t++){
+        let thisOpenSlot = unfilteredStoredOpenSlots[t];
+        let thisOpenSlotDate = new Date(thisOpenSlot.startDate);
+        let addSlot = 0;
+        let numValidFilters = 5;
+        for(let g = 0; g < filters.length; g++){
+            if(filters[g] === errorValue){
+                numValidFilters--;
+            }
+            switch(g){
+                case 0 :
+                    if(filters[g] === thisOpenSlotDate.getFullYear()){
+                        addSlot++;
+                    }
+                    break;
+                case 1 :
+                    if(filters[g] === thisOpenSlotDate.getMonth()) {
+                        addSlot++;
+                    }
+                    break;
+                case 2 :
+                    if(filters[g] === thisOpenSlotDate.getDate()) {
+                        addSlot++;
+                    }
+                    break;
+                case 3 :
+                    if(filters[g] === thisOpenSlotDate.getDay()) {
+                        addSlot++;
+                    }
+                    break;
+                case 4 :
+                    if(filters[g] === thisOpenSlot.startTime) {
+                        addSlot++;
+                    }
+                    break;
+            }
+            if(addSlot === numValidFilters){
+                opentSlots.push(thisOpenSlot);
+                break;
+            }
+        }
+    }
+    return opentSlots;
+}
 
 function sendPostAndRefresh(thisURL, sentObject){
     // TODO uncomment post request when lambda functions are set up
@@ -342,17 +420,17 @@ function sendPostAndRefresh(thisURL, sentObject){
     */
 }
 
-function drawOpenTimeSlots(table, openSlotsArray) {
+function drawOpenTimeSlots(table) {
     emptyTableRowsSlots(table, openSlotsRowOffset);
-    fillEntriesInOpenSlotTable(table, openSlotsArray);
+    fillEntriesInOpenSlotTable(table, filteredStoredOpenSlots);
 }
 
-function fillEntriesInOpenSlotTable(table, openSlotArray){
-    for(let row = openSlotsRowOffset; row < openSlotArray.length + openSlotsRowOffset; row++){
-        let thisTimeSlot = openSlotArray[row - openSlotsRowOffset];
+function fillEntriesInOpenSlotTable(table){
+    for(let row = openSlotsRowOffset; row < filteredStoredOpenSlots.length + openSlotsRowOffset; row++){
+        let thisTimeSlot = filteredStoredOpenSlots[row - openSlotsRowOffset];
         let date = new Date(thisTimeSlot.startDate);
         for(let col = 0; col < openSlotsNumCol; col++){
-            let thisCell = table.rows[row].cells[col]
+            let thisCell = table.rows[row].cells[col];
             switch(col){
                 case 0 :
                     thisCell.innerHTML = date.getFullYear().toString();
@@ -385,6 +463,9 @@ function drawSchedule(table){
     fillDateRow(table);
     fillTimeColumn(table);
     fillTimeSlots(viewStatus,table);
+    if(searchStatus === searchOpen) {
+        fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
+    }
 }
 
 function initializeSchedule(table){
@@ -753,9 +834,9 @@ function getScheduleFromResponse(data){
 }
 
 
-function fillTimeDropdown(table){
+function fillTimeDropdown(table, dropDownItem){
     let timesWithoutColons = getCurrentTimes(table);
-    let select = document.getElementById("selectTime");
+    let select = dropDownItem;
     for (let t = 0; t < timesWithoutColons.length ; t++){
         let time = timesWithoutColons[t];
         let timeString = time.toString();
@@ -793,4 +874,52 @@ function getMonthString(date){
 function getDayString(date){
     let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     return days[date.getDay()];
+}
+
+function fillYearDropDown(){
+    let select = document.getElementById("Year");
+
+    for(let i = 2018; i < 2075; i++){
+        let newOption = document.createElement("option");
+        newOption.value = i.toString();
+        newOption.innerHTML = i.toString();
+        select.appendChild(newOption);
+    }
+}
+function fillMonthDropDown(){
+    let months = ["January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"];
+
+    let select = document.getElementById("Month");
+
+    for(let i = 0; i < months.length; i++){
+        let newOption = document.createElement("option");
+        newOption.value = i.toString();
+        newOption.innerHTML = months[i];
+        select.appendChild(newOption);
+    }
+}
+
+function fillDayOfMonthDropDown(){
+    let select = document.getElementById("DayOfMonth");
+
+    for(let i = 1; i <= 31; i++){
+        let newOption = document.createElement("option");
+        newOption.value = i.toString();
+        newOption.innerHTML = i.toString();
+        select.appendChild(newOption);
+    }
+}
+
+function fillDayOfWeekDropDown(){
+    let months = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+    let select = document.getElementById("DayOfWeek");
+
+    for(let i = 0; i < months.length; i++){
+        let newOption = document.createElement("option");
+        newOption.value = (i+1).toString();
+        newOption.innerHTML = months[i];
+        select.appendChild(newOption);
+    }
 }
