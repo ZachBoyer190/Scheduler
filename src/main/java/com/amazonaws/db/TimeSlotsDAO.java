@@ -129,8 +129,10 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		int startTime = resultSet.getInt("startTime");
 		Date date = resultSet.getDate("date");
 		String status = resultSet.getString("status");
+		
+		java.util.Date utilDate = new java.util.Date(date.getTime());
 	
-		return new TimeSlot(timeSlotID, scheduleID, startTime, date, TimeSlotStatus.getStatus(status));
+		return new TimeSlot(timeSlotID, scheduleID, startTime, utilDate, TimeSlotStatus.getStatus(status));
 		
 	}
 

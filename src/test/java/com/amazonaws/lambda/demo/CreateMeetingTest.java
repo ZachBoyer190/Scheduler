@@ -43,6 +43,7 @@ public class CreateMeetingTest extends TestCase{
 		
 		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
 		CreateMeetingResponse resp = new Gson().fromJson(post.body, CreateMeetingResponse.class);
+		
 
 	}
 

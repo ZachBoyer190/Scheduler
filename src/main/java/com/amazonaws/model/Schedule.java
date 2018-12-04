@@ -18,9 +18,7 @@ public class Schedule {
 	public final Date startDate;
 	public final Date endDate;
 	public final String secretCode;
-	
-	TimeSlotsDAO timeslotDAO = new TimeSlotsDAO();
-	
+		
 	public Schedule (String id, String name, int startTime, int endTime, int delta, Date startDate, Date endDate, String code) {
 		this.scheduleID = id;
 		this.name = name;

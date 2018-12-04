@@ -125,7 +125,6 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 			} catch (Exception e) {
 				resp = new CreateMeetingResponse("Unable to create meeting. (" + e.getMessage() + ")", lastID, 403, editCode, schedule);
 			}
-			String test = new Gson().toJson(resp, CreateMeetingResponse.class);		
 			
 			responseJson.put("body", new Gson().toJson(resp, CreateMeetingResponse.class));
 		}

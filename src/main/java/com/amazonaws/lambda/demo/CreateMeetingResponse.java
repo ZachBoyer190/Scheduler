@@ -14,8 +14,7 @@ public class CreateMeetingResponse {
 		this.id = id;
 		this.httpCode = code;
 		this.secretCode = secretCode;
-		//this.schedule = schedule;
-		this.schedule = null;
+		this.schedule = schedule;
 	}
 	
 	public String toString() {
