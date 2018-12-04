@@ -17,8 +17,8 @@ const errorValue = -1;
 const openSlotsRowOffset = 1; //column
 const openSlotsNumCol = 6;
 
-const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
-const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
+const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/-createMeeting';
+const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/';
 const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const checkEditCodeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
 const cancelMeetingOrganizerURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/getschedule';
@@ -58,13 +58,23 @@ const scheduleHasNotChanged = "NO";
 let scheduleStartDate;
 let tableStartDate;
 let storedScheduleObject;
-let viewStatus = participantStatus;
-let searchStatus = searchClosed;
+
 let openSlotsInSchedule;
 let unfilteredStoredOpenSlots;
 let filteredStoredOpenSlots;
+
+// =====================================================
+//              Statuses for Page Drawing
+// -----------------------------------------------------
 let scheduleInitializedStatus = notInitialized;
 let hasScheduleChanged = scheduleHasNotChanged;
+
+let viewStatus = participantStatus;
+let searchButtonStatus = searchOpen;
+let searchResultsStatus = searchClosed;
+
+
+
 
 // =====================================================
 //              Templates for Objects
@@ -300,31 +310,21 @@ function extendTimeSlots() {
 }
 
 function getAllOpenTimeSlots(){
+    sendPostAndRefresh(url, {id: inputID}, scheduleHasNotChanged,[document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")],["visible", "hidden"]);
 
-    let sentObject =
-        {
-            id : storedScheduleObject.id
-        };
-
-    // TODO uncomment this once the lambda fcn works
-    //$.post(allOpenTimeSlotsURL,JSON.stringify(sentObject), function (data) {
-
-    //    if(data.httpCode >= errorCode){ return; }
-
-        openSlotsInSchedule = storedScheduleObject.timeslots;//data.openSlots;
-        document.getElementById("filterOpenSlotOptionsResults").style.visibility = "visible";
-        let table = document.getElementById("resultsTable");
-        unfilteredStoredOpenSlots = openSlotsInSchedule;
-        filteredStoredOpenSlots = openSlotsInSchedule;
-        searchStatus = searchOpen;
-        fillTableWithEmptyCells(table,openSlotsInSchedule.length,openSlotsNumCol,openSlotsRowOffset);
-        drawOpenTimeSlots(table, openSlotsInSchedule);
-        fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
-        fillYearDropDown();
-        fillMonthDropDown();
-        fillDayOfMonthDropDown();
-        fillDayOfWeekDropDown();
-    //});
+    openSlotsInSchedule = getOpenSlots(storedScheduleObject.timeslots);
+    changeGivenElementsVisibility([document.getElementById("filterOpenSlotOptionsResults")],["visible"]);
+    let table = document.getElementById("resultsTable");
+    unfilteredStoredOpenSlots = openSlotsInSchedule;
+    filteredStoredOpenSlots = openSlotsInSchedule;
+    searchResultsStatus = searchOpen;
+    fillTableWithEmptyCells(table,openSlotsInSchedule.length,openSlotsNumCol,openSlotsRowOffset);
+    drawOpenTimeSlots(table, openSlotsInSchedule);
+    fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
+    fillYearDropDown();
+    fillMonthDropDown();
+    fillDayOfMonthDropDown();
+    fillDayOfWeekDropDown();
 }
 
 function filterAllOpenTimeSlots(){
@@ -398,35 +398,7 @@ function filterOpenSlots(filters){
     return opentSlots;
 }
 
-function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, elementArray, elementValues){
 
-    $.post(thisURL,JSON.stringify(sentObject), function (data) {
-
-        if(data.httpCode >= errorCode){ return; }
-
-        storedScheduleObject = getScheduleFromResponse(data);
-
-        if(scheduleChangeStatusChange !== undefined) {
-            hasScheduleChanged = scheduleChangeStatusChange;
-        }
-
-        if(scheduleInitializedStatus !== initialized){
-            initializeSchedule(document.getElementById("scheduleTable"));
-            scheduleInitializedStatus = initialized;
-        }
-
-        drawSchedule(document.getElementById("scheduleTable"));
-        if(elementArray !== undefined && elementValues !== undefined) {
-            if (elementValues.length !== 0 && elementArray !== 0) {
-                changeGivenElementsVisibility(elementArray, elementValues);
-            }
-        }
-
-
-    });
-
-
-}
 
 function drawOpenTimeSlots(table) {
     emptyTableRowsSlots(table, openSlotsRowOffset);
@@ -465,19 +437,7 @@ function fillEntriesInOpenSlotTable(table){
     }
 }
 
-function drawSchedule(table){
-    emptyTableRowsSlots(table,scheduleRowOffset);
-    updateWeekLabel();
-    fillDateRow(table);
-    fillTimeColumn(table);
-    fillTimeSlots(viewStatus,table);
-    if(searchStatus === searchOpen) {
-        if(hasScheduleChanged === scheduleHasChanged) {
-            fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
-            hasScheduleChanged = scheduleHasNotChanged;
-        }
-    }
-}
+
 
 function initializeSchedule(table){
     let numRows = ((storedScheduleObject.endTime-
@@ -940,3 +900,82 @@ function changeGivenElementsVisibility(elements, values) {
         elements[i].style.visibility = values[i];
     }
 }
+
+function getOpenSlots(timeSlots){
+    let openSlots = [];
+    for (let v = 0; v < timeSlots.length; v++){
+        let thisTimeSlot = timeSlots[v];
+        if(thisTimeSlot.status === openTimeSlotButtonStatus) {
+            openSlots.add(timeSlots[v]);
+        }
+    }
+    return openSlots;
+
+}
+
+
+// =====================================================
+//              Post and Refresh Function
+// -----------------------------------------------------
+function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, elementArray, elementValues){
+
+    $.post(thisURL,JSON.stringify(sentObject), function (data) {
+
+        if(data.httpCode >= errorCode){ return; }
+
+        storedScheduleObject = getScheduleFromResponse(data);
+
+        if(scheduleChangeStatusChange !== undefined) {
+            hasScheduleChanged = scheduleChangeStatusChange;
+        }
+
+        if(scheduleInitializedStatus !== initialized){
+            initializeSchedule(document.getElementById("scheduleTable"));
+            scheduleInitializedStatus = initialized;
+        }
+
+        drawSchedule(document.getElementById("scheduleTable"));
+        if(elementArray !== undefined && elementValues !== undefined) {
+            if (elementValues.length !== 0 && elementArray !== 0) {
+                changeGivenElementsVisibility(elementArray, elementValues);
+            }
+        }
+
+
+    });
+
+
+}
+
+
+
+
+
+
+
+// =====================================================
+//              Drawing Functions
+// -----------------------------------------------------
+
+function drawSchedule(table){
+    emptyTableRowsSlots(table,scheduleRowOffset);
+    updateWeekLabel();
+    fillDateRow(table);
+    fillTimeColumn(table);
+    fillTimeSlots(viewStatus,table);
+    if(searchResultsStatus === searchOpen) {
+        if(hasScheduleChanged === scheduleHasChanged) {
+            fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
+            hasScheduleChanged = scheduleHasNotChanged;
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
