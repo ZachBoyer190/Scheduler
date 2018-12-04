@@ -69,6 +69,20 @@ public class MeetingsDAO {
 		}
 	}
 	
+	public boolean deleteMeeting(String meetingID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("DELETE FROM meetings WHERE ID=?;");
+			ps.setString(1, meetingID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected == 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to delete desired meeting: " + e.getMessage());
+		}
+	}
+	
 	private Meeting generateMeeting(ResultSet resultSet) throws Exception {
 		String meetingID = resultSet.getString("ID");
 		String scheduleID = resultSet.getString("scheduleID");
