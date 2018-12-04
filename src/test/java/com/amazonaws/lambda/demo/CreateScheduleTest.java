@@ -49,7 +49,7 @@ public class CreateScheduleTest extends TestCase{
 	public void testGetSchedule() throws IOException {
 		GetScheduleHandler handler = new GetScheduleHandler();
 		
-		GetScheduleRequest gsr = new GetScheduleRequest("c8546");
+		GetScheduleRequest gsr = new GetScheduleRequest("b5e9e");
 		String getScheduleRequest = new Gson().toJson(gsr);
 		String jsonRequest = new Gson().toJson(new PostRequest(getScheduleRequest));
 
