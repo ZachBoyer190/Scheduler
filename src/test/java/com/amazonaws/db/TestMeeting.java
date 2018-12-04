@@ -19,7 +19,7 @@ public class TestMeeting extends TestCase {
 		
 		try {
 			String id = UUID.randomUUID().toString().substring(0, 5);
-			String scheduleID = "5b34a";
+			String scheduleID = "0fd25";
 			String pName = "Ben";
 			String secretCode = UUID.randomUUID().toString().substring(0, 5);
 			
@@ -37,6 +37,33 @@ public class TestMeeting extends TestCase {
 			
 		} catch (Exception e) {
 			fail ("Couln't add meeting: " + e.getMessage());
+		}
+	}
+	
+	public void testDelete() {
+		MeetingsDAO mDAO = new MeetingsDAO();
+		SchedulesDAO sDAO = new SchedulesDAO();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		try {
+			String id = UUID.randomUUID().toString().substring(0, 5);
+			String scheduleID = "0fd25";
+			String pName = "Ben";
+			String secretCode = UUID.randomUUID().toString().substring(0, 5);
+			
+			Schedule schedule = sDAO.getSchedule(scheduleID);
+			TimeSlot timeSlot = tDAO.getTimeSlot(schedule.timeslots.get(0).timeSlotID);
+			
+			User participant = new User(pName, UserType.BASIC);
+			
+			Meeting m = new Meeting(id, schedule, timeSlot, participant, secretCode);
+			
+			boolean b = mDAO.addMeeting(m);
+			System.out.println("add meeting: " + id + " " + b);
+			
+			assertTrue(mDAO.deleteMeeting(id));
+		} catch (Exception e) {
+			fail("Couldn't delete meeting: " + e.getMessage());
 		}
 	}
 }
