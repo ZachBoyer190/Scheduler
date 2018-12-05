@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.util.UUID;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -17,9 +16,6 @@ import com.amazonaws.db.SchedulesDAO;
 import com.amazonaws.db.TimeSlotsDAO;
 import com.amazonaws.model.Meeting;
 import com.amazonaws.model.Schedule;
-import com.amazonaws.model.TimeSlot;
-import com.amazonaws.model.User;
-import com.amazonaws.model.UserType;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -29,12 +25,10 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 
 	public LambdaLogger logger = null;
 	
-	String lastID;
-	String editCode;
 	Schedule schedule;
 	
 	boolean cancelMeeting(String scheduleID, String meetingID, String msc) throws Exception {
-		if (logger != null) { logger.log("in createMeeting"); }
+		if (logger != null) { logger.log("in cancelMeeting"); }
 		MeetingsDAO mDAO = new MeetingsDAO();
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
