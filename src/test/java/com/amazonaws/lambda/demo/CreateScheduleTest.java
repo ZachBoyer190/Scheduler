@@ -29,8 +29,8 @@ public class CreateScheduleTest extends TestCase{
 	public void testCreateSchedule() throws IOException {
 		CreateScheduleHandler handler = new CreateScheduleHandler();
 		
-		Date startDate = new Date(2018-10-27);
-		Date endDate = new Date(2018-10-30);
+		Date startDate = new Date(118, 11, 01);
+		Date endDate = new Date(118, 11, 06);
 
 		CreateScheduleRequest csr = new CreateScheduleRequest("hi", 1000, 1500, 10, startDate, endDate);
 		String createScheduleRequest = new Gson().toJson(csr);
