@@ -131,7 +131,7 @@ public class SchedulesDAO {
 		try {
 			
 			ArrayList<Schedule> schedules = new ArrayList<>();
-			Schedule sched = null;
+			boolean result = false;
 			schedules = getSchedulesDayOld(date);
 			
 			for(Schedule s: schedules) {
@@ -143,9 +143,13 @@ public class SchedulesDAO {
 			ps.setDate(1, sqlDate);
 			
 			ResultSet resultSet = ps.executeQuery();
-			ps.close();
+			
+			result = (resultSet.next());
 
-			return (resultSet.next());
+			ps.close();
+			
+			return result;
+
 		} catch (Exception e) {
 			throw new Exception ("Failed to delete desired schedules: " + e.getMessage());
 		}

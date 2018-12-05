@@ -85,7 +85,7 @@ public class TestSchedule extends TestCase {
 			Date end_date = new Date(118, 11, 11);
 			boolean d = sd.deleteSchedulesDayOld(end_date);
 			
-			assertTrue(d);
+			assertFalse(d);
 		} catch (Exception e) {
 			fail("Couldn't delete schedule older than date: " + e.getMessage());
 		}
