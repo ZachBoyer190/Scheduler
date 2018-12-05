@@ -1,7 +1,7 @@
 const errorCode = 300;
-const urlDelete = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/deleteOldSchedules';
-const urlGet = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/showNewSchedules';
-const urlUser =  'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/checkLogin';
+//const urlDelete = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/deleteOldSchedules';
+//const urlGet = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/showNewSchedules';
+const urlUser =  'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/checsysadmin';
 let userAndPassValue;
 
 function checkLogin(){
@@ -32,6 +32,9 @@ function checkLogin(){
         $.post(urlUser,JSON.stringify(userAndPassValue), function (data, status) {
             if (data.httpCode >= errorCode) {
                 return;
+            }
+            else if  (data.httpCode <= errorCode){
+                showFunctions();
             }
 
         });
@@ -79,10 +82,8 @@ function getSchedulesFromButton(){
 }
 
 function showFunctions(){
-    if(checkLogin()) {
         document.getElementById("fieldset1").style.visibility = "visible";
         document.getElementById("fieldset2").style.visibility = "visible";
-    }
 
 }
 
