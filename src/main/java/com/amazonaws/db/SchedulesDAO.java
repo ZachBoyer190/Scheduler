@@ -55,7 +55,7 @@ public class SchedulesDAO {
 				return false;
 			}
 			
-			ps = conn.prepareStatement("INSERT INTO schedules (ID, Name, startTime, endTime, Delta, startDate, endDate, secretCode) values(?,?,?,?,?,?,?,?)");
+			ps = conn.prepareStatement("INSERT INTO schedules (ID, Name, startTime, endTime, Delta, startDate, endDate, secretCode, createTime) values(?,?,?,?,?,?,?,?,?)");
 			ps.setString(1, schedule.scheduleID);
 			ps.setString(2, schedule.name);
 			ps.setInt(3, schedule.startTime);
@@ -68,6 +68,13 @@ public class SchedulesDAO {
 			ps.setDate(6, sqlStartDate);
 			ps.setDate(7, sqlEndDate);
 			ps.setString(8, schedule.secretCode);
+			
+			long millis = System.currentTimeMillis();
+			java.util.Date utilCreate = new java.util.Date(millis);
+			java.sql.Timestamp createTS = new java.sql.Timestamp(utilCreate.getTime());
+			
+			ps.setTimestamp(9, createTS);
+			
 			ps.execute();
 			ps.close();
 			
