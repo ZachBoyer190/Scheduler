@@ -55,8 +55,10 @@ public class Schedule {
 						}
 					}
 					String slotID = UUID.randomUUID().toString().substring(0, 5);
-					slots.add(new TimeSlot(slotID, this.scheduleID, startTime, startDate, TimeSlotStatus.OPEN));	
+					slots.add(new TimeSlot(slotID, this.scheduleID, currentTime, currentDate, TimeSlotStatus.OPEN));	
 				}
+				
+				i++;
 			
 			}
 		}

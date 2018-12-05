@@ -90,11 +90,65 @@ public class SchedulesDAO {
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
+			TimeSlotsDAO tDAO = new TimeSlotsDAO();
+			for(TimeSlot t : schedule.timeslots) {
+				tDAO.deleteTimeSlot(t);
+			}
+			
 			return (numAffected==1);
 		} catch (Exception e) {
 			throw new Exception("Failed to delete desired schedule: " + e.getMessage());
 		}
 		
+	}
+	
+	public ArrayList<Schedule> getSchedulesDayOld(java.util.Date date) throws Exception {
+		try {
+			ArrayList<Schedule> schedules = new ArrayList<>();
+			Schedule schedule = null;
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE endDate < ?;");
+			
+			Date sqlDate = new java.sql.Date(date.getTime());
+			ps.setDate(1, sqlDate);
+			ResultSet resultSet = ps.executeQuery();
+			
+			while (resultSet.next()) {
+				schedule = generateSchedule(resultSet);
+				schedules.add(schedule);
+			}
+			
+			resultSet.close();
+			ps.close();
+			
+			return schedules;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Failed to get schedules day old: " + e.getMessage());
+		}
+	}
+	
+	public boolean deleteSchedulesDayOld(java.util.Date date) throws Exception {
+		try {
+			
+			ArrayList<Schedule> schedules = new ArrayList<>();
+			Schedule sched = null;
+			schedules = getSchedulesDayOld(date);
+			
+			for(Schedule s: schedules) {
+				deleteSchedule(s);	
+			}
+			
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE endDate < ?;");
+			Date sqlDate = new java.sql.Date(date.getTime());
+			ps.setDate(1, sqlDate);
+			
+			ResultSet resultSet = ps.executeQuery();
+			ps.close();
+
+			return (resultSet.next());
+		} catch (Exception e) {
+			throw new Exception ("Failed to delete desired schedules: " + e.getMessage());
+		}
 	}
 	
 	private Schedule generateSchedule(ResultSet resultSet) throws Exception {
