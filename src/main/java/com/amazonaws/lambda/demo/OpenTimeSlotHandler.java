@@ -20,20 +20,20 @@ import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.google.gson.Gson;
 
-public class CloseTimeSlotHandler implements RequestStreamHandler {
+public class OpenTimeSlotHandler implements RequestStreamHandler {
 	public LambdaLogger logger = null;
 
 	Schedule schedule;
 
-	boolean closeTimeSlot(String scheduleID, String timeSlotID) throws Exception {
-		if (logger != null) { logger.log("in closeTimeSlot"); }
+	boolean openTimeSlot(String scheduleID, String timeSlotID) throws Exception {
+		if (logger != null) { logger.log("in openTimeSlot"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		TimeSlot ts = tDAO.getTimeSlot(timeSlotID);
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		if(ts.modifyStatus("CLOSED")) {
+		if(ts.modifyStatus("OPEN")) {
 			tDAO.updateTimeSlot(ts);
 			return true;
 		}else {
@@ -44,7 +44,7 @@ public class CloseTimeSlotHandler implements RequestStreamHandler {
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
-		logger.log("Loading Java Lambda handler to close timeslot");
+		logger.log("Loading Java Lambda handler to open timeslot");
 
 		JSONObject headerJson = new JSONObject();
 		headerJson.put("Content-Type", "application/json");
@@ -54,7 +54,7 @@ public class CloseTimeSlotHandler implements RequestStreamHandler {
 		JSONObject responseJson = new JSONObject();
 		responseJson.put("headers", headerJson);
 
-		CloseTimeSlotResponse response = null;
+		OpenTimeSlotResponse response = null;
 
 		// extract body from incoming HTTP POST request. If error, return 422
 		String body;
@@ -68,7 +68,7 @@ public class CloseTimeSlotHandler implements RequestStreamHandler {
 			String method = (String) event.get("httpMethod");
 			if(method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new CloseTimeSlotResponse("CloseTimeSlot", 200, schedule);
+				response = new OpenTimeSlotResponse("OpenTimeSlot", 200, schedule);
 				responseJson.put("body", new Gson().toJson(response));
 				processed = true;
 				body = null;
@@ -80,28 +80,28 @@ public class CloseTimeSlotHandler implements RequestStreamHandler {
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new CloseTimeSlotResponse("Bad Request: " + pe.getMessage(), 422, schedule);
+			response = new OpenTimeSlotResponse("Bad Request: " + pe.getMessage(), 422, schedule);
 			responseJson.put("body", new Gson().toJson(response));
 			processed = true;
 			body = null;
 		}
 
 		if (!processed) {
-			CloseTimeSlotRequest req = new Gson().fromJson(body, CloseTimeSlotRequest.class);
+			OpenTimeSlotRequest req = new Gson().fromJson(body, OpenTimeSlotRequest.class);
 			logger.log(req.toString());
 
-			CloseTimeSlotResponse resp;
+			OpenTimeSlotResponse resp;
 			try {
-				if (closeTimeSlot(req.scheduleID, req.timeSlotID)) {
-					resp = new CloseTimeSlotResponse("Successfully closed timeslot" , 200, schedule);
+				if (openTimeSlot(req.scheduleID, req.timeSlotID)) {
+					resp = new OpenTimeSlotResponse("Successfully opened timeslot" , 200, schedule);
 				} else {
-					resp = new CloseTimeSlotResponse("Unable to close timeslot", 422, schedule);
+					resp = new OpenTimeSlotResponse("Unable to open timeslot", 422, schedule);
 				}
 			} catch (Exception e) {
-				resp = new CloseTimeSlotResponse("Unable to close timeslot. (" + e.getMessage() + ")", 403, schedule);
+				resp = new OpenTimeSlotResponse("Unable to open timeslot. (" + e.getMessage() + ")", 403, schedule);
 			}
 
-			responseJson.put("body", new Gson().toJson(resp, CloseTimeSlotResponse.class));
+			responseJson.put("body", new Gson().toJson(resp, OpenTimeSlotResponse.class));
 		}
 		logger.log("end result: " + responseJson.toJSONString());
 		logger.log(responseJson.toJSONString());
