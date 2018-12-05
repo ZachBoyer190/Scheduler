@@ -56,7 +56,7 @@ public class OpenTimeSlotHandler implements RequestStreamHandler {
 
 		OpenTimeSlotResponse response = null;
 
-		// extract body from incoming HTTP POST request. If error, return 422
+		// extract body from incoming HTTP POST request. If error, return 422 
 		String body;
 		boolean processed = false;
 		try {
