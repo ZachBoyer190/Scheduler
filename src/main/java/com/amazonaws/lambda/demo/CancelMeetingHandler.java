@@ -98,10 +98,10 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 				if (cancelMeeting(req.scheduleID, req.meetingID, req.meetingSecretCode)) {
 					resp = new CancelMeetingResponse("Successfully Cancelled Meeting" , 200, schedule);
 				} else {
-					resp = new CancelMeetingResponse("Unable to crancel meeting", 422, schedule);
+					resp = new CancelMeetingResponse("Unable to cancel meeting", 422, schedule);
 				}
 			} catch (Exception e) {
-				resp = new CancelMeetingResponse("Unable to create meeting. (" + e.getMessage() + ")", 403, schedule);
+				resp = new CancelMeetingResponse("Unable to cancel meeting. (" + e.getMessage() + ")", 403, schedule);
 			}
 			
 			responseJson.put("body", new Gson().toJson(resp, CancelMeetingResponse.class));
