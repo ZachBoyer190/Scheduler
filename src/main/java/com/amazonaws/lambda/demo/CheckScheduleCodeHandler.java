@@ -11,54 +11,43 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import com.amazonaws.db.MeetingsDAO;
 import com.amazonaws.db.SchedulesDAO;
-import com.amazonaws.db.TimeSlotsDAO;
-import com.amazonaws.model.Meeting;
 import com.amazonaws.model.Schedule;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.google.gson.Gson;
 
-public class CancelMeetingHandler implements RequestStreamHandler {
-
+public class CheckScheduleCodeHandler implements RequestStreamHandler {
 	public LambdaLogger logger = null;
-	
-	Schedule schedule;
-	
-	boolean cancelMeeting(String scheduleID, String meetingID, String msc) throws Exception {
-		if (logger != null) { logger.log("in cancelMeeting"); }
-		MeetingsDAO mDAO = new MeetingsDAO();
+
+	boolean checkCode(String scheduleID, String sc) throws Exception {
+		if (logger != null) { logger.log("in checkScheduleCode"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
-		TimeSlotsDAO tDAO = new TimeSlotsDAO();
-		Meeting m = mDAO.getMeeting(meetingID);
+		Schedule s = sDAO.getSchedule(scheduleID);
 		
-		if(m.secretCode.equals(msc)) {
-			this.schedule = sDAO.getSchedule(scheduleID);
-			m.timeslot.modifyStatus("OPEN");
-			tDAO.updateTimeSlot(m.timeslot);
-			return mDAO.deleteMeeting(meetingID);
+		if(s.scheduleID.equals(sc)) {
+			return true;
 		}else {
 			return false;
 		}
 	}
-	
+
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
-		logger.log("Loading Java Lambda handler to cancel meeting");
-		
+		logger.log("Loading Java Lambda handler to check schedule code");
+
 		JSONObject headerJson = new JSONObject();
 		headerJson.put("Content-Type", "application/json");
 		headerJson.put("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
 		headerJson.put("Access-Control-Allow-Origin", "*");
-		
+
 		JSONObject responseJson = new JSONObject();
 		responseJson.put("headers", headerJson);
-		
-		CancelMeetingResponse response = null;
-		
+
+		CheckScheduleCodeResponse response = null;
+
 		// extract body from incoming HTTP POST request. If error, return 422
 		String body;
 		boolean processed = false;
@@ -67,11 +56,11 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 			JSONParser parser = new JSONParser();
 			JSONObject event = (JSONObject) parser.parse(reader);
 			logger.log("event: " + event.toJSONString());
-			
+
 			String method = (String) event.get("httpMethod");
 			if(method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new CancelMeetingResponse("CancelMeeting", 200, schedule);
+				response = new CheckScheduleCodeResponse(200, false);
 				responseJson.put("body", new Gson().toJson(response));
 				processed = true;
 				body = null;
@@ -83,28 +72,28 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new CancelMeetingResponse("Bad Request: " + pe.getMessage(), 422, schedule);
+			response = new CheckScheduleCodeResponse(422, false);
 			responseJson.put("body", new Gson().toJson(response));
 			processed = true;
 			body = null;
 		}
-		
+
 		if (!processed) {
-			CancelMeetingRequest req = new Gson().fromJson(body, CancelMeetingRequest.class);
+			CheckScheduleCodeRequest req = new Gson().fromJson(body, CheckScheduleCodeRequest.class);
 			logger.log(req.toString());
-			
-			CancelMeetingResponse resp;
+
+			CheckScheduleCodeResponse resp;
 			try {
-				if (cancelMeeting(req.scheduleID, req.meetingID, req.meetingSecretCode)) {
-					resp = new CancelMeetingResponse("Successfully Cancelled Meeting" , 200, schedule);
+				if (checkCode(req.scheduleID, req.secretCode)) {
+					resp = new CheckScheduleCodeResponse(200, true);
 				} else {
-					resp = new CancelMeetingResponse("Unable to cancel meeting", 422, schedule);
+					resp = new CheckScheduleCodeResponse(422, false);
 				}
 			} catch (Exception e) {
-				resp = new CancelMeetingResponse("Unable to cancel meeting. (" + e.getMessage() + ")", 403, schedule);
+				resp = new CheckScheduleCodeResponse(403, false);
 			}
-			
-			responseJson.put("body", new Gson().toJson(resp, CancelMeetingResponse.class));
+
+			responseJson.put("body", new Gson().toJson(resp, CheckScheduleCodeResponse.class));
 		}
 		logger.log("end result: " + responseJson.toJSONString());
 		logger.log(responseJson.toJSONString());
@@ -112,5 +101,4 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 		writer.write(responseJson.toJSONString());
 		writer.close();
 	}
-	
 }
