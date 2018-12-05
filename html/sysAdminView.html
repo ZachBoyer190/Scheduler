@@ -19,7 +19,7 @@
 <fieldset id="fieldset1" style="visibility: hidden">
     <legend> Delete old Meeting Schedules</legend>
     <p> Delete meetings more than <label>
-        <input type="number" name="numberOfDays" required="required"/>
+        <input type="number" id="deleteNumberOfDays" required="required"/>
     </label> days old</p>
 
     <input type="button" value="Delete" onclick="deleteSchedulesFromButton()"/>
@@ -29,7 +29,7 @@
 <fieldset id="fieldset2" style="visibility: hidden">
     <legend> Retrieve Recent Meeting Schedules</legend>
     <p> Retrieve meetings created in last <label>
-        <input type="number" name="numberOfDays" required="required"/>
+        <input type="number" id="getNumberOfDays" required="required"/>
     </label> hours</p>
 
     <input type="button" value="Retrieve" onclick="getSchedulesFromButton()" />
@@ -40,6 +40,7 @@
 </body>
 
 <script src="../Javascript/checkLogin.js" type="application/javascript"></script>
+<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
 
 </html>
 
