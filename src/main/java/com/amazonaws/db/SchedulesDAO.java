@@ -1,6 +1,7 @@
 package com.amazonaws.db;
 
 import java.sql.*;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import com.amazonaws.model.TimeSlot;
 public class SchedulesDAO {
 	
 	java.sql.Connection conn;
+	
+	long numMilliseconds = 3600000;
 	
 	public SchedulesDAO() {
 		try {
@@ -55,7 +58,7 @@ public class SchedulesDAO {
 				return false;
 			}
 			
-			ps = conn.prepareStatement("INSERT INTO schedules (ID, Name, startTime, endTime, Delta, startDate, endDate, secretCode) values(?,?,?,?,?,?,?,?)");
+			ps = conn.prepareStatement("INSERT INTO schedules (ID, Name, startTime, endTime, Delta, startDate, endDate, secretCode, createTime) values(?,?,?,?,?,?,?,?,?)");
 			ps.setString(1, schedule.scheduleID);
 			ps.setString(2, schedule.name);
 			ps.setInt(3, schedule.startTime);
@@ -68,6 +71,15 @@ public class SchedulesDAO {
 			ps.setDate(6, sqlStartDate);
 			ps.setDate(7, sqlEndDate);
 			ps.setString(8, schedule.secretCode);
+			
+			long currentTime = Instant.now().toEpochMilli();
+			long currentTimeUTC = currentTime - (5*numMilliseconds);
+
+			java.sql.Timestamp sqlDate = new java.sql.Timestamp(currentTimeUTC);
+			System.out.println("SQL Timestamp: " + sqlDate);
+
+			ps.setTimestamp(9, sqlDate);
+			
 			ps.execute();
 			ps.close();
 			
@@ -124,6 +136,37 @@ public class SchedulesDAO {
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Exception("Failed to get schedules day old: " + e.getMessage());
+		}
+	}
+	
+	public ArrayList<Schedule> getSchedulesHoursOld(int hours) throws Exception{
+		try {
+			ArrayList<Schedule> schedules = new ArrayList<>();
+			Schedule schedule = null;
+			PreparedStatement ps = conn.prepareStatement("SELECT * FROM schedules WHERE createTime >= ?;");
+			
+			long currentTime = Instant.now().toEpochMilli();
+			
+			long desiredTime = currentTime - ((hours * numMilliseconds) + (5*numMilliseconds));
+			System.out.println("Desired Time: " + desiredTime);
+			java.sql.Timestamp sqlDate = new java.sql.Timestamp(desiredTime);
+			System.out.println("SQL Timestamp: " + sqlDate);
+			
+			ps.setTimestamp(1, sqlDate);
+			ResultSet resultSet = ps.executeQuery();
+			
+			while (resultSet.next()) {
+				schedule = generateSchedule(resultSet);
+				schedules.add(schedule);
+			}
+			
+			resultSet.close();
+			ps.close();
+			
+			return schedules;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("Failed to get schedules hours old: " + e.getMessage());
 		}
 	}
 	

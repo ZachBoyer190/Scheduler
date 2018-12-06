@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.sql.Date;
-import java.util.UUID;
+import java.util.ArrayList;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -21,18 +21,19 @@ import com.google.gson.Gson;
 import com.amazonaws.db.SchedulesDAO;
 import com.amazonaws.model.Schedule;
 
-public class GetScheduleHandler implements RequestStreamHandler {
 
-public LambdaLogger logger = null;
-int httpCode;
-SchedulesDAO dao = new SchedulesDAO();
+public class GetSchedulesHourHandler implements RequestStreamHandler{
 	
-	Schedule getSchedule(String id) throws Exception {
-		if (logger != null) { logger.log("in getSchedule"); }
+	public LambdaLogger logger = null;
+	ArrayList<Schedule> schedules;
+	SchedulesDAO sDAO = new SchedulesDAO();
+	
+	ArrayList<Schedule> getSchedules(int hours) throws Exception {
+		if (logger != null) { logger.log("in getSchedules"); }
 		
-		return dao.getSchedule(id);
+		schedules = sDAO.getSchedulesHoursOld(hours);
+		return schedules;
 	}
-	
 	
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
@@ -47,7 +48,7 @@ SchedulesDAO dao = new SchedulesDAO();
 		JSONObject responseJson = new JSONObject();
 		responseJson.put("headers", headerJson);
 
-		GetScheduleResponse response = null;
+		GetSchedulesHourResponse response = null;
 		
 		//extract body from incoming HTTP POST request. If any error, then return 422 error
 		String body;
@@ -61,7 +62,7 @@ SchedulesDAO dao = new SchedulesDAO();
 			String method = (String) event.get("httpMethod");
 			if (method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new GetScheduleResponse("schedule", 200);  // OPTIONS needs a 200 response
+				response = new GetSchedulesHourResponse("hoursOld", schedules, 200);  // OPTIONS needs a 200 response
 		        responseJson.put("body", new Gson().toJson(response));
 		        processed = true;
 		        body = null;
@@ -73,23 +74,23 @@ SchedulesDAO dao = new SchedulesDAO();
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new GetScheduleResponse("Bad Request:" + pe.getMessage(), 422);  // unable to process input
+			response = new GetSchedulesHourResponse("Bad Request: " + pe.getMessage(), schedules, 422);  // unable to process input
 	        responseJson.put("body", new Gson().toJson(response));
 	        processed = true;
 	        body = null;
 		}
 
 		if (!processed) {
-			GetScheduleRequest req = new Gson().fromJson(body, GetScheduleRequest.class);
+			GetSchedulesHourRequest req = new Gson().fromJson(body, GetSchedulesHourRequest.class);
 			logger.log(req.toString());
 
-			GetScheduleResponse resp = null;
+			GetSchedulesHourResponse resp = null;
 			
 			try {
-				if(dao.checkExist(req.id)) {
-					resp = new GetScheduleResponse("schedule", getSchedule(req.id), 200);
+				if(getSchedules(req.hours).size() > 1) {
+					resp = new GetSchedulesHourResponse("Successfully retrieved Schedules", schedules, 200);
 				}else {
-					resp = new GetScheduleResponse("could not find schedule", 400);
+					resp = new GetSchedulesHourResponse("Unable to retrieve Schedules", schedules, 403);
 				}
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
@@ -109,3 +110,5 @@ SchedulesDAO dao = new SchedulesDAO();
 	}
 	
 }
+
+

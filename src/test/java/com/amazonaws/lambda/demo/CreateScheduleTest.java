@@ -62,5 +62,22 @@ public class CreateScheduleTest extends TestCase{
 		GetScheduleResponse resp = new Gson().fromJson(post.body, GetScheduleResponse.class);
 
 	}
+	
+	public void testGetSchedulesHoursOld() throws IOException {
+		GetSchedulesHourHandler handler = new GetSchedulesHourHandler();
+		
+		GetSchedulesHourRequest gsr = new GetSchedulesHourRequest(1);
+		String getSchedulesRequest = new Gson().toJson(gsr);
+		String jsonRequest = new Gson().toJson(new PostRequest(getSchedulesRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("get"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		GetSchedulesHourResponse resp = new Gson().fromJson(post.body, GetSchedulesHourResponse.class);
+		
+	}
 
 }
