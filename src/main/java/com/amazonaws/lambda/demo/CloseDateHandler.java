@@ -12,30 +12,33 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.amazonaws.db.SchedulesDAO;
+import com.amazonaws.db.TimeSlotsDAO;
 import com.amazonaws.model.Schedule;
+import com.amazonaws.model.TimeSlot;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.google.gson.Gson;
 
-public class ExtendScheduleHandler implements RequestStreamHandler{
+public class CloseDateHandler implements RequestStreamHandler{
 	public LambdaLogger logger = null;
 
 	Schedule schedule;
 
-	boolean extendSchedule(String scheduleID, Date newStart, Date newEnd) throws Exception {
+	boolean closeDate(String scheduleID, Date date) throws Exception {
 		if (logger != null) { logger.log("in extendSchedule"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		return sDAO.extendSchedule(scheduleID, newStart, newEnd);
+		return tDAO.closeOnDate(date, scheduleID);
 	}
 
 	@Override
 	public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
 		logger = context.getLogger();
-		logger.log("Loading Java Lambda handler to extend schedule");
+		logger.log("Loading Java Lambda handler to close time");
 
 		JSONObject headerJson = new JSONObject();
 		headerJson.put("Content-Type", "application/json");
@@ -45,7 +48,7 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 		JSONObject responseJson = new JSONObject();
 		responseJson.put("headers", headerJson);
 
-		ExtendScheduleResponse response = null;
+		CloseDateResponse response = null;
 
 		// extract body from incoming HTTP POST request. If error, return 422
 		String body;
@@ -59,7 +62,7 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 			String method = (String) event.get("httpMethod");
 			if(method != null && method.equalsIgnoreCase("OPTIONS")) {
 				logger.log("Options request");
-				response = new ExtendScheduleResponse("ExtendSchedule", 200, schedule);
+				response = new CloseDateResponse("CloseDate", 200, schedule);
 				responseJson.put("body", new Gson().toJson(response));
 				processed = true;
 				body = null;
@@ -71,28 +74,28 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 			}
 		} catch (ParseException pe) {
 			logger.log(pe.toString());
-			response = new ExtendScheduleResponse("Bad Request: " + pe.getMessage(), 422, schedule);
+			response = new CloseDateResponse("Bad Request: " + pe.getMessage(), 422, schedule);
 			responseJson.put("body", new Gson().toJson(response));
 			processed = true;
 			body = null;
 		}
 
 		if (!processed) {
-			ExtendScheduleRequest req = new Gson().fromJson(body, ExtendScheduleRequest.class);
+			CloseDateRequest req = new Gson().fromJson(body, CloseDateRequest.class);
 			logger.log(req.toString());
 
-			ExtendScheduleResponse resp;
+			CloseDateResponse resp;
 			try {
-				if (extendSchedule(req.scheduleID, req.startDate, req.endDate)) {
-					resp = new ExtendScheduleResponse("Successfully extended schedule" , 200, schedule);
+				if (closeDate(req.scheduleID, req.date)) {
+					resp = new CloseDateResponse("Successfully closed date" , 200, schedule);
 				} else {
-					resp = new ExtendScheduleResponse("Unable to extend schedule", 422, schedule);
+					resp = new CloseDateResponse("Unable to close date", 422, schedule);
 				}
 			} catch (Exception e) {
-				resp = new ExtendScheduleResponse("Unable to extend schedule. (" + e.getMessage() + ")", 403, schedule);
+				resp = new CloseDateResponse("Unable to close date. (" + e.getMessage() + ")", 403, schedule);
 			}
 
-			responseJson.put("body", new Gson().toJson(resp, ExtendScheduleResponse.class));
+			responseJson.put("body", new Gson().toJson(resp, CloseDateResponse.class));
 		}
 		logger.log("end result: " + responseJson.toJSONString());
 		logger.log(responseJson.toJSONString());
@@ -100,4 +103,5 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 		writer.write(responseJson.toJSONString());
 		writer.close();
 	}
+
 }

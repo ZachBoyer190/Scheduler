@@ -123,10 +123,11 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		}
 	}
 	
-	public boolean closeOnDate(Date d, String scheduleID) throws Exception {
+	public boolean closeOnDate(java.util.Date d, String scheduleID) throws Exception {
 		try {
 			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='CLOSED' WHERE date=? AND scheduleID=?;");
-			ps.setDate(1, d);
+			Date sqlDate = new java.sql.Date(d.getTime());
+			ps.setDate(1, sqlDate);
 			ps.setString(2,  scheduleID);
 			int numAffected = ps.executeUpdate();
 			ps.close();
