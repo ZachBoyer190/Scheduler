@@ -123,6 +123,21 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		}
 	}
 	
+	public boolean closeOnDate(Date d, String scheduleID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='CLOSED' WHERE date=? AND scheduleID=?;");
+			ps.setDate(1, d);
+			ps.setString(2,  scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected == 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
 	private TimeSlot generateTimeSlot(ResultSet resultSet) throws Exception {
 		String timeSlotID = resultSet.getString("ID");
 		String scheduleID = resultSet.getString("scheduleID");
