@@ -109,5 +109,31 @@ public class CreateScheduleTest extends TestCase{
 		}
 		
 	}
+	
+	public void testCheckScheduleCode() throws IOException{
+		CheckScheduleCodeHandler handler = new CheckScheduleCodeHandler();
+		SchedulesDAO sDAO = new SchedulesDAO();
+		
+		String scheduleID = "266bf";
+		String scheduleCode = "f63b414d";
+		
+		CheckScheduleCodeRequest csr = new CheckScheduleCodeRequest(scheduleID, scheduleCode);
+		String checkRequest = new Gson().toJson(csr);
+		String jsonRequest = new Gson().toJson(new PostRequest(checkRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("check schedule"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CheckScheduleCodeResponse resp = new Gson().fromJson(post.body, CheckScheduleCodeResponse.class);
+		
+		try {
+			assertEquals(scheduleCode, sDAO.getSchedule(scheduleID).secretCode);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 }

@@ -132,7 +132,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
-			return (numAffected == 1);
+			return (numAffected >= 1);
 			
 		} catch (Exception e) {
 			throw new Exception("Failed to update report: " + e.getMessage());
@@ -148,7 +148,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
-			return (numAffected == 1);
+			return (numAffected >= 1);
 			
 		} catch (Exception e) {
 			throw new Exception("Failed to update report: " + e.getMessage());
@@ -163,7 +163,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
-			return (numAffected == 1);
+			return (numAffected >= 1);
 			
 		} catch (Exception e) {
 			throw new Exception("Failed to update report: " + e.getMessage());
@@ -178,7 +178,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
-			return (numAffected == 1);
+			return (numAffected >= 1);
 			
 		} catch (Exception e) {
 			throw new Exception("Failed to update report: " + e.getMessage());

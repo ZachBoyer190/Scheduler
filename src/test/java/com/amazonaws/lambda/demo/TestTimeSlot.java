@@ -79,5 +79,109 @@ public class TestTimeSlot extends TestCase{
 		}
 	}
 	
+	public void testCloseDate() throws IOException {
+		CloseDateHandler handler = new CloseDateHandler();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		java.util.Date date = new java.util.Date(118, 11, 03);
+		String schedID = "6847e";
+
+		CloseDateRequest cdr = new CloseDateRequest(date, schedID);
+		String closeDateRequest = new Gson().toJson(cdr);
+		String jsonRequest = new Gson().toJson(new PostRequest(closeDateRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("close"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CloseDateResponse resp = new Gson().fromJson(post.body, CloseDateResponse.class);
+		
+		try {
+			assertEquals("CLOSED", tDAO.getTimeSlot("0d4a7").status.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void testOpenDate() throws IOException {
+		OpenDateHandler handler = new OpenDateHandler();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		java.util.Date date = new java.util.Date(118, 11, 03);
+		String schedID = "6847e";
+
+		OpenDateRequest odr = new OpenDateRequest(date, schedID);
+		String openDateRequest = new Gson().toJson(odr);
+		String jsonRequest = new Gson().toJson(new PostRequest(openDateRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("open"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		OpenDateResponse resp = new Gson().fromJson(post.body, OpenDateResponse.class);
+		
+		try {
+			assertEquals("OPEN", tDAO.getTimeSlot("0d4a7").status.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void testCloseAtTime() throws IOException {
+		CloseTimeHandler handler = new CloseTimeHandler();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		int time = 1200;
+		String schedID = "6847e";
+
+		CloseTimeRequest ctr = new CloseTimeRequest(time, schedID);
+		String closeTimeRequest = new Gson().toJson(ctr);
+		String jsonRequest = new Gson().toJson(new PostRequest(closeTimeRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("close"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CloseTimeResponse resp = new Gson().fromJson(post.body, CloseTimeResponse.class);
+		
+		try {
+			assertEquals("CLOSED", tDAO.getTimeSlot("395bd").status.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void testOpenAtTime() throws IOException {
+		OpenTimeHandler handler = new OpenTimeHandler();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		int time = 1200;
+		String schedID = "6847e";
+
+		OpenTimeRequest otr = new OpenTimeRequest(time, schedID);
+		String openTimeRequest = new Gson().toJson(otr);
+		String jsonRequest = new Gson().toJson(new PostRequest(openTimeRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("open"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		OpenTimeResponse resp = new Gson().fromJson(post.body, OpenTimeResponse.class);
+		
+		try {
+			assertEquals("OPEN", tDAO.getTimeSlot("395bd").status.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 }

@@ -12,6 +12,8 @@ import java.util.Date;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.amazonaws.db.MeetingsDAO;
+import com.amazonaws.db.TimeSlotsDAO;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.google.gson.Gson;
 
@@ -27,9 +29,10 @@ public class CreateMeetingTest extends TestCase{
 	
 	public void testCreateMeeting() throws IOException {
 		CreateMeetingHandler handler = new CreateMeetingHandler();
+		TimeSlotsDAO td = new TimeSlotsDAO();
 
-		String scheduleID = "5b34a";
-		String timeslotID = "01655";
+		String scheduleID = "6847e";
+		String timeslotID = "02536";
 		String uName = "Cory";
 		
 		CreateMeetingRequest cmr = new CreateMeetingRequest(scheduleID, timeslotID, uName);
@@ -44,7 +47,68 @@ public class CreateMeetingTest extends TestCase{
 		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
 		CreateMeetingResponse resp = new Gson().fromJson(post.body, CreateMeetingResponse.class);
 		
+		try {
+			assertEquals("BOOKED", td.getTimeSlot(timeslotID).status.toString());
+		} catch (Exception e) {
+			fail("Couldn't create meeting: " + e.getMessage());
+		}
 
 	}
+	
+	public void testDeleteMeetingOrg() throws IOException {
+		OrgCancelMeetingHandler handler = new OrgCancelMeetingHandler();
+		TimeSlotsDAO tD = new TimeSlotsDAO();
+		
+		String scheduleID = "5b34a";
+		String timeslotID = "02536";
+		String meetingID = "6283d";
+		
+		OrgCancelMeetingRequest cmr = new OrgCancelMeetingRequest(meetingID, scheduleID);
+		String cancelMeetingRequest = new Gson().toJson(cmr);
+		String jsonRequest = new Gson().toJson(new PostRequest(cancelMeetingRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("cancel"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CancelMeetingResponse resp = new Gson().fromJson(post.body, CancelMeetingResponse.class);
+		
+		try {
+			assertEquals("OPEN", tD.getTimeSlot(timeslotID).status.toString());
+		} catch (Exception e) {
+			fail("Couldn't cancel meeting" + e.getMessage());
+		}
+	}
+	
+	public void testDeleteMeeting() throws IOException {
+		CancelMeetingHandler handler = new CancelMeetingHandler();
+		TimeSlotsDAO tD = new TimeSlotsDAO();
+		
+		String scheduleID = "5b34a";
+		String meetingCode = "cf5c3de2";
+		String timeslotID = "02536";
+		String meetingID = "d919c";
+		
+		CancelMeetingRequest cmr = new CancelMeetingRequest(meetingID, meetingCode, scheduleID);
+		String cancelMeetingRequest = new Gson().toJson(cmr);
+		String jsonRequest = new Gson().toJson(new PostRequest(cancelMeetingRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("cancel"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CancelMeetingResponse resp = new Gson().fromJson(post.body, CancelMeetingResponse.class);
+		
+		try {
+			assertEquals("OPEN", tD.getTimeSlot(timeslotID).status.toString());
+		} catch (Exception e) {
+			fail("Couldn't cancel meeting" + e.getMessage());
+		}
+	}
+	
 
 }
