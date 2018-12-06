@@ -11,7 +11,7 @@ import com.amazonaws.model.TimeSlot;
 
 public class TestTimeSlot extends TestCase {
 	
-	public void testOpen() {
+	public void testModify() {
 		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
@@ -29,5 +29,6 @@ public class TestTimeSlot extends TestCase {
 			fail("Could not modify timeslot: " + e.getMessage());
 		}
 	}
+	
 
 }

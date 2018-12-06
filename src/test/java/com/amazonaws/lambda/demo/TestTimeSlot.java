@@ -53,5 +53,31 @@ public class TestTimeSlot extends TestCase{
 		}
 	}
 	
+	public void testCloseTimeSlot() throws IOException {
+		CloseTimeSlotHandler handler = new CloseTimeSlotHandler();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		String timeSlotID = "0018b";
+		String scheduleID = "5b604";
+		
+		CloseTimeSlotRequest csr = new CloseTimeSlotRequest(timeSlotID, scheduleID);
+		String closeTimeSlotRequest = new Gson().toJson(csr);
+		String jsonRequest = new Gson().toJson(new PostRequest(closeTimeSlotRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("close"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		CloseTimeSlotResponse resp = new Gson().fromJson(post.body, CloseTimeSlotResponse.class);
+		
+		try {
+			assertEquals("CLOSED", tDAO.getTimeSlot(timeSlotID).status.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 
 }
