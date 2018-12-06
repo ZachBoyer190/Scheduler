@@ -90,6 +90,20 @@ public class TestSchedule extends TestCase {
 			fail("Couldn't delete schedule older than date: " + e.getMessage());
 		}
 	}
+	
+	public void testGetHoursOld() {
+		SchedulesDAO sd = new SchedulesDAO();
+		
+		try {
+			ArrayList<Schedule> schedules = new ArrayList<>();
+			schedules = sd.getSchedulesHoursOld(1);
+			
+			assertEquals(1, schedules.size());
+			
+		} catch (Exception e) {
+			fail("Couldn't get schedules older than specified hours: " + e.getMessage());
+		}
+	}
 
 	/*
 	public void testExist() {
