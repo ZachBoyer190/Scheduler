@@ -26,12 +26,12 @@ public class TestSchedule extends TestCase {
 			System.out.println("add schedule: " + id + " " + b);
 			
 			assertEquals(schedule.scheduleID, sd.getSchedule(id).scheduleID);
-//			sd.deleteSchedule(schedule);
-/*			
+			sd.deleteSchedule(schedule);
+			
 			for(TimeSlot t: schedule.timeslots) {
 				td.deleteTimeSlot(t);
 			}
-			*/
+			
 		} catch (Exception e){
 			fail ("couldn't add schedule: " + e.getMessage());
 		}
@@ -102,6 +102,23 @@ public class TestSchedule extends TestCase {
 			
 		} catch (Exception e) {
 			fail("Couldn't get schedules older than specified hours: " + e.getMessage());
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	public void testExtendSchedulesDates() {
+		SchedulesDAO sd = new SchedulesDAO();
+		
+		try {
+			String scheduleID = "266bf";
+			java.util.Date newStart = new java.util.Date(118, 11, 03);
+			java.util.Date newEnd = new java.util.Date(118,11,10);
+			boolean b = sd.extendSchedule(scheduleID, newStart, newEnd);
+			System.out.println("Extended Schedule:" + b);
+			
+			assertEquals(newStart, sd.getSchedule(scheduleID).startDate);
+		} catch (Exception e) {
+			fail("Couldn't Extend Schedule: " + e.getMessage());
 		}
 	}
 

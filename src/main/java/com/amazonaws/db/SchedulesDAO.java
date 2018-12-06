@@ -237,23 +237,18 @@ public class SchedulesDAO {
 		}
 	}
 	
-	public boolean extendSchedule(String scheduleID, Date newStart, Date newEnd) throws Exception {
+	public boolean extendSchedule(String scheduleID, java.util.Date newStart, java.util.Date newEnd) throws Exception {
 		try {
-			PreparedStatement ps = conn.prepareStatement("UPDATE schedules SET startDate=? WHERE ID=?");
+			PreparedStatement ps = conn.prepareStatement("UPDATE schedules SET startDate=?, endDate=? WHERE ID=?");
 			Date sDate = new java.sql.Date(newStart.getTime());
+			Date eDate = new java.sql.Date(newEnd.getTime());
 			ps.setDate(1, sDate);
-			ps.setString(2, scheduleID);
+			ps.setDate(2, eDate);
+			ps.setString(3, scheduleID);
 			int numAffected = ps.executeUpdate();
 			ps.close();
-			
-			PreparedStatement ps2 = conn.prepareStatement("UPDATE schedules SET startDate=? WHERE ID=?");
-			Date eDate = new java.sql.Date(newEnd.getTime());
-			ps.setDate(1, eDate);
-			ps.setString(2, scheduleID);
-			int numAffected2 = ps.executeUpdate();
-			ps.close();
-			
-			return (numAffected==1 && numAffected2==1);
+
+			return (numAffected==1);
 		} catch (Exception e) {
 			throw new Exception("Failed to extend schedule: " + e.getMessage());
 		}
