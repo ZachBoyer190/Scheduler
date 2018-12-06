@@ -1,9 +1,10 @@
 const errorCode = 300;
-const urlDelete = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Charlie/deleteoldschedules';
-const urlGet = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Charlie/shownewschedules';
-const urlUser =  'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Beta/checksysadmin';
+const urlDelete = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/deleteoldschedules';
+const urlGet = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getscheduleshoursold';
+const urlUser =  'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/checksysadmin';
 let userAndPassValue;
 let deleteDate;
+let setNumberOfHours;
 
 function checkLogin(){
     let usernameValue = document.getElementById("username").value;
@@ -45,24 +46,24 @@ function checkLogin(){
 }
 
 function deleteSchedulesFromButton(){
-    let deleteNumberOfDays = document.getElementById("deleteNumberOfDays").value;
+    let numberOfDays = document.getElementById("numberOfDays").value;
     let startDateValue = new Date();
 
-    if(deleteNumberOfDays.length === 0){
+    if(numberOfDays.length === 0){
         document.getElementById("errorString").innerHTML = "Please insert a number of days";
         return;
     }
 
-    let endDateDelete = new Date(startDateValue.setDate(startDateValue.getDate() - deleteNumberOfDays));
+    let endDate = new Date(startDateValue.setDate(startDateValue.getDate() - numberOfDays));
 
     //document.getElementById("errorString").innerHTML = new Date(endDateDelete).toDateString();
 
     deleteDate = {
-        end_date: endDateDelete
+        end_date: endDate
     };
 
     $.post(urlDelete,JSON.stringify(deleteDate), function (data, status) {
-        document.getElementById("deleteNumberOfDays").value = "";
+        document.getElementById("numberOfDays").value = "";
 
         if (data.httpCode >= errorCode){
             document.getElementById("errorString").innerHTML = "There are no schedules before this date";
@@ -78,32 +79,30 @@ function deleteSchedulesFromButton(){
 
 
 function getSchedulesFromButton(){
-    let getNumberOfDays = document.getElementById("getNumberOfDays").value;
-    let DateValue = new Date();
+    let numberOfHours = document.getElementById("numberOfHours").value;
 
-    if(getNumberOfDays.length === 0){
-        document.getElementById("errorString").innerHTML = "Please insert a number of days";
+    if(numberOfHours.length === 0){
+        document.getElementById("errorString").innerHTML = "Please insert a number of hours";
         return;
     }
 
-    let endDateGet = DateValue - getNumberOfDays;
-
-    getNumberOfDays = {
-        date: endDateGet
+    setNumberOfHours = {
+        hours: numberOfHours
     };
 
-    $.post(urlGet,JSON.stringify(getNumberOfDays), function (data, status) {
-        document.getElementById("getNumberOfDays").value = "";
+    $.post(urlGet,JSON.stringify(setNumberOfHours), function (data, status) {
+        document.getElementById("numberOfHours").value = "";
 
         if (data.httpCode >= errorCode){
-            document.getElementById("errorString").innerHTML = "There are no new schedules after this date";
+            document.getElementById("errorString").innerHTML = "There are no new schedules";
             return;
         }
-       let NewScheduleData = data;
-
-        scheduleName = NewScheduleData.name;
-        scheduleID = NewScheduleData.id;
-
+        else if(data.httpCode <= errorCode){
+            document.getElementById("errorString").innerHTML = "worked";
+            let newScheduleData = data;
+            document.getElementById("scheduleName").innerHTML = newScheduleData.get().name;
+            document.getElementById("scheduleID").innerHTML = newScheduleData.get().id;
+        }
 
     });
 
