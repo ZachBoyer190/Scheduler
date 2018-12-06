@@ -123,6 +123,68 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		}
 	}
 	
+	public boolean closeOnDate(java.util.Date d, String scheduleID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='CLOSED' WHERE date=? AND scheduleID=?;");
+			Date sqlDate = new java.sql.Date(d.getTime());
+			ps.setDate(1, sqlDate);
+			ps.setString(2,  scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected >= 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
+	public boolean openOnDate(java.util.Date d, String scheduleID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='OPEN' WHERE date=? AND scheduleID=?;");
+			Date sqlDate = new java.sql.Date(d.getTime());
+			ps.setDate(1, sqlDate);
+			ps.setString(2,  scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected >= 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
+	public boolean closeAtTime(int time, String scheduleID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='CLOSED' WHERE startTime=? AND scheduleID=?;");
+			ps.setInt(1, time);
+			ps.setString(2,  scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected >= 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
+	public boolean openAtTime(int time, String scheduleID) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status='OPEN' WHERE startTime=? AND scheduleID=?;");
+			ps.setInt(1, time);
+			ps.setString(2,  scheduleID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected >= 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
 	private TimeSlot generateTimeSlot(ResultSet resultSet) throws Exception {
 		String timeSlotID = resultSet.getString("ID");
 		String scheduleID = resultSet.getString("scheduleID");
