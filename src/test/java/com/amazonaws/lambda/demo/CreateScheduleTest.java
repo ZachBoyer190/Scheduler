@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 
 import junit.framework.TestCase;
 
+import com.amazonaws.db.SchedulesDAO;
+
 public class CreateScheduleTest extends TestCase{
 	
 	Context createContext(String apiCall) {
@@ -77,6 +79,34 @@ public class CreateScheduleTest extends TestCase{
 		
 		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
 		GetSchedulesHourResponse resp = new Gson().fromJson(post.body, GetSchedulesHourResponse.class);
+		
+	}
+	
+	public void testExtendSchedules() throws IOException {
+		ExtendScheduleHandler handler = new ExtendScheduleHandler();
+		SchedulesDAO sDAO = new SchedulesDAO();
+		
+		String scheduleID = "266bf";
+		java.util.Date newStart = new java.util.Date(118, 11, 01);
+		java.util.Date newEnd = new java.util.Date(118,11,15);
+		
+		ExtendScheduleRequest esr = new ExtendScheduleRequest(scheduleID, newStart, newEnd);
+		String extendRequest = new Gson().toJson(esr);
+		String jsonRequest = new Gson().toJson(new PostRequest(extendRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("extend"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		ExtendScheduleResponse resp = new Gson().fromJson(post.body, ExtendScheduleResponse.class);
+		
+		try {
+			assertEquals(newStart, sDAO.getSchedule(scheduleID).startDate);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 
