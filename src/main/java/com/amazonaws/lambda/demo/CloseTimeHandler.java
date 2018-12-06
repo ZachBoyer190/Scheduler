@@ -103,5 +103,4 @@ public class CloseTimeHandler implements RequestStreamHandler {
 		writer.write(responseJson.toJSONString());
 		writer.close();
 	}
-	
 }
