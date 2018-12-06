@@ -72,11 +72,13 @@ public class SchedulesDAO {
 			ps.setDate(7, sqlEndDate);
 			ps.setString(8, schedule.secretCode);
 			
-			long millis = System.currentTimeMillis();
-			java.util.Date utilCreate = new java.util.Date(millis);
-			java.sql.Timestamp createTS = new java.sql.Timestamp(utilCreate.getTime());
-			
-			ps.setTimestamp(9, createTS);
+			long currentTime = Instant.now().toEpochMilli();
+			long currentTimeUTC = currentTime - (5*numMilliseconds);
+
+			java.sql.Timestamp sqlDate = new java.sql.Timestamp(currentTimeUTC);
+			System.out.println("SQL Timestamp: " + sqlDate);
+
+			ps.setTimestamp(9, sqlDate);
 			
 			ps.execute();
 			ps.close();
