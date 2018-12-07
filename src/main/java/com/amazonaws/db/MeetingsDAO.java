@@ -56,8 +56,8 @@ public class MeetingsDAO {
 			
 			ps = conn.prepareStatement("INSERT INTO meetings (ID, scheduleID, timeSlotID, participant, secretCode) values (?,?,?,?,?)");
 			ps.setString(1, meeting.meetingID);
-			ps.setString(2, meeting.schedule.scheduleID);
-			ps.setString(3, meeting.timeslot.timeSlotID);
+			ps.setString(2, meeting.scheduleID);
+			ps.setString(3, meeting.timeslotID);
 			ps.setString(4, meeting.participant.name);
 			ps.setString(5, meeting.secretCode);
 			
@@ -89,16 +89,10 @@ public class MeetingsDAO {
 		String timeSlotID = resultSet.getString("timeslotID");
 		String participantName = resultSet.getString("participant");
 		String secretCode = resultSet.getString("secretCode");
-		
-		SchedulesDAO schedules = new SchedulesDAO();
-		Schedule schedule = schedules.getSchedule(scheduleID);
-		
-		TimeSlotsDAO timeslots = new TimeSlotsDAO();
-		TimeSlot timeSlot = timeslots.getTimeSlot(timeSlotID);
-		
+
 		User participant = new User(participantName, UserType.BASIC);
 		
-		return new Meeting(meetingID, schedule, timeSlot, participant, secretCode);
+		return new Meeting(meetingID, scheduleID, timeSlotID, participant, secretCode);
 				
 	}
 }

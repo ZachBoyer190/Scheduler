@@ -19,16 +19,16 @@ public class TestMeeting extends TestCase {
 		
 		try {
 			String id = UUID.randomUUID().toString().substring(0, 5);
-			String scheduleID = "0fd25";
+			String scheduleID = "266bf";
 			String pName = "Ben";
 			String secretCode = UUID.randomUUID().toString().substring(0, 5);
 			
 			Schedule schedule = sd.getSchedule(scheduleID);
-			TimeSlot timeSlot = td.getTimeSlot(schedule.timeslots.get(0).timeSlotID);
+			String timeSlot = schedule.timeslots.get(1).timeSlotID;
 			
 			User participant = new User(pName, UserType.BASIC);
 			
-			Meeting m = new Meeting(id, schedule, timeSlot, participant, secretCode);
+			Meeting m = new Meeting(id, scheduleID, timeSlot, participant, secretCode);
 			
 			boolean b = md.addMeeting(m);
 			System.out.println("add meeting: " + id + " " + b);
@@ -52,11 +52,11 @@ public class TestMeeting extends TestCase {
 			String secretCode = UUID.randomUUID().toString().substring(0, 5);
 			
 			Schedule schedule = sDAO.getSchedule(scheduleID);
-			TimeSlot timeSlot = tDAO.getTimeSlot(schedule.timeslots.get(0).timeSlotID);
+			String timeSlot = schedule.timeslots.get(0).timeSlotID;
 			
 			User participant = new User(pName, UserType.BASIC);
 			
-			Meeting m = new Meeting(id, schedule, timeSlot, participant, secretCode);
+			Meeting m = new Meeting(id, scheduleID, timeSlot, participant, secretCode);
 			
 			boolean b = mDAO.addMeeting(m);
 			System.out.println("add meeting: " + id + " " + b);

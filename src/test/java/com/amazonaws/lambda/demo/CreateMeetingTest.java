@@ -31,8 +31,8 @@ public class CreateMeetingTest extends TestCase{
 		CreateMeetingHandler handler = new CreateMeetingHandler();
 		TimeSlotsDAO td = new TimeSlotsDAO();
 
-		String scheduleID = "6847e";
-		String timeslotID = "02536";
+		String scheduleID = "aa5ee";
+		String timeslotID = "72bad";
 		String uName = "Cory";
 		
 		CreateMeetingRequest cmr = new CreateMeetingRequest(scheduleID, timeslotID, uName);

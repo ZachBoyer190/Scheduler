@@ -37,10 +37,11 @@ public class OrgCancelMeetingHandler implements RequestStreamHandler {
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		Meeting m = mDAO.getMeeting(meetingID);
+		TimeSlot t = tDAO.getTimeSlot(mDAO.getMeeting(meetingID).timeslotID);
 
 		this.schedule = sDAO.getSchedule(scheduleID);
-		m.timeslot.modifyStatus("OPEN");
-		tDAO.updateTimeSlot(m.timeslot);
+		t.modifyStatus("OPEN");
+		tDAO.updateTimeSlot(t);
 		return mDAO.deleteMeeting(meetingID);
 	}
 

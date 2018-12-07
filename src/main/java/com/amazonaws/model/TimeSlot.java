@@ -20,6 +20,15 @@ public class TimeSlot {
 		this.meeting = null;
 	}
 	
+	public TimeSlot(String id, String sID, int st, Date date, TimeSlotStatus status, Meeting m) {
+		this.timeSlotID = id;
+		this.scheduleID = sID;
+		this.startTime = st;
+		this.date = date;
+		this.status = status;
+		this.meeting = m;
+	}
+	
 	public boolean modifyStatus(String newStatus) {
 		this.status = TimeSlotStatus.getStatus(newStatus);	
 		return true;

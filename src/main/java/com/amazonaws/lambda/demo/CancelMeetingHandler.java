@@ -16,6 +16,8 @@ import com.amazonaws.db.SchedulesDAO;
 import com.amazonaws.db.TimeSlotsDAO;
 import com.amazonaws.model.Meeting;
 import com.amazonaws.model.Schedule;
+import com.amazonaws.model.TimeSlot;
+
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -33,11 +35,12 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		Meeting m = mDAO.getMeeting(meetingID);
+		TimeSlot t = tDAO.getTimeSlot(m.timeslotID);
 		
 		if(m.secretCode.equals(msc)) {
 			this.schedule = sDAO.getSchedule(scheduleID);
-			m.timeslot.modifyStatus("OPEN");
-			tDAO.updateTimeSlot(m.timeslot);
+			t.modifyStatus("OPEN");
+			tDAO.updateTimeSlot(t);
 			return mDAO.deleteMeeting(meetingID);
 		}else {
 			return false;
