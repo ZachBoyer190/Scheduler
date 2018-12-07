@@ -9,6 +9,7 @@ public class TimeSlot {
 	public final int startTime;
 	public final Date date;
 	public TimeSlotStatus status;
+	public Meeting meeting;
 	
 	public TimeSlot (String id, String sID, int st, Date date, TimeSlotStatus status) {
 		this.timeSlotID = id;
@@ -16,10 +17,16 @@ public class TimeSlot {
 		this.startTime = st;
 		this.date = date;
 		this.status = status;
+		this.meeting = null;
 	}
 	
 	public boolean modifyStatus(String newStatus) {
 		this.status = TimeSlotStatus.getStatus(newStatus);	
+		return true;
+	}
+	
+	public boolean setMeeting(Meeting m) {
+		this.meeting = m;
 		return true;
 	}
 
