@@ -77,6 +77,16 @@ function deleteSchedulesFromButton(){
 }
 
 
+function fillTableWithEmptyCells(table, numRows, numCol, rowOffset){
+
+    for(let j = rowOffset; j < numRows+rowOffset; j++){
+        let row = table.insertRow();
+
+        for (let h = 0; h < numCol; h++){
+            row.insertCell();
+        }
+    }
+}
 
 function getSchedulesFromButton(){
     let numberOfHours = document.getElementById("numberOfHours").value;
@@ -91,17 +101,28 @@ function getSchedulesFromButton(){
     };
 
     $.post(urlGet,JSON.stringify(setNumberOfHours), function (data, status) {
+        document.getElementById("scheduleName").innerHTML = "";
         document.getElementById("numberOfHours").value = "";
+        document.getElementById("Header").innerHTML = "";
 
         if (data.httpCode >= errorCode){
-            document.getElementById("errorString").innerHTML = "There are no new schedules";
+            document.getElementById("Header").innerHTML = "";
+            document.getElementById("scheduleName").innerHTML = "";
+            document.getElementById("errorString").innerHTML = "There are no new schedules".bold();
             return;
         }
         else if(data.httpCode <= errorCode){
-            document.getElementById("errorString").innerHTML = "worked";
-            let newScheduleData = data;
-            document.getElementById("scheduleName").innerHTML = newScheduleData.get().name;
-            document.getElementById("scheduleID").innerHTML = newScheduleData.get().id;
+            document.getElementById("scheduleName").innerHTML = "";
+            document.getElementById("errorString").innerHTML = "";
+            let newScheduleData = data.schedules;
+
+            let i;
+            for (i = 0; i < newScheduleData.length; i++) {
+                document.getElementById("Header").innerHTML = "Schedule Name: Schedule ID".bold();
+                document.getElementById("scheduleName").innerHTML = document.getElementById("scheduleName").innerHTML + '<br>'
+                    + newScheduleData[i].name + ": "  + newScheduleData[i].scheduleID;
+                //document.getElementById("scheduleID").innerHTML = document.getElementById("scheduleID").innerText + "  " + newScheduleData[i].scheduleID;
+            }
         }
 
     });
