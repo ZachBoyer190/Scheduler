@@ -26,7 +26,7 @@ public class CheckScheduleCodeHandler implements RequestStreamHandler {
 		SchedulesDAO sDAO = new SchedulesDAO();
 		Schedule s = sDAO.getSchedule(scheduleID);
 		
-		if(s.scheduleID.equals(sc)) {
+		if(s.secretCode.equals(sc)) {
 			return true;
 		}else {
 			return false;

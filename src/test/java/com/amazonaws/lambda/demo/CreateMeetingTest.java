@@ -86,9 +86,9 @@ public class CreateMeetingTest extends TestCase{
 		CancelMeetingHandler handler = new CancelMeetingHandler();
 		TimeSlotsDAO tD = new TimeSlotsDAO();
 		
-		String scheduleID = "5b34a";
-		String meetingCode = "cf5c3de2";
-		String timeslotID = "02536";
+		String scheduleID = "aa5ee";
+		String meetingCode = "866773c2";
+		String timeslotID = "01c28";
 		String meetingID = "d919c";
 		
 		CancelMeetingRequest cmr = new CancelMeetingRequest(meetingID, meetingCode, scheduleID);

@@ -27,10 +27,12 @@ public class OpenTimeHandler implements RequestStreamHandler {
 		if (logger != null) { logger.log("in openTime"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		boolean result = tDAO.openAtTime(time, scheduleID);
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		return tDAO.openAtTime(time, scheduleID);
+		return result;
 	}
 
 	@Override

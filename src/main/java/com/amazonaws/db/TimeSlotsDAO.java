@@ -77,7 +77,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 				return false;
 			}
 			
-			ps = conn.prepareStatement("INSERT INTO timeslots (ID, scheduleID, startTime, date, status) values(?,?,?,?,?)");
+			ps = conn.prepareStatement("INSERT INTO timeslots (ID, scheduleID, startTime, date, status, meetingID) values(?,?,?,?,?,?)");
 			ps.setString(1, timeslot.timeSlotID);
 			ps.setString(2, timeslot.scheduleID);
 			ps.setInt(3, timeslot.startTime);
@@ -86,6 +86,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			
 			ps.setDate(4, sqlDate);
 			ps.setString(5, timeslot.status.toString());
+			ps.setString(6, "No meeting assigned yet");
 			ps.execute();
 			
 			return true;

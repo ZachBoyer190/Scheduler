@@ -34,7 +34,7 @@ public class CreateScheduleTest extends TestCase{
 		Date startDate = new Date(118, 11, 01);
 		Date endDate = new Date(118, 11, 06);
 
-		CreateScheduleRequest csr = new CreateScheduleRequest("hi", 1000, 1500, 10, startDate, endDate);
+		CreateScheduleRequest csr = new CreateScheduleRequest("hihello", 1000, 1500, 10, startDate, endDate);
 		String createScheduleRequest = new Gson().toJson(csr);
 		String jsonRequest = new Gson().toJson(new PostRequest(createScheduleRequest));
 		
@@ -86,9 +86,9 @@ public class CreateScheduleTest extends TestCase{
 		ExtendScheduleHandler handler = new ExtendScheduleHandler();
 		SchedulesDAO sDAO = new SchedulesDAO();
 		
-		String scheduleID = "266bf";
-		java.util.Date newStart = new java.util.Date(118, 11, 01);
-		java.util.Date newEnd = new java.util.Date(118,11,15);
+		String scheduleID = "31e31";
+		java.util.Date newStart = new java.util.Date(118, 11, 6);
+		java.util.Date newEnd = new java.util.Date(118,11, 18);
 		
 		ExtendScheduleRequest esr = new ExtendScheduleRequest(scheduleID, newStart, newEnd);
 		String extendRequest = new Gson().toJson(esr);
@@ -114,8 +114,8 @@ public class CreateScheduleTest extends TestCase{
 		CheckScheduleCodeHandler handler = new CheckScheduleCodeHandler();
 		SchedulesDAO sDAO = new SchedulesDAO();
 		
-		String scheduleID = "266bf";
-		String scheduleCode = "f63b414d";
+		String scheduleID = "aa5ee";
+		String scheduleCode = "8465819a";
 		
 		CheckScheduleCodeRequest csr = new CheckScheduleCodeRequest(scheduleID, scheduleCode);
 		String checkRequest = new Gson().toJson(csr);

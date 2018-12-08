@@ -38,10 +38,13 @@ public class CancelMeetingHandler implements RequestStreamHandler {
 		TimeSlot t = tDAO.getTimeSlot(m.timeslotID);
 		
 		if(m.secretCode.equals(msc)) {
+			boolean result = mDAO.deleteMeeting(meetingID);
+			
 			this.schedule = sDAO.getSchedule(scheduleID);
 			t.modifyStatus("OPEN");
 			tDAO.updateTimeSlot(t);
-			return mDAO.deleteMeeting(meetingID);
+			
+			return result;
 		}else {
 			return false;
 		}
