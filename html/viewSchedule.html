@@ -114,21 +114,14 @@
                 <select id="selectedEdit">
                     <option value="NONE">  </option>
                     <option value="OPEN_DAY"> Open all time slots on a day </option>
-                    <option value="OPEN_TIME"> Open all meetings at a time </option>
+                    <option value="OPEN_TIMESLOT"> Open all time slots at a time </option>
                     <option value="CLOSE_DAY"> Close all time slots on a day </option>
-                    <option value="CLOSE_TIME"> Close all meetings at a time </option>
+                    <option value="CLOSE_TIMESLOT"> Close all time slots at a time </option>
                 </select>
 
             </label>
             <label> Select the time or day you would like to close
-                <select id="selectDay">
-                    <option value="NONE">  </option>
-                    <option value="MONDAY"> MONDAY </option>
-                    <option value="TUESDAY"> TUESDAY </option>
-                    <option value="WEDNESDAY"> WEDNESDAY </option>
-                    <option value="THURSDAY"> THURSDAY </option>
-                    <option value="FRIDAY"> FRIDAY </option>
-                </select>
+                <input id="selectDay" type="date"/>
                 <select id="selectTime">
                     <option value="NONE">  </option>
                 </select>

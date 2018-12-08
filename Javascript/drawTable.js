@@ -17,43 +17,52 @@ const errorValue = -1;
 const openSlotsRowOffset = 1; //column
 const openSlotsNumCol = 6;
 
-const openMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/-createMeeting';
-const closeMeetingURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/';
-const url = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const checkEditCodeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const cancelMeetingOrganizerURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const closeTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const openTimeSlotURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const closeMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const closeMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const openMultipleAtTimeURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const openMultipleOnDayURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const extendScheduleURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
-const allOpenTimeSlotsURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/getschedule';
+const baseURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Echo';
+const openMeetingURL = baseURL + '/createmeeting';
+const closeMeetingURL = baseURL + '/cancelmeeting';
+const getScheduleURL = baseURL + '/getschedule';
+const checkEditCodeURL = baseURL + '/checkschedulecode';
+const cancelMeetingOrganizerURL = baseURL + '/orgcancelmeeting';
+const closeTimeSlotURL = baseURL + '/closetimeslot';
+const openTimeSlotURL = baseURL + '/opentimeslot';
+const closeMultipleAtTimeURL = baseURL + '/closetime';
+const closeMultipleOnDayURL = baseURL + '/closedate';
+const openMultipleAtTimeURL = baseURL + '/opentime';
+const openMultipleOnDayURL = baseURL + '/opendate';
+const extendScheduleURL = baseURL + '/extendschedule';
+//const allOpenTimeSlotsURL = baseURL + '/getschedule';
+
+
+
 
 const bookMeetingButtonStatus = "BOOK";
 const cancelMeetingButtonStatus = "CANCEL";
+const orgCancelMeetingButtonStatus = "ORGCANCEL";
 
 const openTimeSlotButtonStatus = "OPEN";
 const closeTimeSlotButtonStatus = "CLOSE";
 
-const participantStatus = "PARTICIPANT";
-const organizerStatus = "ORGANIZER";
 
-const searchOpen = "VISIBLE";
-const searchClosed = "HIDDEN";
+
+
 
 const editOptionOpenDay = "OPEN_DAY";
-const editOptionOpenTime = "OPEN_TIME";
+const editOptionOpenTimeSlot = "OPEN_TIMESLOT";
 const editOptionCloseDay = "CLOSE_DAY";
-const editOptionCloseTime = "CLOSE_TIME";
+const editOptionCloseTimeSlot = "CLOSE_TIMESLOT";
 const NoneSelected = "NONE";
 
-const notInitialized = "NO";
-const initialized = "YES";
 
-const scheduleHasChanged = "YES";
-const scheduleHasNotChanged = "NO";
+const visible = "VISIBLE";
+const hidden = "HIDDEN";
+
+const full = "FULL";
+const empty = "EMPTY";
+
+const changesYes = "YES";
+const changesNo = "NO";
+
+
 
 let scheduleStartDate;
 let tableStartDate;
@@ -64,14 +73,69 @@ let unfilteredStoredOpenSlots;
 let filteredStoredOpenSlots;
 
 // =====================================================
-//              Statuses for Page Drawing
+//              Statuses for Page View
 // -----------------------------------------------------
-let scheduleInitializedStatus = notInitialized;
-let hasScheduleChanged = scheduleHasNotChanged;
+const afterPageLoad = "afterPageLoad";
+const afterGetSchedule = "afterGetSchedule";
+const afterViewNewWeek = "afterViewNewWeek";
+const afterFilterResultsButtonClick = "afterFilterResultsButtonClick";
+const afterFilterIsApplied = "afterFilterIsApplied";
+const afterSecretCodeIsSubmitted = "afterSecretCodeIsSubmitted";
+const afterEditChangeIsSubmitted = "afterEditChangeIsSubmitted";
 
-let viewStatus = participantStatus;
-let searchButtonStatus = searchOpen;
-let searchResultsStatus = searchClosed;
+let pageStatus = afterPageLoad;
+
+// =====================================================
+//              Statuses for Schedule Table
+// -----------------------------------------------------
+let scheduleTableVisibility = hidden;
+
+let scheduleTableFullness = full;
+
+const notInitialized = "NO";
+const initialized = "YES";
+let scheduleInitializedStatus = notInitialized;
+
+let hasScheduleChanged = changesNo;
+
+const participantPerspective = "PARTICIPANT";
+const organizerPerspective = "ORGANIZER";
+let scheduleTablePerspective = participantPerspective;
+
+// =====================================================
+//              Statuses for Filter Results Button
+// -----------------------------------------------------
+let filterResultsButtonVisibility = hidden;
+
+// =====================================================
+//      Statuses for Filter Results Options and Table
+// -----------------------------------------------------
+let filterResultsOptionsTableVisibility = hidden;
+
+let filterResultsOptionsTableFullness = empty;
+
+let filterResultsOptionsTableChangeStatus = changesNo;
+
+// =====================================================
+//      Statuses for Schedule Edit Code Submission
+// -----------------------------------------------------
+let scheduleEditCodeSubmissionVisibility = hidden;
+
+let scheduleEditCodeSubmissionFullness = empty;
+
+// =====================================================
+//      Statuses for Schedule Edit Options
+// -----------------------------------------------------
+let scheduleEditOptionsVisibility = hidden;
+
+let scheduleEditOptionsFullness = empty;
+
+
+
+
+
+let searchButtonStatus = visible;
+let searchResultsStatus = hidden;
 
 
 
@@ -79,13 +143,30 @@ let searchResultsStatus = searchClosed;
 // =====================================================
 //              Templates for Objects
 // -----------------------------------------------------
+const participantTemplate =
+    {
+        name : ""
+    };
+
+const meetingObjectTemplate =
+    {
+        meetingID : "",
+        schedule : null,
+        timeslot : null,
+        participant: participantTemplate,
+        secretCode : ""
+
+    };
+
 const timeslotTemplate =
     {
-        status: "",
-        time: 9999,
+
+        timeSlotID : "",
+        scheduleID : "",
+        startTime: 9999,
         date: "",
-        name: "",
-        timeSlotId : ""
+        status: "",
+        meeting: meetingObjectTemplate
     };
 
 const scheduleObjectTemplate =
@@ -95,7 +176,7 @@ const scheduleObjectTemplate =
         startTime: 9999,
         endTime: 9999,
         slotDelta: 9999,
-        id : "",
+        scheduleID : "",
         //secretCode: "",
         name : "",
         timeslots: [timeslotTemplate]
@@ -112,27 +193,39 @@ const dataObjectTemplate =
 //              Button Click Handlers
 // -----------------------------------------------------
 function drawTableFromButton() {
-    let inputID = document.getElementById("ScheduleID").value;
+    let inputField = document.getElementById("ScheduleID");
+    let inputID = inputField.value;
     if(inputID.length === 0){
         return;
     }
 
-    sendPostAndRefresh(url, {id: inputID}, scheduleHasNotChanged,[document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")],["visible", "hidden"]);
+    sendPostAndRefresh(getScheduleURL, {id: inputID}, changesNo,
+        [document.getElementById("searchOpenSlotsArea"),
+            document.getElementById("filterOpenSlotOptionsResults")],
+        ["visible", "hidden"]);
 
+    clearGivenElementValues([inputField]);
 }
 
 function showDifferentWeek(step){
+    $.post(getScheduleURL,JSON.stringify({id:storedScheduleObject.scheduleID}), function (data) {
 
-    let newWeek = getCurrentWeekShown() + step;
-    if (newWeek > getTotalWeeksShown() || newWeek <= 0 ) {
-        return;
-    }
-    editCurrentWeekShown(newWeek);
+        if (data.httpCode >= errorCode) {
+            return;
+        }
 
-    tableStartDate = new Date(tableStartDate.setDate(
-        tableStartDate.getDate()+(step*numDaysInWeek)));
+        storedScheduleObject = data.schedule;
+        let newWeek = getCurrentWeekShown() + step;
+        if (newWeek > getTotalWeeksShown() || newWeek <= 0) {
+            return;
+        }
+        editCurrentWeekShown(newWeek);
 
-    drawSchedule(document.getElementById("scheduleTable"));
+        tableStartDate = new Date(tableStartDate.setDate(
+            tableStartDate.getDate() + (step * numDaysInWeek)));
+
+        drawSchedule(document.getElementById("scheduleTable"));
+    })
 }
 
 function modifyMeeting(status, btnElement, fieldEntry) {
@@ -148,21 +241,23 @@ function modifyMeeting(status, btnElement, fieldEntry) {
     switch(status){
         case bookMeetingButtonStatus :
             sentObject = {
-                timeSlotId : btnElement.id,
-                name : textBoxEntry
+                scheduleID : storedScheduleObject.scheduleID,
+                timeslotID : btnElement.id,
+                userName : textBoxEntry
             };
             thisURL = openMeetingURL;
             break;
-
         case cancelMeetingButtonStatus :
             sentObject = {
-                meetingSecretCode : textBoxEntry
+                meetingID : btnElement.id,
+                meetingSecretCode : textBoxEntry,
+                scheduleID : storedScheduleObject.scheduleID
             };
             thisURL = closeMeetingURL;
             break;
     }
 
-    sendPostAndRefresh(thisURL, sentObject, scheduleHasChanged);
+    sendPostAndRefresh(thisURL, sentObject, changesYes);
 }
 
 function checkEditAbility(){
@@ -174,22 +269,23 @@ function checkEditAbility(){
         return;
     }
     let sentObject = {
-        id : storedScheduleObject.id,
+        scheduleID : storedScheduleObject.scheduleID,
         secretCode : inputCodeArea.value
     };
 
-    // TODO uncomment this post request when lambda function exists
-    //$.post(checkEditCodeURL,JSON.stringify(sentObject), function (data) {
+    $.post(checkEditCodeURL,JSON.stringify(sentObject), function (data) {
 
-    //    if(data.httpCode >= errorCode){ return; }
-
-        viewStatus = organizerStatus;
-        let table = document.getElementById("scheduleTable");
-        drawSchedule(table);
-        clearChildren(document.getElementById("resultsTable"));
-        changeGivenElementsVisibility([document.getElementById("scheduleEditOptions"),document.getElementById("searchOpenSlotsArea"),document.getElementById("filterOpenSlotOptionsResults")], ["visible","hidden","hidden"]);
-        fillTimeDropdown(table, document.getElementById("selectTime"));
-    //});
+        if (data.status === true) {
+            scheduleTablePerspective = organizerPerspective;
+            let table = document.getElementById("scheduleTable");
+            drawSchedule(table);
+            clearChildren(document.getElementById("resultsTable"));
+            changeGivenElementsVisibility([document.getElementById("scheduleEditOptions"), document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")], ["visible", "hidden", "hidden"]);
+            fillTimeDropdown(table, document.getElementById("selectTime"));
+        } else {
+            window.alert("Incorrect edit code given.")
+        }
+    });
 
     inputCodeArea.value = "";
 }
@@ -197,13 +293,18 @@ function checkEditAbility(){
 function modifyTimeSlot(status, btnElement) {
 
     let sentObject= {
-        timeSlotId : btnElement.id,
+        timeSlotID : btnElement.id,
+        scheduleID : storedScheduleObject.scheduleID
     };
     let thisURL;
 
     switch(status){
 
         case cancelMeetingButtonStatus :
+            sentObject = {
+                meetingID : btnElement.id,
+                scheduleID : storedScheduleObject.scheduleID
+            };
             console.log(status);
             thisURL = cancelMeetingOrganizerURL;
             break;
@@ -219,7 +320,7 @@ function modifyTimeSlot(status, btnElement) {
             break;
     }
 
-    sendPostAndRefresh(thisURL, sentObject, scheduleHasChanged);
+    sendPostAndRefresh(thisURL, sentObject, changesYes);
 }
 function modifyMultipleTimeSlots() {
 
@@ -237,30 +338,30 @@ function modifyMultipleTimeSlots() {
             return;
         }
         sentObject = {
-            day : new Date(getDateFromDay(dayChoice)),
-            id : storedScheduleObject.id
+            date : new Date(dayChoice),
+            scheduleID : storedScheduleObject.scheduleID
 
         }
-    } else if(editChoice === editOptionOpenTime || editChoice === editOptionCloseTime){
+    } else if(editChoice === editOptionOpenTimeSlot || editChoice === editOptionCloseTimeSlot){
         let timeChoice = document.getElementById("selectTime").value;
         if(timeChoice === NoneSelected){
             return;
         }
         sentObject = {
             time : parseInt(timeChoice),
-            id : storedScheduleObject.id
+            scheduleID : storedScheduleObject.scheduleID
 
         }
     }
     let thisURL;
     switch (editChoice) {
-        case editOptionCloseTime :
+        case editOptionCloseTimeSlot :
             thisURL = closeMultipleAtTimeURL;
             break;
         case editOptionCloseDay :
             thisURL = closeMultipleOnDayURL;
             break;
-        case editOptionOpenTime :
+        case editOptionOpenTimeSlot :
             thisURL =openMultipleAtTimeURL;
             break;
         case editOptionOpenDay :
@@ -278,8 +379,8 @@ function extendTimeSlots() {
     let newStartDate;
     let newEndDate;
 
-    let currentStartDate = storedScheduleObject.startDate;
-    let currentEndDate = storedScheduleObject.endDate;
+    let currentStartDate = new Date(storedScheduleObject.startDate);
+    let currentEndDate = new Date(storedScheduleObject.endDate);
 
     if(newStartingDateInput === "" && newEndingDateInput === ""){
         return;
@@ -301,7 +402,7 @@ function extendTimeSlots() {
     }
 
     let sentObject = {
-        id : storedScheduleObject.id,
+        scheduleID : storedScheduleObject.scheduleID,
         startDate : newStartDate,
         endDate : newEndDate
     };
@@ -310,42 +411,61 @@ function extendTimeSlots() {
 }
 
 function getAllOpenTimeSlots(){
-    sendPostAndRefresh(url, {id: inputID}, scheduleHasNotChanged,[document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")],["visible", "hidden"]);
+    //sendPostAndRefresh(getScheduleURL, {id: inputID}, changesNo,[document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")],["visible", "hidden"]);
 
-    openSlotsInSchedule = getOpenSlots(storedScheduleObject.timeslots);
-    changeGivenElementsVisibility([document.getElementById("filterOpenSlotOptionsResults")],["visible"]);
-    let table = document.getElementById("resultsTable");
-    unfilteredStoredOpenSlots = openSlotsInSchedule;
-    filteredStoredOpenSlots = openSlotsInSchedule;
-    searchResultsStatus = searchOpen;
-    fillTableWithEmptyCells(table,openSlotsInSchedule.length,openSlotsNumCol,openSlotsRowOffset);
-    drawOpenTimeSlots(table, openSlotsInSchedule);
-    fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
-    fillYearDropDown();
-    fillMonthDropDown();
-    fillDayOfMonthDropDown();
-    fillDayOfWeekDropDown();
+    $.post(getScheduleURL,JSON.stringify({id:storedScheduleObject.scheduleID}), function (data) {
+
+        if (data.httpCode >= errorCode) {
+            return;
+        }
+
+        storedScheduleObject = data.schedule;
+        changeGivenElementsVisibility([document.getElementById("scheduleTable")],["hidden"]);
+
+        openSlotsInSchedule = getOpenSlots(storedScheduleObject.timeslots);
+        changeGivenElementsVisibility([document.getElementById("filterOpenSlotOptionsResults")], ["visible"]);
+        let table = document.getElementById("resultsTable");
+        unfilteredStoredOpenSlots = openSlotsInSchedule;
+        filteredStoredOpenSlots = openSlotsInSchedule;
+        searchResultsStatus = visible;
+        fillTableWithEmptyCells(table, openSlotsInSchedule.length, openSlotsNumCol, openSlotsRowOffset);
+        drawOpenTimeSlots(table, openSlotsInSchedule);
+        fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
+        fillYearDropDown();
+        fillMonthDropDown();
+        fillDayOfMonthDropDown();
+        fillDayOfWeekDropDown();
+    })
 }
 
 function filterAllOpenTimeSlots(){
-    let yearDropdownValue = document.getElementById("Year").value;
-    let monthDropdownValue = document.getElementById("Month").value;
-    let dayOfMonthDropdownValue = document.getElementById("DayOfMonth").value;
-    let dayOfWeekDropdownValue = document.getElementById("DayOfWeek").value;
-    let timeDropdownValue = document.getElementById("Time").value;
-    let filterStrings = [yearDropdownValue,monthDropdownValue,dayOfMonthDropdownValue,dayOfWeekDropdownValue,timeDropdownValue]
+    $.post(getScheduleURL,JSON.stringify({id:storedScheduleObject.scheduleID}), function (data) {
 
-    let filters = [];
-    for (let u = 0; u < filterStrings.length; u++){
-        let thisValue = errorValue;
-        if(filterStrings[u] !== NoneSelected){
-            thisValue = (parseInt(filterStrings[u]));
+        if (data.httpCode >= errorCode) {
+            return;
         }
-        filters.push(thisValue);
-    }
 
-    filteredStoredOpenSlots = filterOpenSlots(filters);
-    drawOpenTimeSlots(document.getElementById("resultsTable"));
+        storedScheduleObject = data.schedule;
+
+        let yearDropdownValue = document.getElementById("Year").value;
+        let monthDropdownValue = document.getElementById("Month").value;
+        let dayOfMonthDropdownValue = document.getElementById("DayOfMonth").value;
+        let dayOfWeekDropdownValue = document.getElementById("DayOfWeek").value;
+        let timeDropdownValue = document.getElementById("Time").value;
+        let filterStrings = [yearDropdownValue, monthDropdownValue, dayOfMonthDropdownValue, dayOfWeekDropdownValue, timeDropdownValue]
+
+        let filters = [];
+        for (let u = 0; u < filterStrings.length; u++) {
+            let thisValue = errorValue;
+            if (filterStrings[u] !== NoneSelected) {
+                thisValue = (parseInt(filterStrings[u]));
+            }
+            filters.push(thisValue);
+        }
+
+        filteredStoredOpenSlots = filterOpenSlots(filters);
+        drawOpenTimeSlots(document.getElementById("resultsTable"));
+    })
 }
 
 // =====================================================
@@ -355,7 +475,7 @@ function filterOpenSlots(filters){
     let opentSlots = [];
     for(let t = 0; t < unfilteredStoredOpenSlots.length; t++){
         let thisOpenSlot = unfilteredStoredOpenSlots[t];
-        let thisOpenSlotDate = new Date(thisOpenSlot.startDate);
+        let thisOpenSlotDate = new Date(thisOpenSlot.date);
         let addSlot = 0;
         let numValidFilters = 5;
         for(let g = 0; g < filters.length; g++){
@@ -408,7 +528,7 @@ function drawOpenTimeSlots(table) {
 function fillEntriesInOpenSlotTable(table){
     for(let row = openSlotsRowOffset; row < filteredStoredOpenSlots.length + openSlotsRowOffset; row++){
         let thisTimeSlot = filteredStoredOpenSlots[row - openSlotsRowOffset];
-        let date = new Date(thisTimeSlot.startDate);
+        let date = new Date(thisTimeSlot.date);
         for(let col = 0; col < openSlotsNumCol; col++){
             let thisCell = table.rows[row].cells[col];
             switch(col){
@@ -523,7 +643,7 @@ function fillTimeSlots(userStatus, htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(new Date(thisTimeSlot.startDate).setHours(-5));
+        let timeSlotDate = new Date(new Date(thisTimeSlot.date).setHours(-5));
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
@@ -538,7 +658,7 @@ function fillTimeSlots(userStatus, htmlTable){
         let cell = htmlTable.rows[timeSlotRow].cells[timeSlotCol];
 
         switch(userStatus) {
-            case participantStatus :
+            case participantPerspective :
                 switch(status){
                     case "OPEN" :
                         cell.appendChild(createParticipantOpenCell(thisTimeSlot));
@@ -552,7 +672,7 @@ function fillTimeSlots(userStatus, htmlTable){
                 }
                 break;
 
-            case organizerStatus :
+            case organizerPerspective :
                 switch(status){
                     case "OPEN" :
                         cell.appendChild(createOrganizerOpenCell(thisTimeSlot));
@@ -640,7 +760,7 @@ function createParticipantOpenCell(timeslot){
     let btn = document.createElement('input');
     btn.type = "button";
     btn.value = "book now";
-    btn.id = timeslot.timeSlotId;
+    btn.id = timeslot.timeSlotID;
     btn.onclick = function(){modifyMeeting(bookMeetingButtonStatus, btn, codeField)};
     div0.appendChild(btn);
     return div0;
@@ -649,7 +769,7 @@ function createParticipantOpenCell(timeslot){
 function createParticipantBookedCell(thisTimeSlot) {
 
     let div0 = document.createElement("div");
-    let para = document.createTextNode(thisTimeSlot.name);
+    let para = document.createTextNode(thisTimeSlot.meeting.participant.name);
     div0.appendChild(para);
 
     let div1 = document.createElement("div");
@@ -662,7 +782,7 @@ function createParticipantBookedCell(thisTimeSlot) {
     let cancelBtn = document.createElement('input');
     cancelBtn.type = "button";
     cancelBtn.value = "Cancel Meeting";
-    cancelBtn.id = thisTimeSlot.timeSlotId;
+    cancelBtn.id = thisTimeSlot.meeting.meetingID;
     cancelBtn.onclick = function(){modifyMeeting(cancelMeetingButtonStatus,cancelBtn, codeField)};
     div2.appendChild(cancelBtn);
     div0.appendChild(div2);
@@ -683,7 +803,7 @@ function createOrganizerOpenCell(timeslot){
     let closeBtn = document.createElement('input');
     closeBtn.type = "button";
     closeBtn.value = "close time slot";
-    closeBtn.id = timeslot.timeSlotId;
+    closeBtn.id = timeslot.timeSlotID;
     closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
@@ -696,14 +816,14 @@ function createOrganizerBookedCell(timeslot) {
     let cancelBtn = document.createElement('input');
     cancelBtn.type = "button";
     cancelBtn.value = "cancel meeting";
-    cancelBtn.id = timeslot.timeSlotId;
+    cancelBtn.id = timeslot.meeting.meetingID;
     cancelBtn.onclick = function(){modifyTimeSlot(cancelMeetingButtonStatus,cancelBtn)};
     div0.appendChild(cancelBtn);
 
     let closeBtn = document.createElement('input');
     closeBtn.type = "button";
     closeBtn.value = "close time slot";
-    closeBtn.id = timeslot.timeSlotId;
+    closeBtn.id = timeslot.timeSlotID;
     closeBtn.onclick = function(){modifyTimeSlot(closeTimeSlotButtonStatus, closeBtn)};
     div0.appendChild(closeBtn);
 
@@ -716,7 +836,7 @@ function createOrganizerClosedCell(timeslot){
     let openBtn = document.createElement('input');
     openBtn.type = "button";
     openBtn.value = "open time slot";
-    openBtn.id = timeslot.timeSlotId;
+    openBtn.id = timeslot.timeSlotID;
     openBtn.onclick = function(){modifyTimeSlot(openTimeSlotButtonStatus,openBtn)};
     div0.appendChild(openBtn);
 
@@ -789,10 +909,10 @@ function emptyTableRowsSlots(table, rowOffset) {
 }
 
 function clearChildren(element){
-    let children = element.childNodes;
+    //let children = element.childNodes;
 
-    for (let b = 0; b < children.length; b ++){
-        element.removeChild(children[b]);
+    while(element.childNodes.length !== 0){
+        element.removeChild(element.childNodes[0]);
     }
 
 }
@@ -901,12 +1021,18 @@ function changeGivenElementsVisibility(elements, values) {
     }
 }
 
+function clearGivenElementValues(elements){
+    for(let i = 0; i < elements.length; i++){
+        elements[i].value = "";
+    }
+}
+
 function getOpenSlots(timeSlots){
     let openSlots = [];
     for (let v = 0; v < timeSlots.length; v++){
         let thisTimeSlot = timeSlots[v];
         if(thisTimeSlot.status === openTimeSlotButtonStatus) {
-            openSlots.add(timeSlots[v]);
+            openSlots.push(timeSlots[v]);
         }
     }
     return openSlots;
@@ -962,17 +1088,121 @@ function drawSchedule(table){
     updateWeekLabel();
     fillDateRow(table);
     fillTimeColumn(table);
-    fillTimeSlots(viewStatus,table);
-    if(searchResultsStatus === searchOpen) {
-        if(hasScheduleChanged === scheduleHasChanged) {
+    fillTimeSlots(scheduleTablePerspective,table);
+    if(searchResultsStatus === visible) {
+        if(hasScheduleChanged === changesYes) {
             fillEntriesInOpenSlotTable(document.getElementById("resultsTable"))
-            hasScheduleChanged = scheduleHasNotChanged;
+            hasScheduleChanged = changesNo;
         }
     }
 }
 
+function refreshDrawPage(){
+    let table;
+    if(scheduleTableVisibility === visible){
+        table = document.getElementById("scheduleTable");
+        emptyTableRowsSlots(table,scheduleRowOffset);
+
+    }
+    if(filterResultsOptionsTableVisibility === visible){
+        table = document.getElementById("scheduleTable");
+        emptyTableRowsSlots(table,openSlotsRowOffset);
+    }
 
 
+}
+
+
+// =====================================================
+//              Set Status of Elements
+// -----------------------------------------------------
+
+function setElementStatuses(givenPageStatus){
+    switch(givenPageStatus){
+
+        case afterPageLoad :
+            break;
+        case afterGetSchedule :
+            setStatuses(
+                [visible,full,initialized,changesYes,participantPerspective,
+                visible,
+                    hidden,empty,changesNo,
+                    visible,empty,
+                    hidden,empty]);
+            break;
+        case afterViewNewWeek :
+            setStatuses(
+                [visible,full,initialized,changesYes,participantPerspective,
+                    visible,
+                    hidden,empty,changesNo,
+                    visible,empty,
+                    hidden,empty]);
+            break;
+        case afterFilterResultsButtonClick :
+            setStatuses(
+                [hidden,empty,notInitialized,changesNo,participantPerspective,
+                    hidden,
+                    visible,full,changesYes,
+                    hidden,empty,
+                    hidden,empty]);
+            break;
+        case afterFilterIsApplied :
+            setStatuses(
+                [hidden,empty,notInitialized,changesNo,participantPerspective,
+                    hidden,
+                    visible,full,changesYes,
+                    hidden,empty,
+                    hidden,empty]);
+            break;
+        case afterSecretCodeIsSubmitted :
+            setStatuses(
+                [visible,full,initialized,changesYes,organizerPerspective,
+                    hidden,
+                    hidden,empty,changesNo,
+                    hidden,empty,
+                    visible,empty]);
+            break;
+        case afterEditChangeIsSubmitted :
+            setStatuses(
+                [visible,full,initialized,changesYes,organizerPerspective,
+                    hidden,
+                    hidden,empty,changesNo,
+                    hidden,empty,
+                    visible,empty]);
+            break;
+        default :
+            break;
+    }
+}
+
+function setStatuses(givenStatuses){
+
+    scheduleTableVisibility = givenStatuses[0];
+
+    scheduleTableFullness = givenStatuses[1];
+
+    scheduleInitializedStatus = givenStatuses[2];
+
+    hasScheduleChanged = givenStatuses[3];
+
+    scheduleTablePerspective = givenStatuses[4];
+
+    filterResultsButtonVisibility = givenStatuses[5];
+
+    filterResultsOptionsTableVisibility = givenStatuses[6];
+
+    filterResultsOptionsTableFullness = givenStatuses[7];
+
+    filterResultsOptionsTableChangeStatus = givenStatuses[8];
+
+    scheduleEditCodeSubmissionVisibility = givenStatuses[9];
+
+    scheduleEditCodeSubmissionFullness = givenStatuses[10];
+
+    scheduleEditOptionsVisibility = givenStatuses[11];
+
+    scheduleEditOptionsFullness = givenStatuses[12];
+}
 
 
 
