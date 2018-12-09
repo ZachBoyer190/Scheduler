@@ -86,9 +86,9 @@ public class CreateScheduleTest extends TestCase{
 		ExtendScheduleHandler handler = new ExtendScheduleHandler();
 		SchedulesDAO sDAO = new SchedulesDAO();
 		
-		String scheduleID = "31e31";
-		java.util.Date newStart = new java.util.Date(118, 11, 6);
-		java.util.Date newEnd = new java.util.Date(118,11, 18);
+		String scheduleID = "f0cde";
+		java.util.Date newStart = new java.util.Date(118, 11, 4);
+		java.util.Date newEnd = new java.util.Date(118,11, 28);
 		
 		ExtendScheduleRequest esr = new ExtendScheduleRequest(scheduleID, newStart, newEnd);
 		String extendRequest = new Gson().toJson(esr);

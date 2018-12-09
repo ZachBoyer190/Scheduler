@@ -113,7 +113,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		try {
 			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=?, meetingID=? WHERE ID=?;");
 			ps.setString(1, timeslot.status.toString());
-			ps.setString(2,  timeslot.meeting.meetingID);
+			ps.setString(2,  "Meeting Canceled. No ID to Show");
 			ps.setString(3,  timeslot.timeSlotID);
 			int numAffected = ps.executeUpdate();
 			ps.close();

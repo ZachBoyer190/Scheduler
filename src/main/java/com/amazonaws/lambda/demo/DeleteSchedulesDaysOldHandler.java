@@ -86,7 +86,8 @@ public class DeleteSchedulesDaysOldHandler  implements RequestStreamHandler {
 			DeleteSchedulesDayOldResponse resp = null;
 			
 			try {
-				if(deleteSchedules(req.end_date)) {
+				// Stupid-ness is happening here. The function returns false if the schedule was deleted successfully
+				if(!deleteSchedules(req.end_date)) {
 					resp = new DeleteSchedulesDayOldResponse("Delete Schedules", 200);
 				}else {
 					resp = new DeleteSchedulesDayOldResponse("Could not delete schedules", 400);

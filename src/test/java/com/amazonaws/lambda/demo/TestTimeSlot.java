@@ -31,8 +31,8 @@ public class TestTimeSlot extends TestCase{
 		OpenTimeSlotHandler handler = new OpenTimeSlotHandler();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		
-		String timeSlotID = "0018b";
-		String scheduleID = "5b604";
+		String timeSlotID = "aa8b9";
+		String scheduleID = "f0cde";
 		
 		OpenTimeSlotRequest osr = new OpenTimeSlotRequest(timeSlotID, scheduleID);
 		String openTimeSlotRequest = new Gson().toJson(osr);
@@ -57,8 +57,8 @@ public class TestTimeSlot extends TestCase{
 		CloseTimeSlotHandler handler = new CloseTimeSlotHandler();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		
-		String timeSlotID = "0018b";
-		String scheduleID = "5b604";
+		String timeSlotID = "aa8b9";
+		String scheduleID = "f0cde";
 		
 		CloseTimeSlotRequest csr = new CloseTimeSlotRequest(timeSlotID, scheduleID);
 		String closeTimeSlotRequest = new Gson().toJson(csr);

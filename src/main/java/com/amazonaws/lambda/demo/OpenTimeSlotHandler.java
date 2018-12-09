@@ -31,10 +31,9 @@ public class OpenTimeSlotHandler implements RequestStreamHandler {
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
 		TimeSlot ts = tDAO.getTimeSlot(timeSlotID);
 
-		this.schedule = sDAO.getSchedule(scheduleID);
-		
 		if(ts.modifyStatus("OPEN")) {
 			tDAO.updateTimeSlot(ts);
+			this.schedule = sDAO.getSchedule(scheduleID);
 			return true;
 		}else {
 			return false;

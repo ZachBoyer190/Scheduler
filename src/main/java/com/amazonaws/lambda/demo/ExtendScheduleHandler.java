@@ -72,7 +72,9 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 				}
 			}
 			
-		} else if (endDelta > 0) {
+		} 
+		
+		if (endDelta > 0) {
 			for(long i = orig.endDate.getTime() + 86400000; i <= newEnd.getTime(); i += 86400000) {
 				int currentTime = orig.startTime;
 				Date currentDate = new Date(i);

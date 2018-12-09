@@ -97,6 +97,7 @@ public class SchedulesDAO {
 	
 	public boolean deleteSchedule(Schedule schedule) throws Exception {
 		try {
+			MeetingsDAO mDAO = new MeetingsDAO();
 			PreparedStatement ps = conn.prepareStatement("DELETE FROM schedules WHERE ID=?;");
 			ps.setString(1, schedule.scheduleID);
 			int numAffected = ps.executeUpdate();
@@ -104,7 +105,13 @@ public class SchedulesDAO {
 			
 			TimeSlotsDAO tDAO = new TimeSlotsDAO();
 			for(TimeSlot t : schedule.timeslots) {
+				
+				if(tDAO.getTimeSlot(t.timeSlotID).meeting != null) {
+					mDAO.deleteMeeting(t.meeting.meetingID);
+				}
+				
 				tDAO.deleteTimeSlot(t);
+				
 			}
 			
 			return (numAffected==1);
