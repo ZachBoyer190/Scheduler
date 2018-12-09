@@ -97,7 +97,7 @@ function getSchedulesFromButton(){
     }
 
     setNumberOfHours = {
-        hours: numberOfHours
+        hours: Math.floor(parseInt(numberOfHours)).toString()
     };
 
     $.post(urlGet,JSON.stringify(setNumberOfHours), function (data, status) {

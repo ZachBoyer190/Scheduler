@@ -305,18 +305,15 @@ function modifyTimeSlot(status, btnElement) {
                 meetingID : btnElement.id,
                 scheduleID : storedScheduleObject.scheduleID
             };
-            console.log(status);
             thisURL = cancelMeetingOrganizerURL;
             break;
 
         case openTimeSlotButtonStatus :
-            console.log(status);
-            thisURL = openMeetingURL;
+            thisURL = openTimeSlotURL;
             break;
 
         case closeTimeSlotButtonStatus :
-            console.log(status);
-            thisURL = closeMeetingURL;
+            thisURL = closeTimeSlotURL;
             break;
     }
 
@@ -406,7 +403,7 @@ function extendTimeSlots() {
         startDate : newStartDate,
         endDate : newEndDate
     };
-
+    scheduleInitializedStatus = notInitialized;
     sendPostAndRefresh(extendScheduleURL, sentObject);
 }
 
@@ -1048,6 +1045,11 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
     $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
         if(data.httpCode >= errorCode){ return; }
+
+        if(data.response === "Successfully Created Meeting"){
+            let meetingSecretCode = data.secretCode;
+            window.alert("Your meeting secret code is: " + meetingSecretCode);
+        }
 
         storedScheduleObject = getScheduleFromResponse(data);
 
