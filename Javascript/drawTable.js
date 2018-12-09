@@ -640,7 +640,13 @@ function fillTimeSlots(userStatus, htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(new Date(thisTimeSlot.date).setHours(-5));
+        let timeSlotDate;
+        if((new Date(thisTimeSlot.date).getHours()) !== 0){
+            timeSlotDate = new Date(new Date(thisTimeSlot.date).setHours(-5));
+        } else {
+            timeSlotDate = new Date(thisTimeSlot.date);
+        }
+
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
