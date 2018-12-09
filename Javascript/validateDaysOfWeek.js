@@ -1,7 +1,7 @@
 let scheduleID = "12345";
 let scheduleEditCode = "12345";
 const errorCode = 300;
-const requestURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Alpha/createschedule';
+const requestURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/createschedule';
 let redirectURL = "viewSchedule.html"
 
 

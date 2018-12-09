@@ -1,45 +1,48 @@
 <html>
 <head>
-<title> This is the sysAdmin view </title>
+    <title> This is the sysAdmin view </title>
 </head>
 <body>
 <h1> Welcome Admins </h1>
 <p> Please login</p>
 
-    <fieldset>
-        <legend> Login</legend>
-        <p> Username: <label for="username"></label><input id="username" type="text" required="required"/> </p>
-        <p> Password: <label for="password"></label><input id="password" type="password" required="required"/></p>
+<fieldset>
+    <legend> Login</legend>
+    <p> Username: <label for="username"></label><input id="username" type="text" required="required"/> </p>
+    <p> Password: <label for="password"></label><input id="password" type="password" required="required"/></p>
 
-        <input type="button" value="Login" onclick="checkLogin()" />
-    </fieldset>
+    <input type="button" value="Login" onclick="checkLogin()"/>
+</fieldset>
 
-    <br />
+<br />
 
-    <fieldset style="visibility: hidden">
-        <legend> Delete old Meeting Schedules</legend>
-            <p> Delete meetings more than <label>
-                <input type="number" name="numberOfDays" required="required"/>
-            </label> days old</p>
+<fieldset id="fieldset1" style="visibility: hidden">
+    <legend> Delete old Meeting Schedules</legend>
+    <p> Delete meeting schedules more than <label>
+        <input type="number" id="numberOfDays" required="required"/>
+    </label> days old</p>
 
-        <input type="button" value="Delete" />
-    </fieldset>
+    <input type="button" value="Delete" onclick="deleteSchedulesFromButton()"/>
+</fieldset>
 
-    <p></p>
-    <fieldset style="visibility: hidden">
-        <legend> Retrieve Recent Meeting Schedules</legend>
-        <p> Retrieve meetings created in last <label>
-            <input type="number" name="numberOfDays" required="required"/>
-        </label> hours</p>
+<p></p>
+<fieldset id="fieldset2" style="visibility: hidden">
+    <legend> Retrieve Recent Meeting Schedules</legend>
+    <p> Retrieve meeting schedules created in last <label>
+        <input type="number" id="numberOfHours" required="required"/>
+    </label> hours</p>
 
-        <input type="button" value="Retrieve" />
-    </fieldset>
+    <input type="button" value="Retrieve" onclick="getSchedulesFromButton()" />
+</fieldset>
 
+<p id="Header"></p>
+<p id="scheduleName"></p>
 <p id="errorString">  </p>
 
 </body>
 
 <script src="../Javascript/checkLogin.js" type="application/javascript"></script>
+<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
 
 </html>
 
