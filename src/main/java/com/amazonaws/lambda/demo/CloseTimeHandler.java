@@ -27,10 +27,12 @@ public class CloseTimeHandler implements RequestStreamHandler {
 		if (logger != null) { logger.log("in closeTime"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		boolean result = tDAO.closeAtTime(time, scheduleID);
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		return tDAO.closeAtTime(time, scheduleID);
+		return result;
 	}
 
 	@Override

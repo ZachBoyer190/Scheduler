@@ -36,33 +36,42 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 	String lastID;
 	String editCode;
 	Schedule schedule;
+	Meeting meeting;
 	
 	boolean createMeeting(String scheduleID, String timeslotID, String userName) throws Exception {
 		if (logger != null) { logger.log("in createMeeting"); }
 		MeetingsDAO mDAO = new MeetingsDAO();
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
-		Meeting m = null;
 		
-		try {		
+		try {
+			
 			String mID = UUID.randomUUID().toString().substring(0, 5);
 			lastID = mID;
 		
-			String sc = UUID.randomUUID().toString().substring(0, 8);
-			editCode = sc;
-			Schedule sched = sDAO.getSchedule(scheduleID);
-			schedule = sched;
+			this.editCode = UUID.randomUUID().toString().substring(0, 8);
+			this.schedule = sDAO.getSchedule(scheduleID);
 			TimeSlot timeslot = tDAO.getTimeSlot(timeslotID);
 			User p = new User(userName, UserType.BASIC);
+			
+			if (tDAO.getTimeSlot(timeslotID).status.toString().equals("OPEN")) {
 		
-			m = new Meeting(mID, schedule, timeslot, p, sc);
-			timeslot.modifyStatus("BOOKED");
-			tDAO.updateTimeSlot(timeslot);
+				this.meeting = new Meeting(mID, scheduleID, timeslotID, p, editCode);
+				timeslot.modifyStatus("BOOKED");
+				timeslot.setMeeting(meeting);
+				tDAO.updateTimeSlot(timeslot);
+				
+			} else {
+				return false;
+			}
 		
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return mDAO.addMeeting(m);
+		
+		boolean addedNewMeeting = mDAO.addMeeting(meeting);
+		this.schedule = sDAO.getSchedule(scheduleID);
+		return addedNewMeeting;
 		
 	}
 	
@@ -120,7 +129,7 @@ public class CreateMeetingHandler implements RequestStreamHandler{
 				if (createMeeting(req.scheduleID, req.timeslotID, req.userName)) {
 					resp = new CreateMeetingResponse("Successfully Created Meeting" , lastID, 200, editCode, schedule);
 				} else {
-					resp = new CreateMeetingResponse("Unable to create meeting", lastID, 422, editCode, schedule);
+					resp = new CreateMeetingResponse("Timeslot Not Open", lastID, 422, editCode, schedule);
 				}
 			} catch (Exception e) {
 				resp = new CreateMeetingResponse("Unable to create meeting. (" + e.getMessage() + ")", lastID, 403, editCode, schedule);

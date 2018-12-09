@@ -28,10 +28,12 @@ public class CloseDateHandler implements RequestStreamHandler{
 		if (logger != null) { logger.log("in closeDate"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
 		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		boolean result = tDAO.closeOnDate(date, scheduleID);
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		return tDAO.closeOnDate(date, scheduleID);
+		return result;
 	}
 
 	@Override

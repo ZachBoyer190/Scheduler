@@ -77,7 +77,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 				return false;
 			}
 			
-			ps = conn.prepareStatement("INSERT INTO timeslots (ID, scheduleID, startTime, date, status) values(?,?,?,?,?)");
+			ps = conn.prepareStatement("INSERT INTO timeslots (ID, scheduleID, startTime, date, status, meetingID) values(?,?,?,?,?,?)");
 			ps.setString(1, timeslot.timeSlotID);
 			ps.setString(2, timeslot.scheduleID);
 			ps.setInt(3, timeslot.startTime);
@@ -86,6 +86,7 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 			
 			ps.setDate(4, sqlDate);
 			ps.setString(5, timeslot.status.toString());
+			ps.setString(6, "No meeting assigned yet");
 			ps.execute();
 			
 			return true;
@@ -110,9 +111,10 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 	
 	public boolean updateTimeSlot(TimeSlot timeslot) throws Exception {
 		try {
-			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=? WHERE ID=?;");
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=?, meetingID=? WHERE ID=?;");
 			ps.setString(1, timeslot.status.toString());
-			ps.setString(2,  timeslot.timeSlotID);
+			ps.setString(2,  "Meeting Canceled. No ID to Show");
+			ps.setString(3,  timeslot.timeSlotID);
 			int numAffected = ps.executeUpdate();
 			ps.close();
 			
@@ -191,10 +193,15 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		int startTime = resultSet.getInt("startTime");
 		Date date = resultSet.getDate("date");
 		String status = resultSet.getString("status");
+		String meetingID = resultSet.getString("meetingID");
+		
+		MeetingsDAO mDAO = new MeetingsDAO();
+		
+		Meeting m = mDAO.getMeeting(meetingID);
 		
 		java.util.Date utilDate = new java.util.Date(date.getTime());
 	
-		return new TimeSlot(timeSlotID, scheduleID, startTime, utilDate, TimeSlotStatus.getStatus(status));
+		return new TimeSlot(timeSlotID, scheduleID, startTime, utilDate, TimeSlotStatus.getStatus(status), m);
 		
 	}
 

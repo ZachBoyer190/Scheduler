@@ -7,12 +7,18 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Date;
+import java.util.UUID;
+import java.util.ArrayList;
+
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
 import com.amazonaws.db.SchedulesDAO;
+import com.amazonaws.db.TimeSlotsDAO;
 import com.amazonaws.model.Schedule;
+import com.amazonaws.model.TimeSlot;
+import com.amazonaws.model.TimeSlotStatus;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
@@ -26,10 +32,85 @@ public class ExtendScheduleHandler implements RequestStreamHandler{
 	boolean extendSchedule(String scheduleID, Date newStart, Date newEnd) throws Exception {
 		if (logger != null) { logger.log("in extendSchedule"); }
 		SchedulesDAO sDAO = new SchedulesDAO();
+		TimeSlotsDAO tDAO = new TimeSlotsDAO();
+		
+		Schedule orig = sDAO.getSchedule(scheduleID);
+		
+		ArrayList<TimeSlot> slots = new ArrayList<>();
+		
+		boolean result = sDAO.extendSchedule(scheduleID, newStart, newEnd);
+		
+		long startDelta = orig.startDate.getTime() - newStart.getTime();
+		long endDelta = newEnd.getTime() - orig.endDate.getTime();
+		
+		int numSlots = (int) ((((double) orig.endTime - (double)orig.startTime)*0.6) / (double)orig.slotDelta);
+		
+		if (startDelta > 0) {
+			for(long i = orig.startDate.getTime() - 86400000; i >= newStart.getTime(); i -= 86400000) {
+				int currentTime = orig.startTime;
+				Date currentDate = new Date(i);
+				
+				if(orig.getDayOfWeek(currentDate) == 1 || orig.getDayOfWeek(currentDate) == 7) {
+					continue;
+				} else {
+					
+					for (int j = 0; j < numSlots; j++) {
+						
+						if(j != 0) {
+						
+							if (j % (60/orig.slotDelta) == 0) {
+								currentTime += 40 + orig.slotDelta;
+							} else {
+								currentTime += orig.slotDelta;
+							
+							}
+						}
+						
+						String slotID = UUID.randomUUID().toString().substring(0, 5);
+						slots.add(new TimeSlot(slotID, orig.scheduleID, currentTime, currentDate, TimeSlotStatus.OPEN));	
+					}
+				}
+			}
+			
+		} 
+		
+		if (endDelta > 0) {
+			for(long i = orig.endDate.getTime() + 86400000; i <= newEnd.getTime(); i += 86400000) {
+				int currentTime = orig.startTime;
+				Date currentDate = new Date(i);
+				
+				if(orig.getDayOfWeek(currentDate) == 1 || orig.getDayOfWeek(currentDate) == 7) {
+					continue;
+				} else {
+					
+					for (int j = 0; j < numSlots; j++) {
+						
+						if(j != 0) {
+						
+							if (j % (60/orig.slotDelta) == 0) {
+								currentTime += 40 + orig.slotDelta;
+							} else {
+								currentTime += orig.slotDelta;
+							
+							}
+						}
+						
+						String slotID = UUID.randomUUID().toString().substring(0, 5);
+						slots.add(new TimeSlot(slotID, orig.scheduleID, currentTime, currentDate, TimeSlotStatus.OPEN));	
+					}
+				}
+			}
+			
+			
+		}
+		
+		for (TimeSlot t: slots) {
+			tDAO.addTimeSlot(t);
+		}
 
 		this.schedule = sDAO.getSchedule(scheduleID);
 		
-		return sDAO.extendSchedule(scheduleID, newStart, newEnd);
+		return result;
 	}
 
 	@Override

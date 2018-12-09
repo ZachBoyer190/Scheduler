@@ -45,5 +45,25 @@ public class CheckAdminTest extends TestCase{
 		
 		assertEquals(resp.httpCode, 200);
 	}
+	
+	public void testDeleteSchedules() throws IOException{
+		DeleteSchedulesDaysOldHandler handler = new DeleteSchedulesDaysOldHandler();
+		
+		java.util.Date date = new Date(118, 11, 8);
+		
+		DeleteSchedulesDayOldRequest dsr = new DeleteSchedulesDayOldRequest(date);
+		String deleteRequest = new Gson().toJson(dsr);
+		String jsonRequest = new Gson().toJson(new PostRequest(deleteRequest));
+		
+		InputStream input = new ByteArrayInputStream(jsonRequest.getBytes());
+		OutputStream output = new ByteArrayOutputStream();
+		
+		handler.handleRequest(input, output, createContext("create"));
+		
+		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
+		DeleteSchedulesDayOldResponse resp = new Gson().fromJson(post.body, DeleteSchedulesDayOldResponse.class);
+		
+		
+	}
 
 }

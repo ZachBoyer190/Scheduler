@@ -33,7 +33,7 @@ public class Schedule {
 		
 		ArrayList<TimeSlot> slots = new ArrayList<>();
 		
-		for (long i = startDate.getTime(); i <= endDate.getTime(); i += 86400000) {
+		for (long i = startDate.getTime(); i <= endDate.getTime() + 86400000; i += 86400000) {
 			
 			int currentTime = startTime;
 			Date currentDate = new Date(i);
@@ -79,7 +79,7 @@ public class Schedule {
 		this.secretCode = code;
 	}
 	
-	private int getDayOfWeek(Date d) {
+	public int getDayOfWeek(Date d) {
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
 		int dayOfWeek = c.get(c.DAY_OF_WEEK);
