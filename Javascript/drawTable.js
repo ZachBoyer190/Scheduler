@@ -589,8 +589,9 @@ function fillDateRow(htmlTable){
 
 function generateDateString(index){
     let currentDate = new Date(getTableDate());//new Date(startDate);
-    currentDate.setDate(currentDate.getDate()+index);
-    let dayString = (currentDate.getDate()+1).toString();
+    currentDate = new Date(currentDate.setDate(currentDate.getDate() + index));
+    let dayDate = currentDate;
+    let dayString = new Date(dayDate.setDate(dayDate.getDate() + 1)).getDate().toString();
     let monthString = (currentDate.getMonth()+1).toString();
     let yearString = currentDate.getFullYear().toString();
     return yearString + "-" + monthString + "-" + dayString ;
@@ -640,13 +641,11 @@ function fillTimeSlots(userStatus, htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate;
-        if((new Date(thisTimeSlot.date).getHours()) !== 0){
-            timeSlotDate = new Date(new Date(thisTimeSlot.date).setHours(-5));
-        } else {
-            timeSlotDate = new Date(thisTimeSlot.date);
+        let timeSlotDate = new Date(thisTimeSlot.date);
+        let hours = timeSlotDate.getUTCHours();
+        if(/*hours !== -5 && */hours !== 5){
+            timeSlotDate = new Date(timeSlotDate.setHours(-5));
         }
-
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
@@ -922,8 +921,17 @@ function clearChildren(element){
 
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
-    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
-    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
+    if(new Date(storedScheduleObject.startDate).getUTCHours() !== 0) {
+        storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
+    } else{
+        storedScheduleObject.startDate = new Date(storedScheduleObject.startDate);
+    }
+    if(new Date(storedScheduleObject.endDate).getUTCHours() !== 0) {
+        storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
+    } else{
+        storedScheduleObject.endDate = new Date(storedScheduleObject.endDate);
+    }
+    //storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
 
