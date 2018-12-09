@@ -641,11 +641,8 @@ function fillTimeSlots(userStatus, htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(thisTimeSlot.date);
-        let hours = timeSlotDate.getUTCHours();
-        if(/*hours !== -5 && */hours !== 5){
-            timeSlotDate = new Date(timeSlotDate.setHours(-5));
-        }
+        let timeSlotDate = new Date(new Date(thisTimeSlot.date).setUTCHours(5));
+
         let timeSlotTime = thisTimeSlot.startTime;
 
         let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
@@ -696,7 +693,7 @@ function getCurrentDates(htmlTable){
     let currentDates = new Array(5);
     let row = htmlTable.rows[dateRowIndex];
     for (let m = 0; m < currentDates.length; m++){
-        currentDates[m] = new Date(row.cells[m+scheduleColOffset].innerHTML);
+        currentDates[m] = new Date(new Date(row.cells[m+scheduleColOffset].innerHTML).setUTCHours(5));
     }
     return currentDates;
 }
@@ -921,16 +918,11 @@ function clearChildren(element){
 
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
-    if(new Date(storedScheduleObject.startDate).getUTCHours() !== 0) {
-        storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setHours(-5));
-    } else{
-        storedScheduleObject.startDate = new Date(storedScheduleObject.startDate);
-    }
-    if(new Date(storedScheduleObject.endDate).getUTCHours() !== 0) {
-        storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
-    } else{
-        storedScheduleObject.endDate = new Date(storedScheduleObject.endDate);
-    }
+
+    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setUTCHours(5));
+
+    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setUTCHours(5));
+
     //storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
