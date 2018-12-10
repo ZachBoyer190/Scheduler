@@ -72,6 +72,9 @@ let openSlotsInSchedule;
 let unfilteredStoredOpenSlots;
 let filteredStoredOpenSlots;
 
+let numRowsInScheduleTable;
+let numRowsInOpenSlotsTable;
+
 // =====================================================
 //              Statuses for Page View
 // -----------------------------------------------------
@@ -115,6 +118,8 @@ let filterResultsOptionsTableVisibility = hidden;
 let filterResultsOptionsTableFullness = empty;
 
 let filterResultsOptionsTableChangeStatus = changesNo;
+
+let filterResultsOptionsTableInitializedStatus = notInitialized;
 
 // =====================================================
 //      Statuses for Schedule Edit Code Submission
@@ -319,6 +324,7 @@ function modifyTimeSlot(status, btnElement) {
 
     sendPostAndRefresh(thisURL, sentObject, changesYes);
 }
+
 function modifyMultipleTimeSlots() {
 
     let editChoice = document.getElementById("selectedEdit").value;
@@ -417,7 +423,7 @@ function getAllOpenTimeSlots(){
         }
 
         storedScheduleObject = data.schedule;
-        changeGivenElementsVisibility([document.getElementById("scheduleTable")],["hidden"]);
+        changeGivenElementsVisibility([document.getElementById("scheduleTable")], ["hidden"]);
 
         openSlotsInSchedule = getOpenSlots(storedScheduleObject.timeslots);
         changeGivenElementsVisibility([document.getElementById("filterOpenSlotOptionsResults")], ["visible"]);
@@ -425,13 +431,18 @@ function getAllOpenTimeSlots(){
         unfilteredStoredOpenSlots = openSlotsInSchedule;
         filteredStoredOpenSlots = openSlotsInSchedule;
         searchResultsStatus = visible;
+        //clearRowsOfTable(document.getElementById("scheduleTable"));
+        clearRowsOfTable(table, openSlotsRowOffset);
         fillTableWithEmptyCells(table, openSlotsInSchedule.length, openSlotsNumCol, openSlotsRowOffset);
         drawOpenTimeSlots(table, openSlotsInSchedule);
-        fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
-        fillYearDropDown();
-        fillMonthDropDown();
-        fillDayOfMonthDropDown();
-        fillDayOfWeekDropDown();
+        if (filterResultsOptionsTableInitializedStatus === notInitialized) {
+            fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
+            fillYearDropDown();
+            fillMonthDropDown();
+            fillDayOfMonthDropDown();
+            fillDayOfWeekDropDown();
+            filterResultsOptionsTableInitializedStatus = initialized;
+        }
     })
 }
 
@@ -460,14 +471,28 @@ function filterAllOpenTimeSlots(){
             filters.push(thisValue);
         }
 
+        //clearRowsOfTable(document.getElementById("scheduleTable"));
+        let table = document.getElementById("resultsTable");
+
         filteredStoredOpenSlots = filterOpenSlots(filters);
-        drawOpenTimeSlots(document.getElementById("resultsTable"));
+        clearRowsOfTable(table);
+        fillTableWithEmptyCells(table, filteredStoredOpenSlots.length, openSlotsNumCol, openSlotsRowOffset);
+
+        drawOpenTimeSlots(table);
     })
 }
 
 // =====================================================
 //              Helper Functions
 // -----------------------------------------------------
+function clearRowsOfTable(table){
+    for(let i = (table.rows.length -1); i > 0 ; i--){
+        let row = table.rows[i];
+        clearChildren(row);
+        table.childNodes[1].removeChild(row);
+    }
+}
+
 function filterOpenSlots(filters){
     let opentSlots = [];
     for(let t = 0; t < unfilteredStoredOpenSlots.length; t++){
@@ -515,8 +540,6 @@ function filterOpenSlots(filters){
     return opentSlots;
 }
 
-
-
 function drawOpenTimeSlots(table) {
     emptyTableRowsSlots(table, openSlotsRowOffset);
     fillEntriesInOpenSlotTable(table, filteredStoredOpenSlots);
@@ -557,10 +580,10 @@ function fillEntriesInOpenSlotTable(table){
 
 
 function initializeSchedule(table){
-    let numRows = ((storedScheduleObject.endTime-
+    numRowsInScheduleTable = ((storedScheduleObject.endTime-
         storedScheduleObject.startTime)*6/10)/storedScheduleObject.slotDelta;
 
-    fillTableWithEmptyCells(table, numRows, scheduleNumCol, scheduleRowOffset);
+    fillTableWithEmptyCells(table, numRowsInScheduleTable, scheduleNumCol, scheduleRowOffset);
     document.getElementById("scheduleName").innerHTML = storedScheduleObject.name;
     scheduleStartDate = storedScheduleObject.startDate;
     generateInitialTableStartDate();
@@ -1056,6 +1079,9 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
             let meetingSecretCode = data.secretCode;
             window.alert("Your meeting secret code is: " + meetingSecretCode);
         }
+
+        changeGivenElementsVisibility(
+            [document.getElementById("scheduleTable")],["visible"]);
 
         storedScheduleObject = getScheduleFromResponse(data);
 
