@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<meta name="description" content="">
+		<meta name="author" content"">
+		<!-- <link rel="icon" href="../../../../favicon.ico"> -->
+		
+		<title>Markab System Admin View</title>
+		
+		<!-- Bootstrap core CSS and other functions -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+		<script src="../Javascript/checkLogin.js" type="application/javascript"></script>
+		<script src="../Javascript/jquery-3.3.1.js" type="application/javascript"></script>
+	
+	    <!-- Custom styles for this template -->
+   		<link href="../css/signin.css" rel="stylesheet">
+  	</head>
+  	
+<body>
+
+    <header>
+      <!-- Fixed navbar -->
+      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Markab System Admin</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        </div>
+      </nav>
+    </header>
+
+<div class="container-fluid">
+  <h1>Retrieve Recent Meeting Schedules</h1>
+  <p>Retrieve meeting schedules created in the last</p> 
+  		<input type="number" id="numberOfHours" required="required"/>
+  <label> hours </label>
+  
+  <input type="button" value="Retrieve" onclick="getSchedulesFromButton()"/>
+  
+  <p id="Header"></p>
+  <p id="scheduleName"></p>
+  <p id="errorString">  </p>
+  
+  <p></p>
+
+  <h2>Delete Old Meeting Schedules</h2>
+  <p>Delete meeting schedules more than </p> 
+  		<input type="number" id="numberOfDays" required="required"/>
+  <label> days old</label>
+  
+  <input type="button" value="Delete" onclick="deleteSchedulesFromButton()"/>
+  </div>
+  
+</body>
+		

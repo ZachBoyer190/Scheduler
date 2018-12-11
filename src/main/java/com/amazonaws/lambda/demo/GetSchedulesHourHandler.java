@@ -87,7 +87,7 @@ public class GetSchedulesHourHandler implements RequestStreamHandler{
 			GetSchedulesHourResponse resp = null;
 			
 			try {
-				if(getSchedules(req.hours).size() > 1) {
+				if(getSchedules(req.hours).size() >= 1) {
 					resp = new GetSchedulesHourResponse("Successfully retrieved Schedules", schedules, 200);
 				}else {
 					resp = new GetSchedulesHourResponse("Unable to retrieve Schedules", schedules, 403);
