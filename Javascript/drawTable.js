@@ -32,7 +32,11 @@ const openMultipleOnDayURL = baseURL + '/opendate';
 const extendScheduleURL = baseURL + '/extendschedule';
 //const allOpenTimeSlotsURL = baseURL + '/getschedule';
 
-
+const monthsInYear = ["January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"];
+const daysInWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const daysOfMonth = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14",
+    "15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31"];
 
 
 const bookMeetingButtonStatus = "BOOK";
@@ -42,6 +46,7 @@ const orgCancelMeetingButtonStatus = "ORGCANCEL";
 const openTimeSlotButtonStatus = "OPEN";
 const closeTimeSlotButtonStatus = "CLOSE";
 
+const timezone = 5;
 
 
 
@@ -62,6 +67,9 @@ const empty = "EMPTY";
 const changesYes = "YES";
 const changesNo = "NO";
 
+
+let totalWeeksShown;
+let currentWeekShown = startWeek;
 
 
 let scheduleStartDate;
@@ -204,6 +212,9 @@ function drawTableFromButton() {
         return;
     }
 
+    // clearPage();
+    // drawScheduleTable();
+
     sendPostAndRefresh(getScheduleURL, {id: inputID}, changesNo,
         [document.getElementById("searchOpenSlotsArea"),
             document.getElementById("filterOpenSlotOptionsResults")],
@@ -220,11 +231,11 @@ function showDifferentWeek(step){
         }
 
         storedScheduleObject = data.schedule;
-        let newWeek = getCurrentWeekShown() + step;
-        if (newWeek > getTotalWeeksShown() || newWeek <= 0) {
+        let newWeek = currentWeekShown + step;
+        if (newWeek > totalWeeksShown || newWeek <= 0) {
             return;
         }
-        editCurrentWeekShown(newWeek);
+        currentWeekShown = newWeek;
 
         tableStartDate = new Date(tableStartDate.setDate(
             tableStartDate.getDate() + (step * numDaysInWeek)));
@@ -285,7 +296,10 @@ function checkEditAbility(){
             let table = document.getElementById("scheduleTable");
             drawSchedule(table);
             clearChildren(document.getElementById("resultsTable"));
-            changeGivenElementsVisibility([document.getElementById("scheduleEditOptions"), document.getElementById("searchOpenSlotsArea"), document.getElementById("filterOpenSlotOptionsResults")], ["visible", "hidden", "hidden"]);
+            changeGivenElementsVisibility([document.getElementById("scheduleEditOptions"),
+                document.getElementById("searchOpenSlotsArea"),
+                document.getElementById("filterOpenSlotOptionsResults")],
+                ["visible", "hidden", "hidden"]);
             fillTimeDropdown(table, document.getElementById("selectTime"));
         } else {
             window.alert("Incorrect edit code given.")
@@ -438,9 +452,9 @@ function getAllOpenTimeSlots(){
         if (filterResultsOptionsTableInitializedStatus === notInitialized) {
             fillTimeDropdown(document.getElementById("scheduleTable"), document.getElementById("Time"));
             fillYearDropDown();
-            fillMonthDropDown();
-            fillDayOfMonthDropDown();
-            fillDayOfWeekDropDown();
+            fillDropDown(document.getElementById("Month"), monthsInYear);
+            fillDropDown(document.getElementById("DayOfMonth"),daysOfMonth);
+            fillDropDown(document.getElementById("DayOfWeek"), daysInWeek);
             filterResultsOptionsTableInitializedStatus = initialized;
         }
     })
@@ -541,7 +555,7 @@ function filterOpenSlots(filters){
 }
 
 function drawOpenTimeSlots(table) {
-    emptyTableRowsSlots(table, openSlotsRowOffset);
+    emptyTableCellsFromRows(table, openSlotsRowOffset);
     fillEntriesInOpenSlotTable(table, filteredStoredOpenSlots);
 }
 
@@ -556,13 +570,13 @@ function fillEntriesInOpenSlotTable(table){
                     thisCell.innerHTML = date.getFullYear().toString();
                     break;
                 case 1 :
-                    thisCell.innerHTML = getMonthString(date);
+                    thisCell.innerHTML = monthsInYear[date.getMonth()];
                     break;
                 case 2 :
                     thisCell.innerHTML = date.getDate().toString();
                     break;
                 case 3 :
-                    thisCell.innerHTML = getDayString(date);
+                    thisCell.innerHTML = daysInWeek[date.getDay()];
                     break;
                 case 4 :
                     thisCell.innerHTML = thisTimeSlot.startTime;
@@ -571,9 +585,7 @@ function fillEntriesInOpenSlotTable(table){
                     thisCell.appendChild(createParticipantOpenCell(thisTimeSlot));
                     break;
             }
-
         }
-
     }
 }
 
@@ -588,7 +600,7 @@ function initializeSchedule(table){
     scheduleStartDate = storedScheduleObject.startDate;
     generateInitialTableStartDate();
     setTotalWeekShown();
-    editCurrentWeekShown(startWeek);
+    currentWeekShown = startWeek;
 }
 
 function fillTableWithEmptyCells(table, numRows, numCol, rowOffset){
@@ -664,12 +676,12 @@ function fillTimeSlots(userStatus, htmlTable){
 
         let thisTimeSlot = storedScheduleObject.timeslots[k];
 
-        let timeSlotDate = new Date(new Date(thisTimeSlot.date).setUTCHours(5));
+        let timeSlotDate = new Date(new Date(thisTimeSlot.date).setUTCHours(timezone));
 
         let timeSlotTime = thisTimeSlot.startTime;
 
-        let timeSlotCol = getTimeSlotCol(timeSlotDate, currentDates);
-        let timeSlotRow = getTimeSlotRow(timeSlotTime, currentTimes);
+        let timeSlotCol = getTimeSlotPosition(timeSlotDate, currentDates, scheduleColOffset);
+        let timeSlotRow = getTimeSlotPosition(timeSlotTime, currentTimes, scheduleRowOffset);
 
         if (timeSlotCol === timeColIndex || timeSlotRow === dateRowIndex
             || timeSlotRow === dayRowIndex){
@@ -730,29 +742,20 @@ function getCurrentTimes(htmlTable){
     return currentTimes;
 }
 
-function getTimeSlotCol(date, currentDates){
-    for (let g = 0; g < currentDates.length; g++) {
-        if (compareDates(date, currentDates[g])){
-            return g + scheduleColOffset;
+function getTimeSlotPosition(timeSlotData, comparativeDate, offset){
+    for(let g = 0; g<comparativeDate.length; g++) {
+        if (timeSlotData === comparativeDate[g] || compareDates(timeSlotData, comparativeDate[g])) {
+            return g + offset;
         }
     }
-    return timeColIndex;
-}
-
-function getTimeSlotRow(time, currentTimes){
-    for (let g = 0; g < currentTimes.length; g++) {
-        if (time === currentTimes[g]){
-            return g + scheduleRowOffset;
-        }
-    }
-    return timeColIndex;
 }
 
 function compareDates(date1, date2){
-    let condition1 = date1.getDate() === date2.getDate();
-    let condition2 = date1.getMonth() === date2.getMonth();
-    let condition3 = date1.getFullYear() === date2.getFullYear();
-    return condition1 && condition2 && condition3;
+    try {
+        return date1.getTime() === date2.getTime();
+    } catch{
+        return false;
+    }
 }
 
 function subtractColon(string) {
@@ -871,58 +874,30 @@ function createOrganizerClosedCell(timeslot){
 
 
 function setTotalWeekShown() {
-    let millisStart = tableStartDate.getTime();
-    let millisEnd = storedScheduleObject.endDate.getTime();
-    let totalDays = (( millisEnd - millisStart)/(numMillisDay));
-    let totalWeeks = Math.ceil(totalDays/numDaysInWeek);
-    editTotalWeeksShown(totalWeeks);
+    let totalDays = ((storedScheduleObject.endDate.getTime() - tableStartDate.getTime())/(numMillisDay));
+    totalWeeksShown = (Math.ceil(totalDays/numDaysInWeek));
 }
 
 function generateInitialTableStartDate() {
     let dayOfWeek = scheduleStartDate.getDay();
 
+    let scheduleStartMillis = scheduleStartDate.getTime();
+    let newTableStartDate;
+
     if (dayOfWeek === 0) {
-        let scheduleStartMillis = scheduleStartDate.getTime();
-
-        let newTableStartDate = scheduleStartMillis + ((getCurrentWeekShown() - 1) * numDaysInWeek * numMillisDay);
-
-        tableStartDate = new Date(newTableStartDate);
+        newTableStartDate = scheduleStartMillis + ((currentWeekShown - 1) * numDaysInWeek * numMillisDay);
     } else {
-        let scheduleStartMillis = scheduleStartDate.getTime();
-
-        let newTableStartDate = (scheduleStartMillis - (dayOfWeek*numMillisDay)) + ((getCurrentWeekShown() - 1) * numDaysInWeek * numMillisDay);
-
-        tableStartDate = new Date(newTableStartDate);
+        newTableStartDate = (scheduleStartMillis - (dayOfWeek*numMillisDay)) + ((currentWeekShown - 1) * numDaysInWeek * numMillisDay);
     }
-}
-
-function editCurrentWeekShown(newWeek){
-    document.getElementById("currentWeek").innerHTML = newWeek.toString();
-}
-
-function getCurrentWeekShown(){
-    let stringWeek = document.getElementById("currentWeek").innerHTML;
-    return parseInt(stringWeek);
-}
-
-function editTotalWeeksShown(totalWeek){
-    let paragraph = document.getElementById("totalWeeks");
-    paragraph.innerHTML = totalWeek;
-}
-
-function getTotalWeeksShown(){
-    let stringWeek = document.getElementById("totalWeeks").innerHTML;
-    return parseInt(stringWeek);
+    tableStartDate = new Date(newTableStartDate);
 }
 
 function updateWeekLabel(){
-    let currentWeek = document.getElementById("currentWeek").innerHTML;
-    let totalWeeks = document.getElementById("totalWeeks").innerHTML;
-    document.getElementById("weekTag").innerHTML = ("Week " + currentWeek +
-        " of " + totalWeeks +" Shown Below");
+    document.getElementById("weekTag").innerHTML = ("Week " + currentWeekShown +
+        " of " + totalWeeksShown +" Shown Below");
 }
 
-function emptyTableRowsSlots(table, rowOffset) {
+function emptyTableCellsFromRows(table, rowOffset) {
     for(let row = rowOffset; row < table.rows.length; row++){
         for (let col = 0; col < table.rows[row].cells.length; col++) {
             clearChildren(table.rows[row].cells[col]);
@@ -931,7 +906,6 @@ function emptyTableRowsSlots(table, rowOffset) {
 }
 
 function clearChildren(element){
-    //let children = element.childNodes;
 
     while(element.childNodes.length !== 0){
         element.removeChild(element.childNodes[0]);
@@ -942,11 +916,10 @@ function clearChildren(element){
 function getScheduleFromResponse(data){
     storedScheduleObject = data.schedule;
 
-    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setUTCHours(5));
+    storedScheduleObject.startDate = new Date(new Date(storedScheduleObject.startDate).setUTCHours(timezone));
 
-    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setUTCHours(5));
+    storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setUTCHours(timezone));
 
-    //storedScheduleObject.endDate = new Date(new Date(storedScheduleObject.endDate).setHours(-5));
     return storedScheduleObject;
 }
 
@@ -967,32 +940,6 @@ function fillTimeDropdown(table, dropDownItem){
     }
 }
 
-function getDateFromDay(dayChoice){
-    let table = document.getElementById("scheduleTable");
-
-    let colOfDate = 0;
-    for(let m = 1; m < 6; m++){
-        let tableDay = ((table.rows[1].cells[m].innerHTML).toUpperCase()).replace(/\s+/g, '');
-        if( tableDay === dayChoice){
-            colOfDate = m;
-            break;
-        }
-    }
-
-    return new Date(table.rows[0].cells[colOfDate].innerHTML);
-}
-
-function getMonthString(date){
-    let months = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
-    return months[date.getMonth()];
-}
-
-function getDayString(date){
-    let days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    return days[date.getDay()];
-}
-
 function fillYearDropDown(){
     let select = document.getElementById("Year");
 
@@ -1003,41 +950,14 @@ function fillYearDropDown(){
         select.appendChild(newOption);
     }
 }
-function fillMonthDropDown(){
-    let months = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"];
 
-    let select = document.getElementById("Month");
+function fillDropDown(element, options){
 
-    for(let i = 0; i < months.length; i++){
+    for(let i = 0; i < options.length; i++){
         let newOption = document.createElement("option");
         newOption.value = i.toString();
-        newOption.innerHTML = months[i];
-        select.appendChild(newOption);
-    }
-}
-
-function fillDayOfMonthDropDown(){
-    let select = document.getElementById("DayOfMonth");
-
-    for(let i = 1; i <= 31; i++){
-        let newOption = document.createElement("option");
-        newOption.value = i.toString();
-        newOption.innerHTML = i.toString();
-        select.appendChild(newOption);
-    }
-}
-
-function fillDayOfWeekDropDown(){
-    let months = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-    let select = document.getElementById("DayOfWeek");
-
-    for(let i = 0; i < months.length; i++){
-        let newOption = document.createElement("option");
-        newOption.value = (i+1).toString();
-        newOption.innerHTML = months[i];
-        select.appendChild(newOption);
+        newOption.innerHTML = options[i];
+        element.appendChild(newOption);
     }
 }
 
@@ -1062,7 +982,6 @@ function getOpenSlots(timeSlots){
         }
     }
     return openSlots;
-
 }
 
 
@@ -1100,17 +1019,8 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
                 changeGivenElementsVisibility(elementArray, elementValues);
             }
         }
-
-
     });
-
-
 }
-
-
-
-
-
 
 
 // =====================================================
@@ -1118,7 +1028,7 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
 // -----------------------------------------------------
 
 function drawSchedule(table){
-    emptyTableRowsSlots(table,scheduleRowOffset);
+    emptyTableCellsFromRows(table,scheduleRowOffset);
     updateWeekLabel();
     fillDateRow(table);
     fillTimeColumn(table);
@@ -1135,12 +1045,12 @@ function refreshDrawPage(){
     let table;
     if(scheduleTableVisibility === visible){
         table = document.getElementById("scheduleTable");
-        emptyTableRowsSlots(table,scheduleRowOffset);
+        emptyTableCellsFromRows(table,scheduleRowOffset);
 
     }
     if(filterResultsOptionsTableVisibility === visible){
         table = document.getElementById("scheduleTable");
-        emptyTableRowsSlots(table,openSlotsRowOffset);
+        emptyTableCellsFromRows(table,openSlotsRowOffset);
     }
 
 
