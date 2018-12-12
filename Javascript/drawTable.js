@@ -776,6 +776,7 @@ function createParticipantOpenCell(timeslot){
     let div1 = document.createElement("div");
     let codeField = document.createElement('input');
     codeField.type = "text";
+    codeField.placeholder = "Name";
     div1.appendChild(codeField);
     div0.appendChild(div1);
 
@@ -797,6 +798,7 @@ function createParticipantBookedCell(thisTimeSlot) {
     let div1 = document.createElement("div");
     let codeField = document.createElement('input');
     codeField.type = "text";
+    codeField.placeholder = "Meeting Secret Code";
     div1.appendChild(codeField);
     div0.appendChild(div1);
 
