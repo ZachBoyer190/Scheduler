@@ -766,6 +766,7 @@ function getTimeSlotPosition(timeSlotData, comparativeDate, offset){
             return g + offset;
         }
     }
+    return 0;
 }
 
 function compareDates(date1, date2){
@@ -1012,7 +1013,10 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
 
     $.post(thisURL,JSON.stringify(sentObject), function (data) {
 
-        if(data.httpCode >= errorCode){ return; }
+        if(data.httpCode >= errorCode){
+            sendPostAndRefresh(getScheduleURL,{id:storedScheduleObject.scheduleID});
+            return;
+        }
 
         if(data.response === "Successfully Created Meeting"){
             let meetingSecretCode = data.secretCode;
