@@ -212,15 +212,33 @@ function drawTableFromButton() {
         return;
     }
 
-    // clearPage();
-    // drawScheduleTable();
 
-    sendPostAndRefresh(getScheduleURL, {id: inputID}, changesNo,
-        [document.getElementById("searchOpenSlotsArea"),
-            document.getElementById("filterOpenSlotOptionsResults")],
-        ["visible", "hidden"]);
+    $.post(getScheduleURL,JSON.stringify({id: inputID}),
+        function (data) {
+            if(data.httpCode >= errorCode){ return; }
 
-    clearGivenElementValues([inputField]);
+            storedScheduleObject = getScheduleFromResponse(data);
+
+            clearRowsOfTable(document.getElementById("resultsTable"));
+
+            clearGivenElementValues([inputField]);
+
+            hasScheduleChanged = changesNo;
+
+            if(scheduleInitializedStatus !== initialized){
+                //clearRowsOfTable(document.getElementById("scheduleTable"),scheduleRowOffset);
+                initializeSchedule(document.getElementById("scheduleTable"));
+                scheduleInitializedStatus = initialized;
+            }
+
+            drawSchedule(document.getElementById("scheduleTable"));
+
+            changeGivenElementsVisibility([document.getElementById("searchOpenSlotsArea"),
+                document.getElementById("filterOpenSlotOptionsResults"),
+                document.getElementById("scheduleTable")],
+                ["visible", "hidden", "visible"]);
+        }
+    );
 }
 
 function showDifferentWeek(step){
@@ -779,6 +797,7 @@ function createParticipantOpenCell(timeslot){
     let div1 = document.createElement("div");
     let codeField = document.createElement('input');
     codeField.type = "text";
+    codeField.placeholder = "Name here..."
     div1.appendChild(codeField);
     div0.appendChild(div1);
 
@@ -800,6 +819,7 @@ function createParticipantBookedCell(thisTimeSlot) {
     let div1 = document.createElement("div");
     let codeField = document.createElement('input');
     codeField.type = "text";
+    codeField.placeholder = "Meeting edit code here..."
     div1.appendChild(codeField);
     div0.appendChild(div1);
 
@@ -1009,6 +1029,7 @@ function sendPostAndRefresh(thisURL, sentObject, scheduleChangeStatusChange, ele
         }
 
         if(scheduleInitializedStatus !== initialized){
+            //clearRowsOfTable(document.getElementById("scheduleTable"),scheduleRowOffset);
             initializeSchedule(document.getElementById("scheduleTable"));
             scheduleInitializedStatus = initialized;
         }
