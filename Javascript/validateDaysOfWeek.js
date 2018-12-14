@@ -6,7 +6,6 @@ let redirectURL = "viewSchedule.html"
 
 
 function validateDaysOfWeek(){
-
     let startDateValue = new Date(document.createCalendar.startingDate.value);
     let endingDateValue = new Date(document.createCalendar.endingDate.value);
 

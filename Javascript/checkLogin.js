@@ -5,6 +5,7 @@ const urlUser =  'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/c
 let userAndPassValue;
 let deleteDate;
 let setNumberOfHours;
+let redirectURL = "systemAdminFunctions.html"
 
 function checkLogin(){
     let usernameValue = document.getElementById("username").value;
@@ -38,7 +39,7 @@ function checkLogin(){
             }
             else if  (data.httpCode <= errorCode){
                 document.getElementById("errorString").innerHTML = "";
-                showFunctions();
+                redirectToFunctions();
             }
 
         });
@@ -133,5 +134,11 @@ function showFunctions(){
         document.getElementById("fieldset1").style.visibility = "visible";
         document.getElementById("fieldset2").style.visibility = "visible";
 
+}
+
+function redirectToFunctions(){
+		redirectURL = redirectURL;
+		
+		window.location.href = redirectURL;
 }
 
