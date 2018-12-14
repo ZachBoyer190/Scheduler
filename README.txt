@@ -18,7 +18,14 @@ as well as delete any schedules that end within the number of days you provide. 
 the user will specify a number of days and the system will delete any schedules whose end date
 ends that many days ago.
 
+NOTE: SChedules are deleted according to their end date. To delete schedules that have not expired yet,
+enter a negative number of days into the field.
+
 View Schedule:
+
+NOTE: Based on our interpretation of the assignment, any meetings that are in a time slot when it is 
+closed are cancelled.
+
 This is the participant and organizer view. Please note that the organizer can use this view to
 see who specifically has meetings and then enter the schedule secret code to edit the schedule.
 
