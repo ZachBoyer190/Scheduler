@@ -26,14 +26,14 @@
       
       <p class="font-weight-bold"> Schedule Starting Date: </p>
       <label for="startingDate" class="sr-only">Start Date</label>
-      <input type="date" name="startingDate" id="startingDate" class="form-control" placeholder="Start Date" required>
+      <input type="date" name="startingDate" id="startingDate" class="form-control" placeholder="Start Date" required/>
      
       <p></p>
       <p></p>
       
       <p class="font-weight-bold"> Select a Starting Time: </p>      
       <label for="startTime" class="sr-only">Select a Starting Time</label>
-      <select name="startingTime" required>
+      <select name="startingTime" id="startingTime" required>
 			<option value="" selected disabled>Please select</option>
  			<option value="0000"> 00:00 </option>
             <option value="0100"> 01:00 </option>
@@ -71,7 +71,7 @@
       
       <p class="font-weight-bold"> Select an Ending Time: </p>      
       <label for="endTime" class="sr-only">Select an Ending Time</label>
-      <select name="endingTime" required>
+      <select name="endingTime" id="endingTime" required>
 			<option value="" selected disabled>Please select</option>
  			<option value="0000"> 00:00 </option>
             <option value="0100"> 01:00 </option>
@@ -103,7 +103,7 @@
       
       <p class="font-weight-bold"> Select a Meeting Length in minutes: </p>      
       <label for="meetingLength" class="sr-only">Select a Meeting Length </label>
-      <select name="meetingLength" required>
+      <select name="meetingLength" id="meetingLength" required>
 			<option value="" selected disabled>Please select</option>
             <option value="10"> 10 </option>
             <option value="15"> 15 </option>
@@ -120,9 +120,12 @@
 	  <p></p>
       </div>
       
-      <button data-toggle="modal" data-target="#scheduleInfoModal" onclick="validateDaysOfWeek()" class="btn btn-lg btn-primary btn-block" type="button">Create Schedule</button>
+      <button onClick="validateDaysOfWeek()" class="btn btn-lg btn-primary btn-block" type="button" data-toggle="modal" data-target="#scheduleInfoModal" >Create Schedule</button>
+      
 	  <p></p>      
       <p class="mt-5 mb-3 text-muted">&copy; 2018 </p>
+</form>
+</body>
 
   <!-- Modal -->
   <div class="modal fade" id="scheduleInfoModal" role="dialog">
@@ -148,6 +151,4 @@
     </div>
   
 </div>
-</form>
-</body>
 </html>

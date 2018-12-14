@@ -4,6 +4,30 @@ const errorCode = 300;
 const requestURL = 'https://jkp5zoujqi.execute-api.us-east-2.amazonaws.com/Delta/createschedule';
 let redirectURL = "viewSchedule.html"
 
+function submitCreate() {
+    let startDateValue = new Date(document.createCalendar.startingDate.value);
+    let endingDateValue = new Date(document.createCalendar.endingDate.value);
+    let startingTime = parseInt(document.createCalendar.startingTime.value);
+    let endingTime = parseInt(document.createCalendar.endingTime.value);
+    let meetingLength = parseInt(document.createCalendar.meetingLength.value);
+    let scheduleName = document.createCalendar.scheduleName.value;
+    
+    if(startDateValue == "" ){
+    	alert("Starting Date is Required");
+    }else if(endingDateValue == ""){
+    	alert("Ending Date is Required");
+    }else if(startingTime == "" ){
+    	alert("Starting Time is Required");
+    }else if(endingTime == ""){
+    	alert("Ending Time");
+    }else if(meetingLength == ""){
+    	alert("Meeting Length");
+    }else if(scheduleName == ""){
+    	alert("Schedule Name");
+    } else {
+    	validateDaysOfWeek();
+ 	}
+}
 
 function validateDaysOfWeek(){
     let startDateValue = new Date(document.createCalendar.startingDate.value);
@@ -69,7 +93,7 @@ function validateDaysOfWeek(){
     });
 
 }
-
+ 
 function redirectPage(){
 
     redirectURL = redirectURL + "?scheduleID=" + scheduleID;
