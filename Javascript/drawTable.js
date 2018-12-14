@@ -543,7 +543,7 @@ function filterOpenSlots(filters){
                     }
                     break;
                 case 1 :
-                    if(filters[g] === thisOpenSlotDate.getMonth()) {
+                    if((filters[g]-1) === thisOpenSlotDate.getMonth()) {
                         addSlot++;
                     }
                     break;
@@ -580,7 +580,7 @@ function drawOpenTimeSlots(table) {
 function fillEntriesInOpenSlotTable(table){
     for(let row = openSlotsRowOffset; row < filteredStoredOpenSlots.length + openSlotsRowOffset; row++){
         let thisTimeSlot = filteredStoredOpenSlots[row - openSlotsRowOffset];
-        let date = new Date(thisTimeSlot.date);
+        let date = new Date(new Date(thisTimeSlot.date).setUTCHours(5));
         for(let col = 0; col < openSlotsNumCol; col++){
             let thisCell = table.rows[row].cells[col];
             switch(col){
@@ -594,7 +594,7 @@ function fillEntriesInOpenSlotTable(table){
                     thisCell.innerHTML = date.getDate().toString();
                     break;
                 case 3 :
-                    thisCell.innerHTML = daysInWeek[date.getDay()];
+                    thisCell.innerHTML = daysInWeek[date.getDay()-1];
                     break;
                 case 4 :
                     thisCell.innerHTML = thisTimeSlot.startTime;
@@ -976,7 +976,7 @@ function fillDropDown(element, options){
 
     for(let i = 0; i < options.length; i++){
         let newOption = document.createElement("option");
-        newOption.value = i.toString();
+        newOption.value = (i+1).toString();
         newOption.innerHTML = options[i];
         element.appendChild(newOption);
     }
