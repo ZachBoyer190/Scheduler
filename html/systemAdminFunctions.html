@@ -23,17 +23,6 @@
   	
 <body>
 
-    <header>
-      <!-- Fixed navbar -->
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-        <a class="navbar-brand" href="#">Markab System Admin</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        </div>
-      </nav>
-    </header>
-
 <div class="container-fluid">
   <h1>Retrieve Recent Meeting Schedules</h1>
   <p>Retrieve meeting schedules created in the last</p> 
@@ -49,7 +38,7 @@
   		<input type="number" id="numberOfDays" required="required"/>
   <label> days old</label>
   
-  <button data-toggle="modal" data-target="#deleteSchedulesModal" onclick="deleteSchedulesFromButton()" class="btn-primary" type="button"> Delete</button>
+  <button data-toggle="modal" data-target="#recentSchedulesModal" onclick="deleteSchedulesFromButton()" class="btn-primary" type="button"> Delete</button>
 
   </div>
 
@@ -60,7 +49,7 @@
       <!-- Modal content-->
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title"> Recently Created Schedules </h4>
+          <h4 class="modal-title"> Action </h4>
         </div>
         <div class="modal-body">
 			<p id="Header"> </p>

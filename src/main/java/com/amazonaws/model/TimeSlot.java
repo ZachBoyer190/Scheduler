@@ -36,7 +36,7 @@ public class TimeSlot {
 	
 	public boolean setMeeting(Meeting m) {
 		this.meeting = m;
-		return true;
+		return true; 
 	}
 
 }

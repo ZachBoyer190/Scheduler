@@ -17,7 +17,7 @@ public class TimeSlotsDAO {
 			conn = DatabaseUtil.connect();
 		} catch (Exception e) {
 			conn = null;
-		}
+		} 
 	}
 	
 	public TimeSlot getTimeSlot(String timeslotID) throws Exception {
@@ -113,7 +113,23 @@ public ArrayList<TimeSlot> getTimeSlotsFromSchedule(String scheduleID) throws Ex
 		try {
 			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=?, meetingID=? WHERE ID=?;");
 			ps.setString(1, timeslot.status.toString());
-			ps.setString(2,  "Meeting Canceled. No ID to Show");
+			ps.setString(2,  timeslot.meeting.meetingID);
+			ps.setString(3,  timeslot.timeSlotID);
+			int numAffected = ps.executeUpdate();
+			ps.close();
+			
+			return (numAffected == 1);
+			
+		} catch (Exception e) {
+			throw new Exception("Failed to update report: " + e.getMessage());
+		}
+	}
+	
+	public boolean updateTimeSlotCancel(TimeSlot timeslot) throws Exception {
+		try {
+			PreparedStatement ps = conn.prepareStatement("UPDATE timeslots SET status=?, meetingID=? WHERE ID=?;");
+			ps.setString(1, timeslot.status.toString());
+			ps.setString(2,  "No Meeting Created");
 			ps.setString(3,  timeslot.timeSlotID);
 			int numAffected = ps.executeUpdate();
 			ps.close();

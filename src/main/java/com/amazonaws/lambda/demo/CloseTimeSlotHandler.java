@@ -32,7 +32,7 @@ public class CloseTimeSlotHandler implements RequestStreamHandler {
 		TimeSlot ts = tDAO.getTimeSlot(timeSlotID);
 		
 		if(ts.modifyStatus("CLOSED")) {
-			tDAO.updateTimeSlot(ts);
+			tDAO.updateTimeSlotCancel(ts);
 			this.schedule = sDAO.getSchedule(scheduleID);
 			return true;
 		}else {

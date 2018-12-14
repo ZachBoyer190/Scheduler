@@ -16,7 +16,7 @@ public class TestTimeSlot extends TestCase {
 		
 		try {
 			String newStatus = "BOOKED";
-			String timeSlotID = "0018b";
+			String timeSlotID = "04f35";
 			
 			TimeSlot t = td.getTimeSlot(timeSlotID);
 			t.modifyStatus(newStatus);
@@ -24,6 +24,7 @@ public class TestTimeSlot extends TestCase {
 			td.updateTimeSlot(t);
 			
 			assertEquals("BOOKED", td.getTimeSlot(timeSlotID).status.toString());
+			td.deleteTimeSlot(t);
 			
 		} catch (Exception e) {
 			fail("Could not modify timeslot: " + e.getMessage());
@@ -34,8 +35,8 @@ public class TestTimeSlot extends TestCase {
 		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
-			java.util.Date date = new java.util.Date(118, 11, 3);
-			String schedID = "6847e";
+			java.util.Date date = new java.util.Date(118, 11, 18);
+			String schedID = "1db6c";
 			
 			boolean b = td.closeOnDate(date, schedID);
 			
@@ -49,8 +50,8 @@ public class TestTimeSlot extends TestCase {
 		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
-			java.util.Date date = new java.util.Date(118, 11, 3);
-			String schedID = "6847e";
+			java.util.Date date = new java.util.Date(118, 11, 18);
+			String schedID = "1db6c";
 			
 			boolean b = td.openOnDate(date, schedID);
 			
@@ -65,7 +66,7 @@ public class TestTimeSlot extends TestCase {
 		
 		try {
 			int time = 1200;
-			String schedID = "6847e";
+			String schedID = "1db6c";
 			
 			boolean b = td.closeAtTime(time, schedID);
 			
@@ -80,7 +81,7 @@ public class TestTimeSlot extends TestCase {
 		
 		try {
 			int time = 1200;
-			String schedID = "6847e";
+			String schedID = "1db6c";
 			
 			boolean b = td.openAtTime(time, schedID);
 			
@@ -94,7 +95,7 @@ public class TestTimeSlot extends TestCase {
 		TimeSlotsDAO td = new TimeSlotsDAO();
 		
 		try {
-			String id = "235fc";
+			String id = "04f35";
 			
 			TimeSlot t = td.getTimeSlot(id);
 			

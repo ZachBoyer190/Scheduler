@@ -71,7 +71,7 @@ public class TestSchedule extends TestCase {
 			Date end_date = new Date(118, 11, 04);
 			schedules = sd.getSchedulesDayOld(end_date);
 			
-			assertEquals(2, schedules.size());
+			assertEquals(0, schedules.size());
 					
 		} catch (Exception e) {
 			fail("Couldn't get schedules older than date: " + e.getMessage());
@@ -82,7 +82,7 @@ public class TestSchedule extends TestCase {
 		SchedulesDAO sd = new SchedulesDAO();
 		
 		try {
-			Date end_date = new Date(118, 11, 11);
+			Date end_date = new Date(118, 11, 04);
 			boolean d = sd.deleteSchedulesDayOld(end_date);
 			
 			assertFalse(d);
@@ -98,7 +98,7 @@ public class TestSchedule extends TestCase {
 			ArrayList<Schedule> schedules = new ArrayList<>();
 			schedules = sd.getSchedulesHoursOld(1);
 			
-			assertEquals(1, schedules.size());
+			assertEquals(3, schedules.size());
 			
 		} catch (Exception e) {
 			fail("Couldn't get schedules older than specified hours: " + e.getMessage());
@@ -110,9 +110,9 @@ public class TestSchedule extends TestCase {
 		SchedulesDAO sd = new SchedulesDAO();
 		
 		try {
-			String scheduleID = "266bf";
+			String scheduleID = "1db6c";
 			java.util.Date newStart = new java.util.Date(118, 11, 03);
-			java.util.Date newEnd = new java.util.Date(118,11,10);
+			java.util.Date newEnd = new java.util.Date(119,00,10);
 			boolean b = sd.extendSchedule(scheduleID, newStart, newEnd);
 			System.out.println("Extended Schedule:" + b);
 			
@@ -122,18 +122,5 @@ public class TestSchedule extends TestCase {
 		}
 	}
 
-	/*
-	public void testExist() {
-		SchedulesDAO sd = new SchedulesDAO();
-		
-		try {
-			assertFalse(sd.checkExist("34567"));
-			
-		} catch (Exception e){
-			
-			fail("didnt work: " + e.getMessage());
-		}
-	}
-	*/
 
 }

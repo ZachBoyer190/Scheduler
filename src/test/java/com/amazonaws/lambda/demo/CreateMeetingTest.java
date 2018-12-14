@@ -31,8 +31,8 @@ public class CreateMeetingTest extends TestCase{
 		CreateMeetingHandler handler = new CreateMeetingHandler();
 		TimeSlotsDAO td = new TimeSlotsDAO();
 
-		String scheduleID = "aa5ee";
-		String timeslotID = "72bad";
+		String scheduleID = "777f6";
+		String timeslotID = "006c8";
 		String uName = "Cory";
 		
 		CreateMeetingRequest cmr = new CreateMeetingRequest(scheduleID, timeslotID, uName);
@@ -59,8 +59,8 @@ public class CreateMeetingTest extends TestCase{
 		OrgCancelMeetingHandler handler = new OrgCancelMeetingHandler();
 		TimeSlotsDAO tD = new TimeSlotsDAO();
 		
-		String scheduleID = "5b34a";
-		String timeslotID = "02536";
+		String scheduleID = "1db6c";
+		String timeslotID = "04f35";
 		String meetingID = "6283d";
 		
 		OrgCancelMeetingRequest cmr = new OrgCancelMeetingRequest(meetingID, scheduleID);
@@ -86,9 +86,9 @@ public class CreateMeetingTest extends TestCase{
 		CancelMeetingHandler handler = new CancelMeetingHandler();
 		TimeSlotsDAO tD = new TimeSlotsDAO();
 		
-		String scheduleID = "aa5ee";
+		String scheduleID = "1db6c";
 		String meetingCode = "866773c2";
-		String timeslotID = "01c28";
+		String timeslotID = "04f5b";
 		String meetingID = "d919c";
 		
 		CancelMeetingRequest cmr = new CancelMeetingRequest(meetingID, meetingCode, scheduleID);

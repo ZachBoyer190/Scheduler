@@ -63,7 +63,6 @@ public class CheckAdminTest extends TestCase{
 		PostResponse post = new Gson().fromJson(output.toString(), PostResponse.class);
 		DeleteSchedulesDayOldResponse resp = new Gson().fromJson(post.body, DeleteSchedulesDayOldResponse.class);
 		
-		
 	}
 
 }
